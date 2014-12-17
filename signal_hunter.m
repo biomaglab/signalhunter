@@ -60,15 +60,20 @@ global active
 % folder and then set the new path of matlab containing all signal_hunter
 % folders
 
-file_config = './config/ml_pth_bkp.mat';
+% % file_config = './config/ml_pth_bkp.mat'; 
+% % 
+% % if exist(file_config, 'file')
+% %     bkp_pth = load(file_config);
+% %     ml_pth = bkp_pth.ml_pth_bkp;
+% %     path(ml_pth);
+% % end
+% % save(file_config, 'ml_pth_bkp');
 
-if ~exist(file_config, 'file')
-    ml_pth_bkp = path;
-    sighunter_path = 'C:\Users\Victor\Desktop\branch_vh_tms_vc\';
-    addpath(genpath(sighunter_path));
-    save(file_config, 'ml_pth_bkp');
-end
-    
+
+sighunter_path = pwd;
+sh_ls_path = genpath(sighunter_path);
+path(path, sh_ls_path);
+
 signal_hunter_logo;
 
 signal_logo = load('signal_hunter.mat');

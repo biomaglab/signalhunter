@@ -22,12 +22,12 @@ end
 clearvars temp temp2
 
 % Load threshold values
-% [filename_xls, pathname_xls, ~] = uigetfile({'*.xls','Excel Files (*.xls)'},...
-%     'Select the threshold file');
+[filename_xls, pathname_xls, ~] = uigetfile({'*.xls','Excel Files (*.xls)'},...
+    'Select the threshold file');
 
 % the filename must be 'threshold.xlsx'
-% [num_T, txt_T, ~] = xlsread([pathname_xls, filename_xls]);
-[num_T, txt_T, tab_T] = xlsread('thresholds.xls');
+[num_T, txt_T, tab_T] = xlsread([pathname_xls, filename_xls]);
+% [num_T, txt_T, tab_T] = xlsread('thresholds.xls');
 txt_T = txt_T(2:end,:);
 find_name = strfind(txt_T,sub_name);
 emptyIndex = cellfun(@isempty,find_name);  %# Find indices of empty cells
@@ -38,11 +38,11 @@ series_nb = str2double(filename(end-4));   % get series_nb
 line_to_read = line_to_read + series_nb - 1;
 
 % Load sequence TMS neurostim
-% [filename_xlsx, pathname_xlsx, ~] = uigetfile({'*.xlsx','Excel Files (*.xlsx)'},...
-%     'Select the TMS sequence file');
+[filename_xlsx, pathname_xlsx, ~] = uigetfile({'*.xlsx','Excel Files (*.xlsx)'},...
+    'Select the TMS sequence file');
 % the filename must be 'SeqTMSandENS.xlsx'
-% [num_S, txt_S, ~] = xlsread([pathname_xlsx, filename_xlsx]);
-[num_S, txt_S, ~] = xlsread('SeqTMSandENS.xlsx');
+[num_S, txt_S, ~] = xlsread([pathname_xlsx, filename_xlsx]);
+% [num_S, txt_S, ~] = xlsread('SeqTMSandENS.xlsx');
 find_name = strfind(txt_S,sub_name);
 emptyIndex = cellfun(@isempty,find_name);  %# Find indices of empty cells
 find_name(emptyIndex) = {0};               %# Fill empty cells with 0
