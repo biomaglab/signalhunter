@@ -86,11 +86,10 @@ set(handles.axes_logo,'ZTick', []);
 set(handles.axes_logo,'Box', 'off');
 set(handles.axes_logo,'XAxisLocation', 'top');
 
-
 active = 0;
 
-row_size = get (handles.popupmenu2, 'Value');
-col_size = get (handles.popupmenu3, 'Value');
+row_size = get(handles.popupmenu2, 'Value');
+col_size = get(handles.popupmenu3, 'Value');
 
 
 d = cell(row_size,col_size);
@@ -105,10 +104,6 @@ for i = 1:20
 end
 
 set(handles.uitable1,'ColumnWidth',col_width)
-
-
-
-
 
 % Choose default command line output for signal_hunter
 handles.output = hObject;
@@ -162,8 +157,8 @@ function popupmenu2_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-row_size = get (handles.popupmenu2, 'Value');
-col_size = get (handles.popupmenu3, 'Value');
+row_size = get(handles.popupmenu2, 'Value');
+col_size = get(handles.popupmenu3, 'Value');
 
 
 d = cell(row_size,col_size);

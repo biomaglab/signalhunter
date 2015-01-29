@@ -16,13 +16,14 @@ function hObject = map_figure_creation(handles)
 
 set(0,'units','pixels');
 scnsize = get(0,'screensize');
-figw = ceil(scnsize(3)*(8/10));
-figh = floor(scnsize(4)*(8/10));
+figw = ceil(scnsize(3)*0.9);
+figh = floor(scnsize(4)*0.8);
 
 % Figure creation
 % hObject is the handle to the figure
 hObject = figure('Name', 'Parameters Detection', 'Color', 'w', ...
-    'MenuBar', 'none', 'DockControls', 'off', 'NumberTitle','off');
+    'MenuBar', 'none', 'ToolBar', 'figure', ...
+    'DockControls', 'off', 'NumberTitle','off');
 handles.fig = hObject;
 set(hObject, 'Units', 'Pixels', 'Position', [0 0 figw figh]);
 
@@ -41,6 +42,8 @@ handles.subtools(1) = uimenu(handles.menutools, 'Label', 'TMS + VC',...
 handles.subtools(2) = uimenu(handles.menutools, 'Label', 'OT Bioelettronica',...
     'Callback', @callback_otbio);
 
+set(handles.menutools, 'Visible', 'off');
+
 % creates the progress bar as an axes with variable filling
 pos_progbar = [0.831, 0.011, 0.16, 0.04];
 handles.progress_bar = axes('Parent', hObject, 'Units', 'Normalized');
@@ -49,12 +52,6 @@ hfill = fill([0 1 1 0],[0 0 1 1], 'b');
 axis([0 1 0 1]);
 set(hfill,'EdgeColor','k');
 axis off;
-
-% create panel to export, save and load files
-panel_files(hObject);
-
-% Update handles structure
-guidata(hObject, handles);
 
 % decide wich panel tools to create depending on the type of application
 switch lower(handles.data_id)
@@ -80,6 +77,12 @@ switch lower(handles.data_id)
         disp('ascii selected');        
 end
 
+% create panel to export, save and load files
+panel_files(handles);
+
+% Update handles structure
+guidata(hObject, handles);
+
 
 % --- Callbacks for GUI objects.
 
@@ -92,6 +95,8 @@ switch lower(handles.data_id)
     
     % TMS and Voluntary Contraction Processing - Sarah Dias application
     case 'tms + vc'
+        handles.reader = reader_tms_vc;
+        handles.processed = processing_tms_vc(handles.reader);
         handles = graphs_tms_vc(handles);
     
     % TMS and OT Bioelettronica Processing - Victor Souza application
