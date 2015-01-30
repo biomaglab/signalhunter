@@ -181,6 +181,16 @@ Time = signal.time;
 isi = signal.isi;
 
 del = round(0.3*1/(isi*10^-3));
+HRT_y = zeros(length(neurostim_max), 1);
+mean_contrac = zeros(length(neurostim_max), 1);
+
+for i = 1:3
+    HRT_y(i) = (neurostim_max(i)-neurostim_B(i))/2 + neurostim_B(i);
+    mean_contrac(i) = mean(data(stim_contrac_start_p(i):stim_contrac_end(i),1));
+    if mean_contrac(i) > neurostim_max(i)
+        mean_contrac(i) = HRT_y(i);
+    end
+end
 
 axes(ax(1, id_cond));
 plot(Time,data(:,1));
@@ -196,9 +206,9 @@ for i=1:1:3
     plot([(stim_contrac_start_p(i) - B_before_neurostim(1)*1/(isi*10^-3))* isi*10^-3 (stim_contrac_start_p(i) - B_before_neurostim(2)*1/(isi*10^-3))* isi*10^-3],...
         [neurostim_B(i) neurostim_B(i)],'k')
     plot([stim_contrac_start_p(i)* isi*10^-3 neurostim_max_I(i)* isi*10^-3],...
-        [mean(data(stim_contrac_start_p(i):stim_contrac_end(i),1)) mean(data(stim_contrac_start_p(i):stim_contrac_end(i),1))],'k')
+        [mean_contrac(i) mean_contrac(i)],'k')
     plot([neurostim_max_I(i)* isi*10^-3 HRT_abs(i)* isi*10^-3],...
-        [(neurostim_max(i)-neurostim_B(i))/2 + neurostim_B(i) (neurostim_max(i)-neurostim_B(i))/2 + neurostim_B(i)],'k')
+        [HRT_y(i) HRT_y(i)],'k')
     plot([neurostim_max_I(i)* isi*10^-3 neurostim_max_I(i)* isi*10^-3],...
         [x(3) neurostim_max(i)],'k--');
 end
@@ -222,9 +232,9 @@ for j=4:1:6
     plot([(stim_contrac_start_p(i) - B_before_neurostim(1)*1/(isi*10^-3))* isi*10^-3 (stim_contrac_start_p(i) - B_before_neurostim(2)*1/(isi*10^-3))* isi*10^-3],...
         [neurostim_B(i) neurostim_B(i)],'g')
     plot([stim_contrac_start_p(i)* isi*10^-3 neurostim_max_I(i)* isi*10^-3],...
-        [mean(data(stim_contrac_start_p(i):stim_contrac_end(i),1)) mean(data(stim_contrac_start_p(i):stim_contrac_end(i),1))],'k')
+        [mean_contrac(i) mean_contrac(i)],'k')
     plot([neurostim_max_I(i)* isi*10^-3 HRT_abs(i)* isi*10^-3],...
-        [(neurostim_max(i)-neurostim_B(i))/2 + neurostim_B(i) (neurostim_max(i)-neurostim_B(i))/2 + neurostim_B(i)],'k')
+        [HRT_y(i) HRT_y(i)],'k')
     plot([neurostim_max_I(i)* isi*10^-3 neurostim_max_I(i)* isi*10^-3],...
         [x(3) neurostim_max(i)],'k--')
     to_plot = ['zoom on neurostim while @ rest #' num2str(i)];

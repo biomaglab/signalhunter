@@ -9,7 +9,7 @@ series_nb = reader.series_nb;
 filename = [sub_name '_' leg '_' num2str(series_nb) '.mat'];
 
 % loading output template
-[output_file, ouput_path, ~] = uiputfile({'*.mat','MATLAB File (*.mat)'},...
+[output_file, ouput_path] = uiputfile({'*.mat','MATLAB File (*.mat)'},...
     'Save processed data', filename);
 
 save([ouput_path output_file], 'processed', 'reader');

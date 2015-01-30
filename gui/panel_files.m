@@ -1,18 +1,18 @@
 % --- Creates GUI panel and controls for TMS and Voluntary Contraction Processing
-function panel_files(handles)
+function handles = panel_files(handles)
 
 % create the panel and controls, and return the handles
-panel_creation(handles);
+handles = panel_creation(handles);
 
 
 
-function panel_creation(handles)
+function handles = panel_creation(handles)
 
 paneltools_pos = get(handles.panel_tools, 'Position');
 
 panel_files_pos = [paneltools_pos(1) + paneltools_pos(3) + 0.01,...
     paneltools_pos(2), 0.089, paneltools_pos(4)];
-panel_files = uipanel(handles.fig, 'Position', panel_files_pos,...
+handles.panel_files = uipanel(handles.fig, 'Position', panel_files_pos,...
     'Title', 'Files', 'BackgroundColor', 'w', 'Units', 'normalized');
 
 n_rows = 3; mar_x = 0.15; mar_y = 0.05;
@@ -29,23 +29,25 @@ pb_load_pos = [pos_x, pos_y(3), w, h];
 pb_export_pos = [pos_x, pos_y(2), w, h];
 pb_save_pos = [pos_x, pos_y(1), w, h];
 
+fontsize = 0.5;
+
 % push button load
-pushbutton_load = uicontrol(panel_files, 'FontWeight', 'bold',...
-    'String', 'Load', 'Units', 'normalized', ...
+pushbutton_load = uicontrol(handles.panel_files, 'FontWeight', 'bold',...
+    'String', 'Load', 'Units', 'normalized', 'FontUnits', 'normalized', ...
     'Callback', @pushbutton_load_Callback);
-set(pushbutton_load, 'Position', pb_load_pos);
+set(pushbutton_load, 'Position', pb_load_pos, 'FontSize', fontsize);
 
 % push button export
-pushbutton_export = uicontrol(panel_files, 'FontWeight', 'bold',...
-    'String', 'Export', 'Units', 'normalized', ...
+pushbutton_export = uicontrol(handles.panel_files, 'FontWeight', 'bold',...
+    'String', 'Export', 'Units', 'normalized', 'FontUnits', 'normalized',...
     'Callback', @pushbutton_export_Callback);
-set(pushbutton_export, 'Position', pb_export_pos);
+set(pushbutton_export, 'Position', pb_export_pos, 'FontSize', fontsize);
 
 % push button export
-pushbutton_save = uicontrol(panel_files, 'FontWeight', 'bold',...
-    'String', 'Save', 'Units', 'normalized', ...
+pushbutton_save = uicontrol(handles.panel_files, 'FontWeight', 'bold',...
+    'String', 'Save', 'Units', 'normalized', 'FontUnits', 'normalized',...
     'Callback', @pushbutton_save_Callback);
-set(pushbutton_save, 'Position', pb_save_pos);
+set(pushbutton_save, 'Position', pb_save_pos, 'FontSize', fontsize);
 
 align([pushbutton_load, pushbutton_export, pushbutton_save], 'None', 'Distribute');
 
@@ -60,12 +62,20 @@ handles = guidata(hObject);
 delete(handles.panel_graph);
 handles = graphs_tms_vc(handles);
 
+% message to progress log
+msg = 'Processed data loaded.';
+handles = panel_textlog(handles, msg);
+
 % Update handles structure
 guidata(hObject, handles);
 
 function pushbutton_export_Callback(hObject, eventdata)
 % Callback - Button Export in XLS file
 handles = guidata(hObject);
+
+% message to progress log
+msg = 'Exporting data to EXCEL file...';
+handles = panel_textlog(handles, msg);
 
 value = 1/2;
 progbar_update(handles.progress_bar, value)
@@ -75,12 +85,20 @@ output_tms_vc(handles.reader, handles.processed);
 value = 1;
 progbar_update(handles.progress_bar, value)
 
+% message to progress log
+msg = 'Processed data exported to EXCEL File.';
+handles = panel_textlog(handles, msg);
+
 % Update handles structure
 guidata(hObject, handles);
 
 function pushbutton_save_Callback(hObject, eventdata)
 % Callback - Button Save in MAT File
 handles = guidata(hObject);
+
+% message to progress log
+msg = 'Saving data to MATLAB File...';
+handles = panel_textlog(handles, msg);
 
 value = 1/2;
 progbar_update(handles.progress_bar, value)
@@ -89,6 +107,10 @@ save_tms_vc(handles.reader, handles.processed);
 
 value = 1;
 progbar_update(handles.progress_bar, value)
+
+% message to progress log
+msg = 'Processed data saved to MATLAB File.';
+handles = panel_textlog(handles, msg);
 
 % Update handles structure
 guidata(hObject, handles);

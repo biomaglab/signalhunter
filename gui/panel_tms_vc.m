@@ -55,33 +55,34 @@ edit_idcond_pos = [pos_x(1,3)+0.15, pos_y(1)+0.02, w(1)-0.05, h-0.05];
 
 % push button to clean plots
 pushbutton_open = uicontrol(handles.panel_tools, 'String', 'Open',...
-    'Units', 'normalized', 'FontWeight', 'bold', ...
+    'Units', 'normalized', 'FontWeight', 'bold', 'FontUnits', 'normalized',...
     'Callback', @pushbutton_open_Callback);
-set(pushbutton_open, 'Position', pb_clean_pos);
+set(pushbutton_open, 'Position', pb_clean_pos, 'FontSize', 0.3);
 
 % push button to clean plots
 pushbutton_reset = uicontrol(handles.panel_tools, 'String', 'Reset',...
-    'Units', 'normalized', 'FontWeight', 'bold',...
+    'Units', 'normalized', 'FontWeight', 'bold', 'FontUnits', 'normalized',...
     'Callback', @pushbutton_reset_Callback);
-set(pushbutton_reset, 'Position', pb_reset_pos);
+set(pushbutton_reset, 'Position', pb_reset_pos, 'FontSize', 0.3);
 
 % push button previous
 pushbutton_prev = uicontrol(handles.panel_tools, 'String', '<',...
-    'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'bold',...
-    'Callback', @pushbutton_prev_Callback);
-set(pushbutton_prev, 'Position', pb_prev_pos);
+    'Units', 'normalized', 'FontWeight', 'bold',...
+    'FontUnits', 'normalized', 'Callback', @pushbutton_prev_Callback);
+set(pushbutton_prev, 'Position', pb_prev_pos, 'FontSize', 0.4);
 
 % push button next
 pushbutton_next = uicontrol(handles.panel_tools, 'String', '>',...
-    'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'bold',...
-    'Callback', @pushbutton_next_Callback);
-set(pushbutton_next, 'Position', pb_next_pos);
+    'Units', 'normalized', 'FontWeight', 'bold',...
+    'FontUnits', 'normalized', 'Callback', @pushbutton_next_Callback);
+set(pushbutton_next, 'Position', pb_next_pos, 'FontSize', 0.4);
 
 % edit for threshold value
-handles.edit_idcond = uicontrol(handles.panel_tools, 'String', '1',...
-    'Units', 'normalized', 'FontWeight', 'bold',...
+handles.edit_idcond = uicontrol(handles.panel_tools, 'Style', 'edit',...
+    'String', '1', 'BackgroundColor', 'w', 'Units', 'normalized',...
+    'FontWeight', 'bold', 'FontUnits', 'normalized',...
     'Callback', @edit_idcond_Callback);
-set(handles.edit_idcond, 'Style', 'edit', 'Position', edit_idcond_pos, 'BackgroundColor', 'w');
+set(handles.edit_idcond, 'Position', edit_idcond_pos, 'FontSize', 0.4);
 
 % align([pushbutton_prev, pushbutton_next, handles.edit_idcond], 'Distribute', 'Center');
 
@@ -158,8 +159,26 @@ function pushbutton_open_Callback(hObject, eventdata)
 % Callback - Button Clean
 handles = guidata(hObject);
 
+% message to progress log
+msg = 'Reading signal data...';
+handles = panel_textlog(handles, msg);
+
 handles.reader = reader_tms_vc;
+
+msg = ['Data opened: "', handles.reader.sub_name,...
+            '"; leg: "',  handles.reader.leg,...
+            '"; series number: "', num2str(handles.reader.series_nb),...
+            '"; TMS order: "', num2str(handles.reader.order_TMS),...
+            '"; file name: "', handles.reader.filename, '".'];
+        handles = panel_textlog(handles, msg);
+msg = 'Processing TMS + VC data...';
+handles = panel_textlog(handles, msg);
+
 handles.processed = processing_tms_vc(handles.reader);
+
+msg = 'Data processed.';
+handles = panel_textlog(handles, msg);
+
 handles = graphs_tms_vc(handles);
 
 % Update handles structure
@@ -177,13 +196,20 @@ handles.menufile = vars.menufile;
 handles.subopen = vars.subopen;
 handles.menutools = vars.menutools;
 handles.subtools = vars.subtools;
+handles.panel_files = vars.panel_files;
 handles.progress_bar = vars.progress_bar;
 handles.panel_tools = vars.panel_tools;
 handles.edit_idcond = vars.edit_idcond;
+handles.panel_txtlog = vars.edit_idcond;
+handles.edit_log = vars.edit_log;
 
 set(handles.edit_idcond, 'String', '1');
 
 delete(vars.panel_graph);
+
+% message to progress log
+msg = 'Signal Hunter for TMS + VC restarted.';
+handles = panel_textlog(handles, msg);
 
 % Update handles structure
 guidata(hObject, handles);

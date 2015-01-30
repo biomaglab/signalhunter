@@ -6,6 +6,10 @@ function handles = graphs_tms_vc(handles)
 
 handles = graph_creation(handles);
 
+% message to progress log
+msg = 'Graphs for signal plot created.';
+handles = panel_textlog(handles, msg);
+
 function handles = graph_creation(handles)
 
 panel_pos = get(handles.panel_tools, 'Position');
@@ -35,9 +39,9 @@ handles.cond_names = {...
     'Neurostim at exercise EMG VL',...
     'Neurostim at exercise EMG VM',...
     'Neurostim at exercise EMG RF',...
-    'TMS and MED EMG VL',...
-    'TMS and MED EMG VM',...
-    'TMS and MED EMG RF'};
+    'TMS and MEP EMG VL',...
+    'TMS and MEP EMG VM',...
+    'TMS and MEP EMG RF'};
 
 % creates the panel for tms and voluntary contraction processing
 % position depends on the tool's panel size
@@ -64,6 +68,9 @@ for i = 1:11
     value = i/11;
     progbar_update(handles.progress_bar, value);
     
+    msg = ['Plots of ', '" ', handles.cond_names{i}, ' " done.'];
+    handles = panel_textlog(handles, msg);
+    
 end
 toc
 
@@ -81,6 +88,9 @@ handles.id_axes = find(gca == handles.haxes(:,:));
 handles = dialog_detect(handles);
 handles.haxes = refresh_axes(handles.haxes, handles.processed,...
     handles.id_mod, handles.id_cond);
+
+msg = ['Data and plots for ', '" ', handles.cond_names{handles.id_cond}, ' " updated.'];
+handles = panel_textlog(handles, msg);
 
 % Update handles structure
 guidata(hObject, handles);

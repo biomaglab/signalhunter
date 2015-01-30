@@ -64,14 +64,15 @@ isi = signal.isi;
 
 filename = [sub_name '_' leg '.xlsx'];
 % loading output template
-[output_file, ouput_path, ~] = uiputfile({'*.xls;*.xlsx','MS Excel Files (*.xls,*.xlsx)'},...
+[output_file, ouput_path] = uiputfile({'*.xls;*.xlsx','MS Excel Files (*.xls,*.xlsx)'},...
     'Export data', filename);
 file_output = [ouput_path output_file];
 
 if exist(file_output, 'file') == 0
     
-    [output_tempfile, output_temppath, ~] = uigetfile({'*.xls;*.xlsx','MS Excel Files-files (*.xls,*.xlsx)'},...
-        'Select the output file template');
+    [output_tempfile, output_temppath] = uigetfile({'*.xls;*.xlsx','MS Excel Files-files (*.xls,*.xlsx)'},...
+        'Select the output file template', 'template.xlsx');
+    
     template_output = [output_temppath output_tempfile];
     copyfile(template_output, file_output, 'f');
     output_txt = cell(948,2);

@@ -1,7 +1,7 @@
 function output_reader = reader_tms_vc
 
 % loading signal and configuration data
-[filename, pathname, ~] = uigetfile({'*.mat','MAT-files (*.mat)'},...
+[filename, pathname] = uigetfile({'*.mat','MAT-files (*.mat)'},...
     'Select the signal file');
 
 % signal = load(filename);
@@ -22,13 +22,17 @@ end
 clearvars temp temp2
 
 % Load threshold values
-file_thresh = 'thresholds.xls';
-[filename_xls, pathname_xls, ~] = uigetfile({'*.xls','Excel Files (*.xls)'},...
-    'Select the threshold file', file_thresh);
-
-% the filename must be 'threshold.xlsx'
-[num_T, txt_T, ~] = xlsread([pathname_xls, filename_xls]);
+% the filename must be 'threshold.xls'
 % [num_T, txt_T, tab_T] = xlsread('thresholds.xls');
+file_thresh = 'thresholds.xls';
+if exist(file_thresh, 'file') == 0
+    [filename_xls, pathname_xls] = uigetfile({'*.xls','Excel Files (*.xls)'},...
+        'Select the threshold file', file_thresh);
+    [num_T, txt_T, ~] = xlsread([pathname_xls, filename_xls]);
+else
+    [num_T, txt_T, ~] = xlsread(file_thresh);
+end
+
 txt_T = txt_T(2:end,:);
 find_name = strfind(txt_T,sub_name);
 emptyIndex = cellfun(@isempty,find_name);  %# Find indices of empty cells
@@ -39,12 +43,17 @@ series_nb = str2double(filename(end-4));   % get series_nb
 line_to_read = line_to_read + series_nb - 1;
 
 % Load sequence TMS neurostim
-file_seq = 'SeqTMSandENS.xlsx';
-[filename_xlsx, pathname_xlsx, ~] = uigetfile({'*.xlsx','Excel Files (*.xlsx)'},...
-    'Select the TMS sequence file', file_seq);
 % the filename must be 'SeqTMSandENS.xlsx'
-[num_S, txt_S, ~] = xlsread([pathname_xlsx, filename_xlsx]);
 % [num_S, txt_S, ~] = xlsread('SeqTMSandENS.xlsx');
+file_seq = 'SeqTMSandENS.xlsx';
+if exist(file_seq, 'file') == 0
+    [filename_xlsx, pathname_xlsx] = uigetfile({'*.xlsx','Excel Files (*.xlsx)'},...
+        'Select the TMS sequence file', file_seq);
+    [num_S, txt_S, ~] = xlsread([pathname_xlsx, filename_xlsx]);
+else
+    [num_S, txt_S, ~] = xlsread(file_seq);
+end
+
 find_name = strfind(txt_S,sub_name);
 emptyIndex = cellfun(@isempty,find_name);  %# Find indices of empty cells
 find_name(emptyIndex) = {0};               %# Fill empty cells with 0

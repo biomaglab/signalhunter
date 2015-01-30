@@ -324,8 +324,12 @@ switch id_pb
         handles.hHRT_abs = plot(axesdetect, [x(2) HRT_abs(id_axes)* isi*10^-3],...
             [HRT_y HRT_y],'k');
         % plot of timeline from neurostim start to maximum neurostim activity
+        mean_contrac = mean(data(stim_contrac_start_p(id_axes):stim_contrac_end(id_axes),1));
+        if mean_contrac > y(2)
+           mean_contrac = HRT_y; 
+        end
         handles.htime_peak = plot(axesdetect, [stim_contrac_start_p(id_axes)* isi*10^-3 x(2)],...
-            [mean(data(stim_contrac_start_p(id_axes):stim_contrac_end(id_axes),1)) mean(data(stim_contrac_start_p(id_axes):stim_contrac_end(id_axes),1))],'k');
+            [mean_contrac mean_contrac],'k');
         
         hold off
 end

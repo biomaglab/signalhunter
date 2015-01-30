@@ -8,7 +8,7 @@ series_nb = reader.series_nb;
 
 filename = [sub_name '_' leg '_' num2str(series_nb) '.mat'];
 
-[load_file, load_path, ~] = uigetfile({'*.mat','MATLAB File (*.mat)'},...
+[load_file, load_path] = uigetfile({'*.mat','MATLAB File (*.mat)'},...
     'Select the saved processed file', filename);
 
 data_load = load([load_path load_file]);

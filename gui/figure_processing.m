@@ -34,6 +34,8 @@ movegui(hObject, 'center');
 handles.menufile = uimenu('Label', 'File', 'Parent', hObject);
 handles.subopen = uimenu(handles.menufile, 'Label', 'Open',...
     'Callback', @callback_open);
+handles.subsavelog = uimenu(handles.menufile, 'Label', 'Save log',...
+    'Callback', @callback_savelog);
 
 % creates the menu bar 2 with 1 submenu
 handles.menutools = uimenu('Label', 'Processing Tools', 'Parent', hObject);
@@ -52,6 +54,10 @@ hfill = fill([0 1 1 0],[0 0 1 1], 'b');
 axis([0 1 0 1]);
 set(hfill,'EdgeColor','k');
 axis off;
+
+% create panel to export, save and load files
+handles = panel_textlog(handles, []);
+panel_logo_biomag(handles);
 
 % decide wich panel tools to create depending on the type of application
 switch lower(handles.data_id)
@@ -77,8 +83,7 @@ switch lower(handles.data_id)
         disp('ascii selected');        
 end
 
-% create panel to export, save and load files
-panel_files(handles);
+handles = panel_files(handles);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -90,13 +95,32 @@ function callback_open(hObject, eventdata)
 % Callback - Sub Menu 1
 handles = guidata(hObject);
 
+% message to progress log
+msg = 'Reading signal data...';
+handles = panel_textlog(handles, msg);
+
 % decide wich set of axes to create depending on type of application
 switch lower(handles.data_id)
     
     % TMS and Voluntary Contraction Processing - Sarah Dias application
     case 'tms + vc'
+        
         handles.reader = reader_tms_vc;
+        
+        msg = ['Data opened: "', handles.reader.sub_name,...
+            '"; leg: "',  handles.reader.leg,...
+            '"; series number: "', num2str(handles.reader.series_nb),...
+            '"; TMS order: "', num2str(handles.reader.order_TMS),...
+            '"; file name: "', handles.reader.filename, '".'];
+        handles = panel_textlog(handles, msg);
+        msg = 'Processing TMS + VC data...';
+        handles = panel_textlog(handles, msg);
+        
         handles.processed = processing_tms_vc(handles.reader);
+        
+        msg = 'Data processed.';
+        handles = panel_textlog(handles, msg);
+        
         handles = graphs_tms_vc(handles);
     
     % TMS and OT Bioelettronica Processing - Victor Souza application
@@ -118,6 +142,40 @@ end
 
 % Update handles structure
 guidata(hObject, handles);
+
+function callback_savelog(hObject, eventdata)
+% Callback - Sub Menu 2
+handles = guidata(hObject);
+
+% progress bar update
+value = 1/2;
+progbar_update(handles.progress_bar, value)
+
+sub_name = handles.reader.sub_name;
+leg = handles.reader.leg;
+series_nb = handles.reader.series_nb;
+
+filename = [sub_name '_' leg '_' num2str(series_nb) '.txt'];
+
+% loading output template
+[output_file, ouput_path, ~] = uiputfile({'*.txt','Text File (*.txt)'},...
+    'Save processing log', filename);
+
+log = get(handles.edit_log,'String');
+
+fileID = fopen([ouput_path output_file],'w');
+for i = 1:length(log)
+    fprintf(fileID,'%s \r\n', log{i});
+end
+fclose(fileID);
+
+% progress bar update
+value = 1;
+progbar_update(handles.progress_bar, value)
+
+
+
+
 
 function callback_tms_vc(hObject, eventdata)
 % Callback - Sub Menu 2
