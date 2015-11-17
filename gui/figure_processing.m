@@ -41,7 +41,9 @@ handles.subsavelog = uimenu(handles.menufile, 'Label', 'Save log',...
 handles.menutools = uimenu('Label', 'Processing Tools', 'Parent', hObject);
 handles.subtools(1) = uimenu(handles.menutools, 'Label', 'TMS + VC',...
     'Callback', @callback_tms_vc);
-handles.subtools(2) = uimenu(handles.menutools, 'Label', 'OT Bioelettronica',...
+handles.subtools(2) = uimenu(handles.menutools, 'Label', 'MEP Analysis',...
+    'Callback', @callback_mepanalysis);
+handles.subtools(3) = uimenu(handles.menutools, 'Label', 'OT Bioelettronica',...
     'Callback', @callback_otbio);
 
 set(handles.menutools, 'Visible', 'off');
@@ -55,20 +57,27 @@ axis([0 1 0 1]);
 set(hfill,'EdgeColor','k');
 axis off;
 
-% create panel to export, save and load files
-handles = panel_textlog(handles, []);
+% create logos panel
 panel_logo_biomag(handles);
 
 % decide wich panel tools to create depending on the type of application
 switch lower(handles.data_id)
     
     case 'tms + vc'
+        % create text log panel
+        handles = panel_textlog(handles, []);
         handles = panel_tms_vc(handles);
         set(handles.subtools(1), 'Checked', 'on');
         
+    case 'mep analysis'
+        % create text log panel
+        handles = panel_textlog(handles, []);
+        handles = panel_mepanalysis(handles);
+        set(handles.subtools(2), 'Checked', 'on');
+        
     case 'otbio'
         handles = panel_otbio(handles);
-        set(handles.subtools(2), 'Checked', 'on');
+        set(handles.subtools(3), 'Checked', 'on');
         
     case 'myosystem'
         disp('myosystem selected');
@@ -104,7 +113,6 @@ switch lower(handles.data_id)
     
     % TMS and Voluntary Contraction Processing - Sarah Dias application
     case 'tms + vc'
-        
         handles.reader = reader_tms_vc;
         
         msg = ['Data opened: "', handles.reader.sub_name,...
@@ -123,6 +131,15 @@ switch lower(handles.data_id)
         
         handles = graphs_tms_vc(handles);
     
+    % MEP analysis Signal Processing - Abrahao Baptista application
+    case 'mep analysis'       
+        handles.reader = reader_mepanalysis;
+        
+        msg = ['Data opened.', 'Number of frames: ',  handles.reader.n_meps,];
+        handles = panel_textlog(handles, msg);
+        
+        handles = graphs_mepanalysis(handles);
+        
     % TMS and OT Bioelettronica Processing - Victor Souza application
     case 'otbio'
         handles = graphs_otbio(handles);
@@ -137,7 +154,8 @@ switch lower(handles.data_id)
         disp('bin selected');
         
     case 'ascii'
-        disp('ascii selected');        
+        disp('ascii selected');  
+    
 end
 
 % Update handles structure
@@ -175,8 +193,6 @@ progbar_update(handles.progress_bar, value)
 
 
 
-
-
 function callback_tms_vc(hObject, eventdata)
 % Callback - Sub Menu 2
 
@@ -203,7 +219,7 @@ end
 % Update handles structure
 guidata(hObject, handles);
 
-function callback_otbio(hObject, eventdata)
+function callback_mepanalysis(hObject, eventdata)
 % Callback - Sub Menu 2
 
 handles = guidata(hObject);
@@ -224,6 +240,32 @@ else
     handles = panel_otbio(handles);
     set(handles.subtools(:), 'Checked', 'off');
     set(handles.subtools(2), 'Checked', 'on');
+end
+
+% Update handles structure
+guidata(hObject, handles);
+
+function callback_otbio(hObject, eventdata)
+% Callback - Sub Menu 2
+
+handles = guidata(hObject);
+
+if isfield(handles, 'panel_tools')
+    delete(handles.panel_tools);
+    handles = rmfield(handles, 'panel_tools');
+end
+if isfield(handles, 'panel_graph')
+    delete(handles.panel_graph);
+    handles = rmfield(handles, 'panel_graph');
+    handles = rmfield(handles, 'haxes');
+end
+
+if strcmp(get(handles.subtools(2), 'Checked'),'on')
+    set(handles.subtools(3), 'Checked', 'off');
+else
+    handles = panel_otbio(handles);
+    set(handles.subtools(:), 'Checked', 'off');
+    set(handles.subtools(3), 'Checked', 'on');
 end
 
 % Update handles structure

@@ -49,7 +49,14 @@ pushbutton_save = uicontrol(handles.panel_files, 'FontWeight', 'bold',...
     'Callback', @pushbutton_save_Callback);
 set(pushbutton_save, 'Position', pb_save_pos, 'FontSize', fontsize);
 
-align([pushbutton_load, pushbutton_export, pushbutton_save], 'None', 'Distribute');
+switch lower(handles.data_id)
+    case 'tms + vc'
+        align([pushbutton_load, pushbutton_export, pushbutton_save], 'None', 'Distribute');
+    case 'mep analysis'
+        set(pushbutton_load, 'Visible', 'off')
+        set(pushbutton_save, 'Visible', 'off')
+        align([pushbutton_load, pushbutton_export, pushbutton_save], 'None', 'Distribute');
+end
 
 
 
@@ -57,14 +64,23 @@ function pushbutton_load_Callback(hObject, eventdata)
 % Callback - Button Load data in MAT file
 handles = guidata(hObject);
 
-[handles.reader, handles.processed] = load_tms_vc(handles.reader);
+switch lower(handles.data_id)
+    case 'tms + vc'
+        [handles.reader, handles.processed] = load_tms_vc(handles.reader);
+        delete(handles.panel_graph);
+        handles = graphs_tms_vc(handles);
+        
+        % message to progress log
+        msg = 'Processed data loaded.';
+        handles = panel_textlog(handles, msg);
+        
+    case 'mep analysis'
+        % message to progress log
+        msg = 'Not available yet.';
+        handles = panel_textlog(handles, msg);
+        
+end
 
-delete(handles.panel_graph);
-handles = graphs_tms_vc(handles);
-
-% message to progress log
-msg = 'Processed data loaded.';
-handles = panel_textlog(handles, msg);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -80,14 +96,22 @@ handles = panel_textlog(handles, msg);
 value = 1/2;
 progbar_update(handles.progress_bar, value)
 
-output_tms_vc(handles.reader, handles.processed);
+switch lower(handles.data_id)
+    case 'tms + vc'
+        % message to progress log
+        output_tms_vc(handles.reader, handles.processed);
+        msg = 'Processed data exported to EXCEL File.';
+        handles = panel_textlog(handles, msg);
+        
+    case 'mep analysis'
+        % message to progress log
+        tf = output_mepanalysis(handles.reader);
+        msg = ['Processed data exported in ' num2str(tf, '%.2f') ' seconds.'];
+        handles = panel_textlog(handles, msg);
+end
 
 value = 1;
 progbar_update(handles.progress_bar, value)
-
-% message to progress log
-msg = 'Processed data exported to EXCEL File.';
-handles = panel_textlog(handles, msg);
 
 % Update handles structure
 guidata(hObject, handles);

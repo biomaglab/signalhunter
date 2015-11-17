@@ -90,7 +90,7 @@ set(handles.edit_idcond, 'Position', edit_idcond_pos, 'FontSize', 0.4);
 guidata(hObject, handles);
 
 function pushbutton_next_Callback(hObject, eventdata)
-% Callback - Button Previous Condition
+% Callback - Button Next Condition
 handles = guidata(hObject);
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'off');
@@ -156,7 +156,7 @@ progbar_update(handles.progress_bar, value)
 guidata(hObject, handles);
 
 function pushbutton_open_Callback(hObject, eventdata)
-% Callback - Button Clean
+% Callback - Button Open
 handles = guidata(hObject);
 
 % message to progress log
@@ -185,7 +185,7 @@ handles = graphs_tms_vc(handles);
 guidata(hObject, handles);
 
 function pushbutton_reset_Callback(hObject, eventdata)
-% Callback - Button Clean
+% Callback - Button Reset
 vars = guidata(hObject);
 
 handles.data_id = vars.data_id;
