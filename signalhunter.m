@@ -82,8 +82,8 @@ popup3_pos = [0.312, 0.74, 0.06, 0.03];
 
 popup1 = uicontrol(hObject, 'Style', 'popupmenu', 'Units', 'normalized', ...
     'BackgroundColor', 'w', 'FontSize', 10, 'String',...
-    {'TMS + VC', 'MEP Analysis', 'OTBio', 'Myosystem', 'BioPac', 'Bin', 'ASCII'},...
-    'HorizontalAlignment', 'center');
+    {'ASCII', 'Bin', 'BioPac', 'MEP Analysis', 'OTBio', 'TMS + VC'},...
+    'HorizontalAlignment', 'center', 'Callback', @popup1_Callback);
 set(popup1, 'Position', popup1_pos);
 
 nitems = num2cell((1:20)');
@@ -304,6 +304,52 @@ set(handles.table,'ColumnWidth',col_width)
 
 % Update handles structure
 guidata(hObject, handles);
+
+% --- Executes on selection change in popupmenu2.
+function popup1_Callback(hObject, ~)
+handles = guidata(hObject);
+
+valuefiletype = get(handles.popup1, 'Value');
+
+cellfiletype = get(handles.popup1, 'String');
+
+filetype = lower(cellfiletype{valuefiletype});
+
+switch filetype
+    case 'tms + vc'
+        set(handles.popup2, 'Enable', 'off');
+        set(handles.popup3, 'Enable', 'off');
+        
+        set(handles.popup2, 'value', 1);
+        set(handles.popup3, 'value', 1);
+        
+        popup2_Callback(hObject)
+    case 'mep analysis'
+        set(handles.popup2, 'Enable', 'off');
+        set(handles.popup3, 'Enable', 'off');
+        
+        set(handles.popup2, 'value', 1);
+        set(handles.popup3, 'value', 1);
+        
+        popup2_Callback(hObject)
+    case 'otbio'
+        set(handles.popup2, 'Enable', 'on');
+        set(handles.popup3, 'Enable', 'on');
+    case 'biopac'
+        set(handles.popup2, 'Enable', 'on');
+        set(handles.popup3, 'Enable', 'on');
+    case 'bin'
+        set(handles.popup2, 'Enable', 'on');
+        set(handles.popup3, 'Enable', 'on');
+    case 'ascii'
+        set(handles.popup2, 'Enable', 'on');
+        set(handles.popup3, 'Enable', 'on');
+end
+
+
+% Update handles structure
+guidata(hObject, handles);
+
 
 % --- Executes on selection change in popupmenu2.
 function popup2_Callback(hObject, ~)

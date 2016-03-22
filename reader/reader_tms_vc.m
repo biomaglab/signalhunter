@@ -8,7 +8,14 @@ function output_reader = reader_tms_vc
 signal = load([pathname filename]);
 
 % find subject name
-temp = find(pathname=='\');
+if isunix
+    temp = find(pathname=='/');
+elseif ismac
+    temp = find(pathname=='/');
+else
+    temp = find(pathname=='\');
+end
+
 temp2 = find(pathname=='_');
 sub_name = pathname(temp(end-1)+1:temp2(end)-1);
 
