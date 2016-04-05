@@ -24,30 +24,49 @@ if ~isfield(handles, 'id_cond')
    handles.id_cond = 1; 
 end
 
-handles.id_mod = [1, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5];
-handles.conditions = (1:11);
+process_id = handles.reader.process_id;
+
+% all_models represente the axes distribution in the panel
+% format: [n rows, mcols in row 1, pcols in row 2, qcols in row n]
+
+if process_id == 1
+    handles.id_mod = [1, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5];
+    handles.conditions = (1:11);
+    all_models = {[3 1 4 7], [2 1 3], [3 1 2 4], [3 1 3 3], [3 1 3 6]};
+elseif process_id == 2
+    handles.id_mod = [6, 7];
+    handles.conditions = (1:2);
+    all_models = {[2 1 1], [2 3 3]};
+elseif process_id == 3
+    handles.id_mod = [8, 9];
+    handles.conditions = (1:2);
+    all_models = {[1 1], [3 1 1 1]};
+end
+
+handles.cond_names = handles.reader.fig_titles;
+
 handles.panel_graph = zeros(1, handles.conditions(end));
-handles.haxes = zeros(12, handles.conditions(end));
+handles.haxes = zeros(length(handles.conditions)+1, handles.conditions(end));
 % handles.hplots = zeros(sum(n_cols), 1);
 
-handles.cond_names = {...
-    'Whole set of contractions + voluntary contractions characteristics',...
-    'Whole set of contractions + neurostim while at rest',...
-    'Neurostim at rest EMG VL',...
-    'Neurostim at rest EMG VM',...
-    'Neurostim at rest EMG RF',...
-    'Neurostim at exercise EMG VL',...
-    'Neurostim at exercise EMG VM',...
-    'Neurostim at exercise EMG RF',...
-    'TMS and MEP EMG VL',...
-    'TMS and MEP EMG VM',...
-    'TMS and MEP EMG RF'};
+% handles.cond_names = {...
+%     'Whole set of contractions + voluntary contractions characteristics',...
+%     'Whole set of contractions + neurostim while at rest',...
+%     'Neurostim at rest EMG VL',...
+%     'Neurostim at rest EMG VM',...
+%     'Neurostim at rest EMG RF',...
+%     'Neurostim at exercise EMG VL',...
+%     'Neurostim at exercise EMG VM',...
+%     'Neurostim at exercise EMG RF',...
+%     'TMS and MEP EMG VL',...
+%     'TMS and MEP EMG VM',...
+%     'TMS and MEP EMG RF'};
 
 % creates the panel for tms and voluntary contraction processing
 % position depends on the tool's panel size
 
 tic
-for i = 1:11
+for i = 1:length(handles.conditions)
     panelgraph_mar = [panel_pos(1), 2*panel_pos(2),...
         2*panel_pos(1), 3*panel_pos(2)];
     panelgraph_pos = [panelgraph_mar(1), panelgraph_mar(2)+panel_pos(4),...
@@ -58,14 +77,16 @@ for i = 1:11
     set(handles.panel_graph(i), 'Position', panelgraph_pos)
     % some conditions share the same axes configuration so they can be
     % constructed with the same commands
-      
+    
+    model = all_models{handles.id_mod(i)};
+    
     handles.haxes = graph_model(handles.panel_graph, handles.haxes,...
-        handles.id_mod(i), i);
+        model, i);
     plot_signals(handles.haxes, handles.processed,...
-        handles.id_mod(i), i);
+        handles.id_mod(i), process_id, i);
     
     % progress bar update
-    value = i/11;
+    value = i/length(handles.conditions);
     progbar_update(handles.progress_bar, value);
     
     msg = ['Plots of ', '" ', handles.cond_names{i}, ' " done.'];
@@ -95,7 +116,7 @@ handles = panel_textlog(handles, msg);
 % Update handles structure
 guidata(hObject, handles);
 
-function ax = graph_model(panel_graph, ax, id_mod, id_cond)
+function ax = graph_model(panel_graph, ax, model, id_cond)
 
 % creates the axes for signal plot
 % all_models and model: the configuration number of rows (nr) and
@@ -103,8 +124,6 @@ function ax = graph_model(panel_graph, ax, id_mod, id_cond)
 % axes pos: is the set of axes position in normalized units
 % axes_w, axes_h    axes width and heigth, respectively - depends on the
 
-all_models = {[3 1 4 7], [2 1 3], [3 1 2 4], [3 1 3 3], [3 1 3 6]};
-model = all_models{id_mod};
 
 nr = model(1);
 nc = model(2:nr+1);
@@ -118,7 +137,20 @@ axes_w3 = axes_pos(3)/nc(end);
 % loose inset set to zero eliminates empyt spaces between axes
 loose_inset = [0 0 0 0];
 
-if nr == 2
+if nr == 1
+    % for two rows configuration
+    outer_pos = [0, 0, 1, 1];
+    ax(1, id_cond) = axes('Parent', panel_graph(id_cond),...
+        'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
+%     set(ax(1, id_cond), 'LooseInset', loose_inset, ...
+%         'FontSize', 7, 'NextPlot', 'add');
+    set(ax(1, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn, ...
+        'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
+    set(get(ax(1, id_cond),'Title'),'String','Detection of Force Production')
+    set(get(ax(1, id_cond),'XLabel'),'String','Time (s)')
+    set(get(ax(1, id_cond),'YLabel'),'String','Force (N)')
+
+elseif nr == 2
     % for two rows configuration
     outer_pos = [0, axes_pos(1) + 1/nr, 1-axes_pos(1), axes_h];
     ax(1, id_cond) = axes('Parent', panel_graph(id_cond),...

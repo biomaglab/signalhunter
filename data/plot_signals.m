@@ -1,12 +1,18 @@
 
-function plot_signals(ax, processed, id_mod, id_cond)
+function plot_signals(ax, processed, id_mod, process_id, id_cond)
 
-if id_mod <= 5
+if process_id == 1
     fcn = 'plot_fcn';
     input = '(ax, processed, id_cond)';
     eval([fcn int2str(id_mod) input]);
-else
-    
+elseif process_id == 2
+    fcn = 'plot_fcn';
+    input = '(ax, processed, id_cond)';
+    eval([fcn int2str(id_mod) input]);
+elseif process_id == 3
+    fcn = 'plot_fcn';
+    input = '(ax, processed, id_cond)';
+    eval([fcn int2str(id_mod) input]);
 end
 
 
@@ -443,4 +449,127 @@ for i=8:10
     to_plot = ['TMS during exercise #' num2str(i-7)];
     title(to_plot);
     
+end
+
+function plot_fcn6(ax, processed, id_cond)
+
+process_id = processed.process_id;
+labels = processed.signal.labels;
+
+signal = processed.signal;
+data = signal.data;
+Time = signal.time;
+
+contrac_start = processed.contrac_start;
+contrac_end = processed.contrac_end;
+contrac_max_I = processed.contrac_max_I;
+contrac_max = processed.contrac_max;
+Twitch_x = processed.Twitch_x;
+Twitch_y = processed.Twitch_y;
+HRT = processed.HRT;
+baseline = processed.baseline;
+contrac_neurostim = processed.contrac_neurostim;
+M_wave_ex_min_I = processed.M_wave_ex_min_I;
+M_wave_ex_max_I = processed.M_wave_ex_max_I;
+M_wave_ex_start_I = processed.M_wave_ex_start_I;
+M_wave_ex_end_I =processed. M_wave_ex_end_I;
+
+axes(ax(1, id_cond));
+plot(Time,data(:,1))
+hold on
+x=axis;
+plot([Time(contrac_start) Time(contrac_start)],[x(3) x(4)],'r')
+plot([Time(contrac_end) Time(contrac_end)],[x(3) x(4)],'r')
+for i=2:1:3
+    plot([Time(contrac_max_I(i)-10000) Time(contrac_max_I(i)+10000)],[contrac_max(i) contrac_max(i)],'k')
+end
+hold off
+
+plot(Time(Twitch_x-5000:Twitch_x+5000),data(Twitch_x-5000:Twitch_x+5000,1))
+hold on
+x=axis;
+plot([Time(Twitch_x-200) Time(Twitch_x+200)],[Twitch_y Twitch_y],'r')
+plot([Time(Twitch_x) Time(Twitch_x)],[x(3) x(4)],'--k')
+plot([Time(contrac_start(1)) Time(contrac_start(1))],[x(3) x(4)],'k')
+plot([Time(HRT) Time(HRT)],[x(3) x(4)],'k')
+plot([Time(contrac_start(1)) Time(Twitch_x)],[(x(4)-x(3))/2+x(3)+5 (x(4)-x(3))/2+x(3)+5],'--k')
+plot([Time(Twitch_x) Time(HRT)],[(x(4)-x(3))/2+x(3) (x(4)-x(3))/2+x(3)],'--k')
+plot([x(1) (x(2)-x(1))/10+x(1)],[baseline baseline],'r')
+hold off
+
+for k=1:1:3
+    subplot(2,3,k)
+    plot(Time(contrac_neurostim(k+1)-300:contrac_neurostim(k+1)+1500),data(contrac_neurostim(k+1)-300:contrac_neurostim(k+1)+1500,k+1))
+    hold on
+    x=axis;
+    axis([Time(contrac_neurostim(k+1)-300) Time(contrac_neurostim(k+1)+1500) x(3) x(4)])
+    %plot([Time(contrac_neurostim(k+1)) Time(contrac_neurostim(k+1))],[x(3) x(4)],'r')
+    plot([Time(M_wave_ex_max_I(k+1)) Time(M_wave_ex_max_I(k+1))],[x(3) x(4)],'g')
+    plot([Time(M_wave_ex_min_I(k+1)) Time(M_wave_ex_min_I(k+1))],[x(3) x(4)],'y')
+    plot([Time(M_wave_ex_start_I(k+1)) Time(M_wave_ex_start_I(k+1))],[x(3) x(4)],'k')
+    plot([Time(M_wave_ex_end_I(k+1)) Time(M_wave_ex_end_I(k+1))],[x(3) x(4)],'k')
+    to_plot = ['M-wave for ' labels(k+1,:)];
+    title(to_plot)
+    xlabel('time (s)')
+    ylabel('EMG (V)')
+    subplot(2,3,k+3)
+    area(Time(M_wave_ex_start_I(k+1):M_wave_ex_end_I(k+1)),data(M_wave_ex_start_I(k+1):M_wave_ex_end_I(k+1),k+1))
+end
+
+function plot_fcn7(ax, processed, id_cond)
+
+process_id = processed.process_id;
+labels = processed.signal.labels;
+
+signal = processed.signal;
+data = signal.data;
+Time = signal.time;
+
+force_mean = processed.force_mean;
+RMS_mean = processed.RMS_mean;
+
+max_force = processed.max_force;
+max_force_I = processed.max_force_I;
+win_start = processed.win_start;
+ten_percent = processed.ten_percent;
+force_start = processed.force_start;
+force_end = processed.force_end;
+
+if max_force_I > 50000
+    plotstart = 50000;
+else
+    plotstart = max_force_I - 1;
+end
+
+axes(ax(1, id_cond));
+plot(Time,data(:,1))
+hold on
+x=axis;
+plot([Time(max_force_I-plotstart) Time(max_force_I+50000)],[max_force max_force],'k')
+for i=1:1:length(win_start)
+    plot(Time(round(win_start(i)+ten_percent/2)),force_mean(i),'rs','MarkerEdgeColor','none','MarkerFaceColor','r')
+    plot([Time(round(win_start(i))) Time(round(win_start(i)))],[x(3) x(4)],'g')
+end
+plot([Time(force_end) Time(force_end)],[x(3) x(4)],'r')
+plot([Time(force_start) Time(force_start)],[x(3) x(4)],'r')
+xlabel('Time (s)')
+ylabel('Force (N)')
+hold off
+
+for i=1:1:3
+    subplot(3,1,i)
+    plot(Time,data(:,i+5))
+    hold on
+    x=axis;
+    for j=1:1:length(win_start)
+        plot(Time(round(win_start(j)+ten_percent/2)),RMS_mean(j,i+1),'rs','MarkerEdgeColor','none','MarkerFaceColor','r')
+        plot([Time(round(win_start(j))) Time(round(win_start(j)))],[x(3) x(4)],'g')
+    end
+    plot([Time(round(force_end)) Time(round(force_end))],[x(3) x(4)],'r')
+    plot([Time(round(force_start)) Time(round(force_start))],[x(3) x(4)],'r')
+    to_plot = ['Channel : ' labels(i+5,:)];
+    title(to_plot)
+    xlabel('Time (s)')
+    ylabel('RMS (V)')
+    hold off
 end
