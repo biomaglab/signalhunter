@@ -23,10 +23,10 @@ signal = input_reader.signal;
 
 data = signal.data;
 isi = signal.isi;
-isi_units = signal.isi_units;
-labels = signal.labels;
-start_sample = signal.start_sample;
-units = signal.units;
+% isi_units = signal.isi_units;
+% labels = signal.labels;
+% start_sample = signal.start_sample;
+% units = signal.units;
 
 Time = 1:1:length(data); Time = Time' * isi*10^-3;
 signal.time = Time;
@@ -68,7 +68,7 @@ if process_id == 1
     contrac2 = [contrac;0];
     contrac3 = contrac2 - contrac1;
     to_keep_start = find(contrac3 > sensib_temp);
-    to_keep_end = contrac(to_keep_start(2:end)-1);
+%     to_keep_end = contrac(to_keep_start(2:end)-1);
     
     contrac_start = contrac(to_keep_start);
     contrac_end = [contrac(to_keep_start(2:end)-1);contrac(end)];
@@ -195,7 +195,7 @@ if process_id == 1
     for k=6:1:8
         RMS_max_contrac1(k) = mean(data(round(RMS_max_start_I):round(RMS_max_end_I),k));
     end
-    RMS_max_contrac1(1:5) = [];
+%     RMS_max_contrac1(1:5) = [];
     
     
         
@@ -345,15 +345,15 @@ if process_id == 1
     
     % Find neurostim during exercise using EMG channels
     % determine thresholds for detection
-    EMG_VL_mean = mean(data(:,2));
-    EMG_VL_std_alt = 10*std(data(:,2)); % LATER MAKE IT AN INPUT FOR USERS
-    EMG_VL_threshold = EMG_VL_mean + EMG_VL_std_alt;
-    EMG_VM_mean = mean(data(:,3));
-    EMG_VM_std_alt = 10*std(data(:,3));
-    EMG_VM_threshold = EMG_VM_mean + EMG_VM_std_alt;
-    EMG_RF_mean = mean(data(:,4));
-    EMG_RF_std_alt = 10*std(data(:,4));
-    EMG_RF_threshold = EMG_RF_mean + EMG_RF_std_alt;
+%     EMG_VL_mean = mean(data(:,2));
+%     EMG_VL_std_alt = 10*std(data(:,2)); % LATER MAKE IT AN INPUT FOR USERS
+%     EMG_VL_threshold = EMG_VL_mean + EMG_VL_std_alt;
+%     EMG_VM_mean = mean(data(:,3));
+%     EMG_VM_std_alt = 10*std(data(:,3));
+%     EMG_VM_threshold = EMG_VM_mean + EMG_VM_std_alt;
+%     EMG_RF_mean = mean(data(:,4));
+%     EMG_RF_std_alt = 10*std(data(:,4));
+%     EMG_RF_threshold = EMG_RF_mean + EMG_RF_std_alt;
     
     clearvars EMG_VL_mean EMG_VL_std_alt EMG_VM_mean EMG_VM_std_alt
     clearvars EMG_RF_mean EMG_RF_std_alt
@@ -692,6 +692,9 @@ elseif process_id == 2
     
     vert_sensitiv = 100; % A.U. Modifies threshold detection (default = 100, cf. Excel file called thresholds, root folder)
     temp_sensitiv = 0.3; % seconds. No 2nd contraction possible in this lap of time (default = 0.3 cf. Excel file called thresholds, root folder)
+    
+    % sampling frequency
+    fs = 1/(isi*10^-3);
 
     %% DETECT CONTRACTIONS
     
@@ -713,7 +716,7 @@ elseif process_id == 2
     else
         to_keep_start = find(contrac3 > sensib_temp);
     end
-    to_keep_end = contrac(to_keep_start(2:end)-1);
+%     to_keep_end = contrac(to_keep_start(2:end)-1);
     
     contrac_start = contrac(to_keep_start);
     contrac_end = [contrac(to_keep_start(2:end)-1);contrac(end)];
@@ -803,17 +806,17 @@ elseif process_id == 2
         
         % find M_wave start
         if M_wave_ex_max_I(k) < M_wave_ex_min_I(k)
-            j=1; diff=1;
-            while diff>=0
-                diff = data(M_wave_ex_max_I(k)-j,k) - data(M_wave_ex_max_I(k)-j-1,k);
+            j=1; differ=1;
+            while differ>=0
+                differ = data(M_wave_ex_max_I(k)-j,k) - data(M_wave_ex_max_I(k)-j-1,k);
                 j=j+1;
             end
             M_wave_ex_start_I(k) = M_wave_ex_max_I(k) - j;
             M_wave_ex_start(k) = data(M_wave_ex_start_I(k),k);
         else
-            j=1; diff=1;
-            while diff>=0
-                diff = data(M_wave_ex_min_I(k)-j,k) - data(M_wave_ex_min_I(k)-j-1,k);
+            j=1; differ=1;
+            while differ>=0
+                differ = data(M_wave_ex_min_I(k)-j,k) - data(M_wave_ex_min_I(k)-j-1,k);
                 j=j+1;
             end
             M_wave_ex_start_I(k) = M_wave_ex_min_I(k) - j;
@@ -842,8 +845,8 @@ elseif process_id == 2
     M_wave_area_2 = NaN(3,1);
     descriptors = NaN(12,1);
     for k=1:1:3
-        M_wave_area(k) = trapz(abs(data(M_wave_ex_max_I(k+1):M_wave_ex_min_I(k+1),k+1)));
-        M_wave_area_2(k) = trapz(abs(data(M_wave_ex_start_I(k+1):M_wave_ex_end_I(k+1),k+1)));
+        M_wave_area(k) = trapz_perso(abs(data(M_wave_ex_max_I(k+1):M_wave_ex_min_I(k+1),k+1)), fs);
+        M_wave_area_2(k) = trapz_perso(abs(data(M_wave_ex_start_I(k+1):M_wave_ex_end_I(k+1),k+1)), fs);
     end
     
     descriptors(1:4,1) = [M_wave_amp(2);M_wave_duration(2);M_wave_area(1);M_wave_area_2(1)];
@@ -923,8 +926,8 @@ elseif process_id == 3
     force_SD = NaN(10,1); force_CV = NaN(10,1);
     for i=1:1:10
         win_start(i) = force_start+ten_percent*(i-1);
-        force_mean(i) = mean(data(win_start(i):win_start(i)+ten_percent,1));
-        force_SD(i) = std(data(win_start(i):win_start(i)+ten_percent,1));
+        force_mean(i) = mean(data(int64(win_start(i)):int64(win_start(i)+ten_percent),1));
+        force_SD(i) = std(data(int64(win_start(i)):int64(win_start(i)+ten_percent),1));
         force_CV(i) = force_SD(i)/force_mean(i);
     end
     
@@ -932,10 +935,11 @@ elseif process_id == 3
     RMS_mean = NaN(10,3);
     for k=2:1:4
         for i=1:1:10
-            RMS_mean(i,k) = mean(data(win_start(i):win_start(i)+ten_percent,k+4));
+            RMS_mean(i,k) = mean(data(int64(win_start(i)):int64(win_start(i)+ten_percent),k+4));
         end
     end
     
+    signal.data = data;
     output.force_mean = force_mean;
     output.RMS_mean = RMS_mean;
     output.serie_num = serie_num;

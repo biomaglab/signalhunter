@@ -66,13 +66,19 @@ handles = guidata(hObject);
 
 switch lower(handles.data_id)
     case 'tms + vc'
-        [handles.reader, handles.processed] = load_tms_vc(handles.reader);
-        delete(handles.panel_graph);
-        handles = graphs_tms_vc(handles);
+        try
+            [handles.reader, handles.processed] = load_tms_vc(handles.reader);
+            delete(handles.panel_graph);
+            handles = graphs_tms_vc(handles);
+            % message to progress log
+            msg = 'Processed data loaded.';
+            handles = panel_textlog(handles, msg);          
+        catch
+            % message to progress log
+            msg = 'Loading canceled.';
+            handles = panel_textlog(handles, msg);            
+        end
         
-        % message to progress log
-        msg = 'Processed data loaded.';
-        handles = panel_textlog(handles, msg);
         
     case 'mep analysis'
         % message to progress log
@@ -99,9 +105,14 @@ progbar_update(handles.progress_bar, value)
 switch lower(handles.data_id)
     case 'tms + vc'
         % message to progress log
-        output_tms_vc(handles.reader, handles.processed);
-        msg = 'Processed data exported to EXCEL File.';
-        handles = panel_textlog(handles, msg);
+        filt_id = output_tms_vc(handles.reader, handles.processed);
+        if filt_id
+            msg = 'Processed data exported to EXCEL File.';
+            handles = panel_textlog(handles, msg);
+        else
+            msg = 'Exporting canceled.';
+            handles = panel_textlog(handles, msg);
+        end
         
     case 'mep analysis'
         % message to progress log
@@ -127,14 +138,19 @@ handles = panel_textlog(handles, msg);
 value = 1/2;
 progbar_update(handles.progress_bar, value)
 
-save_tms_vc(handles.reader, handles.processed);
+filt_id = save_tms_vc(handles.reader, handles.processed);
 
 value = 1;
 progbar_update(handles.progress_bar, value)
 
 % message to progress log
-msg = 'Processed data saved to MATLAB File.';
-handles = panel_textlog(handles, msg);
+if filt_id
+    msg = 'Processed data saved to MATLAB File.';
+    handles = panel_textlog(handles, msg);
+else
+    msg = 'Saving canceled.';
+    handles = panel_textlog(handles, msg);
+end
 
 % Update handles structure
 guidata(hObject, handles);
