@@ -453,9 +453,6 @@ end
 
 function plot_fcn6(ax, processed, id_cond)
 
-process_id = processed.process_id;
-labels = processed.signal.labels;
-
 signal = processed.signal;
 data = signal.data;
 Time = signal.time;
@@ -468,11 +465,6 @@ Twitch_x = processed.Twitch_x;
 Twitch_y = processed.Twitch_y;
 HRT = processed.HRT;
 baseline = processed.baseline;
-contrac_neurostim = processed.contrac_neurostim;
-M_wave_ex_min_I = processed.M_wave_ex_min_I;
-M_wave_ex_max_I = processed.M_wave_ex_max_I;
-M_wave_ex_start_I = processed.M_wave_ex_start_I;
-M_wave_ex_end_I =processed. M_wave_ex_end_I;
 
 axes(ax(1, id_cond));
 plot(Time,data(:,1))
@@ -485,20 +477,35 @@ for i=2:1:3
 end
 hold off
 
+axes(ax(2, id_cond));
 plot(Time(Twitch_x-5000:Twitch_x+5000),data(Twitch_x-5000:Twitch_x+5000,1))
 hold on
 x=axis;
 plot([Time(Twitch_x-200) Time(Twitch_x+200)],[Twitch_y Twitch_y],'r')
 plot([Time(Twitch_x) Time(Twitch_x)],[x(3) x(4)],'--k')
 plot([Time(contrac_start(1)) Time(contrac_start(1))],[x(3) x(4)],'k')
+plot([Time(contrac_end(1)) Time(contrac_end(1))],[x(3) x(4)],'r')
 plot([Time(HRT) Time(HRT)],[x(3) x(4)],'k')
 plot([Time(contrac_start(1)) Time(Twitch_x)],[(x(4)-x(3))/2+x(3)+5 (x(4)-x(3))/2+x(3)+5],'--k')
 plot([Time(Twitch_x) Time(HRT)],[(x(4)-x(3))/2+x(3) (x(4)-x(3))/2+x(3)],'--k')
-plot([x(1) (x(2)-x(1))/10+x(1)],[baseline baseline],'r')
+plot([x(1)+2*(x(2)-x(1))/10 3*(x(2)-x(1))/10+x(1)],[baseline baseline],'r')
 hold off
 
+
+function plot_fcn7(ax, processed, id_cond)
+
+signal = processed.signal;
+data = signal.data;
+Time = signal.time;
+
+contrac_neurostim = processed.contrac_neurostim;
+M_wave_ex_min_I = processed.M_wave_ex_min_I;
+M_wave_ex_max_I = processed.M_wave_ex_max_I;
+M_wave_ex_start_I = processed.M_wave_ex_start_I;
+M_wave_ex_end_I =processed. M_wave_ex_end_I;
+
 for k=1:1:3
-    subplot(2,3,k)
+    axes(ax(k, id_cond));
     plot(Time(contrac_neurostim(k+1)-300:contrac_neurostim(k+1)+1500),data(contrac_neurostim(k+1)-300:contrac_neurostim(k+1)+1500,k+1))
     hold on
     x=axis;
@@ -508,32 +515,24 @@ for k=1:1:3
     plot([Time(M_wave_ex_min_I(k+1)) Time(M_wave_ex_min_I(k+1))],[x(3) x(4)],'y')
     plot([Time(M_wave_ex_start_I(k+1)) Time(M_wave_ex_start_I(k+1))],[x(3) x(4)],'k')
     plot([Time(M_wave_ex_end_I(k+1)) Time(M_wave_ex_end_I(k+1))],[x(3) x(4)],'k')
-    to_plot = ['M-wave for ' labels(k+1,:)];
-    title(to_plot)
-    xlabel('time (s)')
-    ylabel('EMG (V)')
-    subplot(2,3,k+3)
+
+    axes(ax(k+3, id_cond));
     area(Time(M_wave_ex_start_I(k+1):M_wave_ex_end_I(k+1)),data(M_wave_ex_start_I(k+1):M_wave_ex_end_I(k+1),k+1))
 end
 
-function plot_fcn7(ax, processed, id_cond)
-
-process_id = processed.process_id;
-labels = processed.signal.labels;
+function plot_fcn8(ax, processed, id_cond)
 
 signal = processed.signal;
 data = signal.data;
 Time = signal.time;
 
 force_mean = processed.force_mean;
-RMS_mean = processed.RMS_mean;
-
-max_force = processed.max_force;
-max_force_I = processed.max_force_I;
-win_start = processed.win_start;
-ten_percent = processed.ten_percent;
 force_start = processed.force_start;
 force_end = processed.force_end;
+max_force = processed.max_force;
+max_force_I = processed.max_force_I;
+ten_percent = processed.ten_percent;
+win_start = processed.win_start;
 
 if max_force_I > 50000
     plotstart = 50000;
@@ -552,12 +551,22 @@ for i=1:1:length(win_start)
 end
 plot([Time(force_end) Time(force_end)],[x(3) x(4)],'r')
 plot([Time(force_start) Time(force_start)],[x(3) x(4)],'r')
-xlabel('Time (s)')
-ylabel('Force (N)')
 hold off
 
+function plot_fcn9(ax, processed, id_cond)
+
+signal = processed.signal;
+data = signal.data;
+Time = signal.time;
+
+RMS_mean = processed.RMS_mean;
+win_start = processed.win_start;
+ten_percent = processed.ten_percent;
+force_start = processed.force_start;
+force_end = processed.force_end;
+
 for i=1:1:3
-    subplot(3,1,i)
+    axes(ax(i, id_cond));
     plot(Time,data(:,i+5))
     hold on
     x=axis;
@@ -567,9 +576,5 @@ for i=1:1:3
     end
     plot([Time(round(force_end)) Time(round(force_end))],[x(3) x(4)],'r')
     plot([Time(round(force_start)) Time(round(force_start))],[x(3) x(4)],'r')
-    to_plot = ['Channel : ' labels(i+5,:)];
-    title(to_plot)
-    xlabel('Time (s)')
-    ylabel('RMS (V)')
     hold off
 end

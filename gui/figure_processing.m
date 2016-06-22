@@ -212,17 +212,21 @@ handles = guidata(hObject);
 value = 1/2;
 progbar_update(handles.progress_bar, value)
 
-sub_name = handles.reader.sub_name;
-leg = handles.reader.leg;
-series_nb = handles.reader.series_nb;
-process_id = handles.reader.process_id;
-
-if process_id == 1
-    filename = [sub_name '_' leg '_Serie' num2str(series_nb) '.txt'];
-elseif process_id == 2
-    filename = [sub_name '_' leg '_MVCpre.txt'];
-elseif process_id == 3
-    filename = [sub_name '_' leg '_MVC2min.txt'];
+if isfield(handles,'reader')
+    
+    sub_name = handles.reader.sub_name;
+    leg = handles.reader.leg;
+    series_nb = handles.reader.series_nb;
+    process_id = handles.reader.process_id;
+    
+    if process_id == 1
+        filename = [sub_name '_' leg '_Serie' num2str(series_nb) '.txt'];
+    elseif process_id == 2
+        filename = [sub_name '_' leg '_MVCpre.txt'];
+    elseif process_id == 3
+        filename = [sub_name '_' leg '_MVC2min.txt'];       
+    end
+    
 else
     filename = 'processing_log.txt';
 end

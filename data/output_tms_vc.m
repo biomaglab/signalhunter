@@ -280,8 +280,31 @@ if filt_id
         
     elseif process_id == 2
         
-        force = processed.force;
-        descriptors = processed.descriptors;
+%         force = processed.force';
+%         descriptors = processed.descriptors;
+        
+        Twitch_y = processed.Twitch_y;
+        Twitch_x = processed.Twitch_x;
+        baseline = processed.baseline;
+        contrac_start = processed.contrac_start;
+        contrac_max = processed.contrac_max;
+        HRT = processed.HRT;
+        M_wave_amp = processed.M_wave_amp;
+        M_wave_duration = processed.M_wave_duration;
+        M_wave_area = processed.M_wave_area;
+        M_wave_area_2 = processed.M_wave_area_2;
+        
+        isi = processed.signal.isi;
+        
+        force(1) = Twitch_y - baseline;
+        force(2) = (Twitch_x - contrac_start(1))*isi;
+        force(3) = (HRT - Twitch_x) * isi;
+        force(4:5) = contrac_max(2:3) - baseline;
+        force = force';
+        
+        descriptors(1:4,1) = [M_wave_amp(2);M_wave_duration(2);M_wave_area(1);M_wave_area_2(1)];
+        descriptors(5:8,1) = [M_wave_amp(3);M_wave_duration(3);M_wave_area(2);M_wave_area_2(2)];
+        descriptors(9:12,1) = [M_wave_amp(4);M_wave_duration(4);M_wave_area(3);M_wave_area_2(3)];
         
         if exist(file_output, 'file') == 0
             

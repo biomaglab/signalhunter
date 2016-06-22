@@ -1,10 +1,10 @@
-function handles = callback_detect_tms_vc(handles, id_pb)
+function handles = callback_detect_tms_vc(handles, id, id_pb)
 %BUTTONS_CALLBACK_TMS_VC Summary of this function goes here
 %   Detailed explanation goes here
-input = '(handles, id_pb)';
-handles = eval(['pb_mod' int2str(handles.id_mod(handles.id_cond)) input]);
+input = '(handles, id_pb, id)';
+handles = eval(['pb_mod' int2str(id) input]);
 
-function handles = pb_mod1(handles, id_pb)
+function handles = pb_mod1(handles, id_pb, id)
 
 axesdetect = handles.axesdetect;
 id_mod = handles.id_mod(handles.id_cond);
@@ -193,7 +193,7 @@ switch id_pb
         
 end
 
-function handles = pb_mod2(handles, id_pb)
+function handles = pb_mod2(handles, id_pb, id)
 
 axesdetect = handles.axesdetect;
 processed = handles.processed;
@@ -334,7 +334,7 @@ switch id_pb
         hold off
 end
 
-function handles = pb_mod3(handles, id_pb)
+function handles = pb_mod3(handles, id_pb, id)
 
 axesdetect = handles.axesdetect;
 processed = handles.processed;
@@ -408,14 +408,14 @@ switch id_pb
         set(info_text, 'BackgroundColor', [1 1 0.5], ...
             'String', ['Select the minimum ' pb_name ' and click ENTER']);
         [x(1), y(1)] = getpts(axesdetect);
-        set(hstr(1,1), 'String', num2str(x(1),'%.2f'));
+        set(hstr(1,1), 'String', num2str(y(1),'%.2f'));
         handles.hmin_M_wave_I = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)],'--m');
         
         % ---- Maximum voluntary contraction
         set(info_text, 'BackgroundColor', [1 1 0.5], ...
             'String', ['Select the maximum ' pb_name ' and click ENTER']);
         [x(2), y(2)] = getpts(axesdetect);
-        set(hstr(1,2), 'String', num2str(x(2),'%.2f'));
+        set(hstr(1,2), 'String', num2str(y(2),'%.2f'));
         handles.hmax_M_wave_I = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)],'--k');
         
         hold off
@@ -430,7 +430,7 @@ switch id_pb
         
 end
 
-function handles = pb_mod4(handles, id_pb)
+function handles = pb_mod4(handles, id_pb, id)
 
 axesdetect = handles.axesdetect;
 processed = handles.processed;
@@ -503,14 +503,14 @@ switch id_pb
         set(info_text, 'BackgroundColor', [1 1 0.5], ...
             'String', ['Select the minimum ' pb_name ' and click ENTER']);
         [x(1), y(1)] = getpts(axesdetect);
-        set(hstr(1,1), 'String', num2str(x(1),'%.2f'));
+        set(hstr(1,1), 'String', num2str(y(1),'%.2f'));
         handles.hM_wave_ex_min_I = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)],'--m');
         
         % ---- Maximum voluntary contraction
         set(info_text, 'BackgroundColor', [1 1 0.5], ...
             'String', ['Select the maximum ' pb_name ' and click ENTER']);
         [x(2), y(2)] = getpts(axesdetect);
-        set(hstr(1,2), 'String', num2str(x(2),'%.2f'));
+        set(hstr(1,2), 'String', num2str(y(2),'%.2f'));
         handles.hM_wave_ex_max_I = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)],'--k');
         
         hold off
@@ -525,7 +525,7 @@ switch id_pb
         
 end
 
-function handles = pb_mod5(handles, id_pb)
+function handles = pb_mod5(handles, id_pb, id)
 
 axesdetect = handles.axesdetect;
 processed = handles.processed;
@@ -682,3 +682,398 @@ switch id_pb
         
 end
 
+function handles = pb_mod6(handles, id_pb, id)
+
+axesdetect = handles.axesdetect;
+processed = handles.processed;
+pb_name = handles.pb_names{id}(id_pb);
+info_text = handles.info_text;
+hstr = handles.hstr(id_pb, :);
+
+contrac_start = processed.contrac_start;
+contrac_end = processed.contrac_end;
+baseline = processed.baseline;
+signal = processed.signal;
+data = signal.data;
+isi = signal.isi;
+Time = signal.time;
+
+switch id_pb
+    case 1
+        % push button for neurostim contraction time selection
+        % ---- Delete previous plots
+        if isfield(handles,'hcontrac_start')
+            if ishandle(handles.hcontrac_start)
+                delete(handles.hcontrac_start);
+                delete(handles.hcontrac_end);
+                delete(handles.hHRT);
+                delete(handles.hstart_dashed);
+                delete(handles.hHRT_dashed);
+                delete(handles.hTwitch);
+                delete(handles.hTwitch_dashed);
+            end
+        end
+        % ----
+        
+        yl = get(axesdetect, 'YLim');
+        
+        hold on
+        
+        % ---- Contraction start
+        % Show information text to guide user to press enter button.
+        set(info_text, 'BackgroundColor', [1 1 0.5], ...
+            'String', ['Select the minimum ' pb_name ' and click ENTER']);
+        [x(1), y(1)] = getpts(axesdetect);
+        set(hstr(1,1), 'String', num2str(x(1),'%.2f'));
+        handles.hcontrac_start = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)],'r');
+        
+        % ---- Contraction end
+        set(info_text, 'BackgroundColor', [1 1 0.5], ...
+            'String', ['Select the maximum ' pb_name ' and click ENTER']);
+        [x(2), y(2)] = getpts(axesdetect);
+        set(hstr(1,2), 'String', num2str(x(2),'%.2f'));
+        handles.hcontrac_end = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)],'g');
+        % ----
+        
+        % Remove information text to guide user to press enter button.
+        set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
+        
+        % Update contraction start and end
+        contrac_start(1) = round(x(1)*1/(isi*10^-3));
+        contrac_end(1) = round(x(2)*1/(isi*10^-3));
+                
+        [Twitch_y, Twitch_x] = max(data(contrac_start(1):contrac_end(1)));
+        Twitch_x = Twitch_x + contrac_start(1);
+        HRT = find(data(Twitch_x:contrac_end(1)) < (Twitch_y-baseline)/2+baseline ,1);
+        HRT = HRT + Twitch_x;
+        
+        % Update plots that are connected to the start and end of
+        % neurostim contraction
+        handles.hTwitch = plot(axesdetect, [Time(Twitch_x-200) Time(Twitch_x+200)],[Twitch_y Twitch_y],'r');
+        handles.hTwitch_dashed = plot(axesdetect, [Time(Twitch_x) Time(Twitch_x)],[yl(1) yl(2)],'--k');
+        handles.hHRT = plot(axesdetect, [Time(HRT) Time(HRT)],[yl(1) yl(2)],'m');
+        handles.hstart_dashed = plot(axesdetect, [Time(contrac_start(1)) Time(Twitch_x)],[(yl(2)-yl(1))/2+yl(1)+5 (yl(2)-yl(1))/2+yl(1)+5],'--k');
+        handles.hHRT_dashed = plot(axesdetect, [Time(Twitch_x) Time(HRT)],[(yl(2)-yl(1))/2+yl(1) (yl(2)-yl(1))/2+yl(1)],'--k');
+        
+        % Update global values
+        handles.processed.contrac_start(1) = contrac_start(1);
+        handles.processed.contrac_end(1) = contrac_end(1);
+        handles.processed.HRT = HRT;
+        handles.processed.Twitch_x = Twitch_x;
+        handles.processed.Twitch_y = Twitch_y;
+        
+        hold off
+        
+    case 2
+        % push button for neurostim contraction selection
+        % ---- Delete previous plots
+        if isfield(handles,'hTwitch')
+            if ishandle(handles.hTwitch)
+                delete(handles.hTwitch)
+                delete(handles.hTwitch_dashed)
+                delete(handles.hbaseline)
+                delete(handles.hstart_dashed);
+                delete(handles.hHRT_dashed);
+                delete(handles.hHRT);
+            end
+        end
+        % ----
+        
+        yl = get(axesdetect, 'YLim');
+        
+        hold on
+        % ---- Minimum voluntary contraction
+        % Show information text to guide user to press enter button.
+        set(info_text, 'BackgroundColor', [1 1 0.5], ...
+            'String', ['Select the minimum ' pb_name ' and click ENTER']);
+        [x(1), y(1)] = getpts(axesdetect);
+        set(hstr(1,1), 'String', num2str(y(1),'%.2f'));
+        handles.hbaseline = plot(axesdetect, [x(1)-0.05 x(1)+0.05],...
+            [y(1) y(1)],'r');
+        
+        % ---- Maximum voluntary contraction
+        set(info_text, 'BackgroundColor', [1 1 0.5], ...
+            'String', ['Select the maximum ' pb_name ' and click ENTER']);
+        [x(2), y(2)] = getpts(axesdetect);
+        set(hstr(1,2), 'String', num2str(y(2),'%.2f'));
+        handles.hTwitch = plot(axesdetect, [x(2)-0.05 x(2)+0.05],...
+            [y(2) y(2)],'g');
+        handles.hTwitch_dashed = plot(axesdetect, [x(2) x(2)],...
+            [yl(1) y(2)],'k--');
+        % ----
+        
+        % Remove information text to guide user to press enter button.
+        set(info_text, 'BackgroundColor', 'w', 'String', '');
+        
+        % Update minimum, maximum and HRT neurostim contraction force
+        baseline = y(1);
+        Twitch_x = round(x(2)*1/(isi*10^-3));
+        Twitch_y = y(2);
+        HRT = find(data(Twitch_x:contrac_end(1)) < (Twitch_y-baseline)/2+baseline ,1);
+        HRT = HRT + Twitch_x;
+        
+        % Update plots that are connected to the start and end of
+        % neurostim contraction
+        handles.hTwitch_dashed = plot(axesdetect, [Time(Twitch_x) Time(Twitch_x)],[yl(1) yl(2)],'--k');
+        handles.hHRT = plot(axesdetect, [Time(HRT) Time(HRT)],[yl(1) yl(2)],'m');
+        handles.hstart_dashed = plot(axesdetect, [Time(contrac_start(1)) Time(Twitch_x)],[(yl(2)-yl(1))/2+yl(1)+5 (yl(2)-yl(1))/2+yl(1)+5],'--k');
+        handles.hHRT_dashed = plot(axesdetect, [Time(Twitch_x) Time(HRT)],[(yl(2)-yl(1))/2+yl(1) (yl(2)-yl(1))/2+yl(1)],'--k');
+        
+        % Update global values
+        handles.processed.HRT = HRT;
+        handles.processed.Twitch_x = Twitch_x;
+        handles.processed.Twitch_y = Twitch_y;
+        handles.processed.baseline = baseline;
+        
+        hold off
+end
+
+function handles = pb_mod7(handles, id_pb, id)
+
+axesdetect = handles.axesdetect;
+pb_name = handles.pb_names{id}(id_pb);
+info_text = handles.info_text;
+hstr = handles.hstr(id_pb, :);
+k = handles.id_axes - 6;
+
+processed = handles.processed;
+M_wave_min = processed.M_wave_min;
+M_wave_max = processed.M_wave_max;
+M_wave_ex_start_I = processed.M_wave_ex_start_I;
+M_wave_ex_end_I = processed.M_wave_ex_end_I;
+M_wave_ex_min_I = processed.M_wave_ex_min_I;
+M_wave_ex_max_I = processed.M_wave_ex_max_I;
+M_wave_area = processed.M_wave_area;
+M_wave_area_2 = processed.M_wave_area_2;
+isi = processed.signal.isi;
+fs = 1/(isi*10^-3);
+data = processed.signal.data;
+
+switch id_pb
+    case 1
+        
+        % ---- Delete previous plots
+        if isfield(handles,'hM_wave_ex_start_I')
+            if ishandle(handles.hM_wave_ex_start_I)
+                delete(handles.hM_wave_ex_start_I)
+                delete(handles.hM_wave_ex_end_I)
+            end
+        end
+        % ----
+        
+        yl = get(axesdetect, 'YLim');
+        
+        % ---- Contraction start
+        hold on
+        
+        % Show information text to guide user to press enter button.
+        set(info_text, 'BackgroundColor', [1 1 0.5], ...
+            'String', ['Select the minimum ' pb_name ' and click ENTER']);
+        [x(1), y(1)] = getpts(axesdetect);
+        set(hstr(1,1), 'String', num2str(x(1),'%.2f'));
+        handles.hM_wave_ex_start_I = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)],'r');
+        
+        % ---- Contraction end
+        set(info_text, 'BackgroundColor', [1 1 0.5], ...
+            'String', ['Select the maximum ' pb_name ' and click ENTER']);
+        [x(2), y(2)] = getpts(axesdetect);
+        set(hstr(1,2), 'String', num2str(x(2),'%.2f'));
+        handles.hM_wave_ex_end_I = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)],'g');
+        
+        hold off
+        % ----
+        
+        % Remove information text to guide user to press enter button.
+        set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
+        
+        % Update contraction start and end
+        M_wave_ex_start_I(k+1) = round(x(1)*1/(isi*10^-3));
+        M_wave_ex_end_I(k+1) = round(x(2)*1/(isi*10^-3));
+           
+        M_wave_amp = M_wave_max-M_wave_min;
+        M_wave_duration = abs(M_wave_ex_min_I-M_wave_ex_max_I);
+        
+        M_wave_area_2(k) = trapz_perso(abs(data(M_wave_ex_start_I(k+1):M_wave_ex_end_I(k+1),k+1)), fs);
+        
+        handles.processed.M_wave_ex_start_I = M_wave_ex_start_I;
+        handles.processed.M_wave_ex_end_I = M_wave_ex_end_I;
+        handles.processed.M_wave_area_2 = M_wave_area_2;
+        handles.processed.M_wave_amp = M_wave_amp;
+        handles.processed.M_wave_duration = M_wave_duration;
+        
+    case 2
+        
+        % ---- Delete previous plots
+        if isfield(handles,'hM_wave_ex_max_I')
+            if ishandle(handles.hM_wave_ex_max_I)
+                delete(handles.hM_wave_ex_max_I)
+                delete(handles.hM_wave_ex_min_I)
+            end
+        end
+        % ----
+        
+        yl = get(axesdetect, 'YLim');
+        
+        % ---- Minimum voluntary contraction
+        hold on
+        
+        % Show information text to guide user to press enter button.
+        set(info_text, 'BackgroundColor', [1 1 0.5], ...
+            'String', ['Select the minimum ' pb_name ' and click ENTER']);
+        [x(1), y(1)] = getpts(axesdetect);
+        set(hstr(1,1), 'String', num2str(y(1),'%.2f'));
+        handles.hM_wave_ex_min_I = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)],'--m');
+        
+        % ---- Maximum voluntary contraction
+        set(info_text, 'BackgroundColor', [1 1 0.5], ...
+            'String', ['Select the maximum ' pb_name ' and click ENTER']);
+        [x(2), y(2)] = getpts(axesdetect);
+        set(hstr(1,2), 'String', num2str(y(2),'%.2f'));
+        handles.hM_wave_ex_max_I = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)],'--k');
+        
+        hold off
+        % ----
+        
+        % Remove information text to guide user to press enter button.
+        set(info_text, 'BackgroundColor', 'w', 'String', '');
+        
+        % Update minimum and maximum M-wave exercise contraction force
+        M_wave_ex_min_I(k+1) = round(x(1)*1/(isi*10^-3));
+        M_wave_ex_max_I(k+1) = round(x(2)*1/(isi*10^-3));
+        M_wave_min(k+1) = y(1);
+        M_wave_max(k+1) = y(2);
+        
+        M_wave_amp = M_wave_max-M_wave_min;
+        M_wave_duration = abs(M_wave_ex_min_I-M_wave_ex_max_I);
+                
+        M_wave_area(k) = trapz_perso(abs(data(M_wave_ex_max_I(k+1):M_wave_ex_min_I(k+1),k+1)), fs);
+        
+        handles.processed.M_wave_ex_min_I = M_wave_ex_min_I;
+        handles.processed.M_wave_ex_max_I = M_wave_ex_max_I;
+        handles.processed.M_wave_min = M_wave_min;
+        handles.processed.M_wave_max = M_wave_max;
+        handles.processed.M_wave_area = M_wave_area;
+        handles.processed.M_wave_amp = M_wave_amp;
+        handles.processed.M_wave_duration = M_wave_duration;
+        
+end
+
+function handles = pb_mod10(handles, id_pb, id)
+
+axesdetect = handles.axesdetect;
+pb_name = handles.pb_names{id}(id_pb);
+info_text = handles.info_text;
+hstr = handles.hstr(id_pb, :);
+dt = 0.5; % length of selection line display
+
+processed = handles.processed;
+contrac_max_I = processed.contrac_max_I;
+contrac_max = processed.contrac_max;
+contrac_start = processed.contrac_start;
+contrac_end = processed.contrac_end;
+
+isi = processed.signal.isi;
+Time = processed.signal.time;
+data = processed.signal.data;
+
+switch id_pb
+    case {1, 3}
+        if id_pb == 1
+            j = 2;
+        else
+            j = 3;
+        end
+        
+        % ---- Delete previous plots
+        if isfield(handles,'hcontrac_start_I')
+            if ishandle(handles.hcontrac_start_I(j))
+                delete(handles.hcontrac_start_I(j))
+                delete(handles.hcontrac_end_I(j))
+                delete(handles.hcontrac_max(j))
+            end
+        end
+        % ----
+        
+        yl = get(axesdetect, 'YLim');
+        
+        % ---- Contraction start
+        hold on
+        
+        % Show information text to guide user to press enter button.
+        set(info_text, 'BackgroundColor', [1 1 0.5], ...
+            'String', ['Select the minimum ' pb_name ' and click ENTER']);
+        [x(1), y(1)] = getpts(axesdetect);
+        set(hstr(1,1), 'String', num2str(x(1),'%.2f'));
+        handles.hcontrac_start_I(j) = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)],'r');
+        
+        % ---- Contraction end
+        set(info_text, 'BackgroundColor', [1 1 0.5], ...
+            'String', ['Select the maximum ' pb_name ' and click ENTER']);
+        [x(2), y(2)] = getpts(axesdetect);
+        set(hstr(1,2), 'String', num2str(x(2),'%.2f'));
+        handles.hcontrac_end_I(j) = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)],'g');
+        
+        % ----
+        
+        % Remove information text to guide user to press enter button.
+        set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
+        
+        % Update contraction start and end
+        contrac_start(j) = round(x(1)*1/(isi*10^-3));
+        contrac_end(j) = round(x(2)*1/(isi*10^-3));
+        
+        % find max
+        [maxt, max_It] = max(data(contrac_start(j):contrac_end(j),1));
+        contrac_max(j) = maxt;
+        contrac_max_I(j) = max_It + contrac_start(j);
+        
+        handles.hcontrac_max(j) = plot(axesdetect,...
+            [Time(contrac_max_I(j)-10000) Time(contrac_max_I(j)+10000)],[contrac_max(j) contrac_max(j)],'m');
+        
+        hold off
+        
+        handles.processed.contrac_start = contrac_start;
+        handles.processed.contrac_end = contrac_end;
+        handles.processed.contrac_max = contrac_max;
+        handles.processed.contrac_max_I = contrac_max_I;
+        
+        
+    case {2, 4}
+
+        if id_pb == 2
+            j = 2;
+        else
+            j = 3;
+        end
+        
+        % ---- Delete previous plots
+        if isfield(handles,'hcontrac_max')
+            if ishandle(handles.hcontrac_max(j))
+                delete(handles.hcontrac_max(j))
+            end
+        end
+        % ----
+        
+        % ---- Minimum voluntary contraction
+        hold on
+        
+        % Show information text to guide user to press enter button.
+        set(info_text, 'BackgroundColor', [1 1 0.5], ...
+            'String', ['Select the ' pb_name ' and click ENTER']);
+        [x(1), y(1)] = getpts(axesdetect);
+        set(hstr(1,1), 'String', num2str(y(1),'%.2f'));
+        handles.hcontrac_max(j) = plot(axesdetect, [x(1)-dt x(1)+dt], [y(1) y(1)],'g');
+        
+        hold off
+        % ----
+        
+        % Remove information text to guide user to press enter button.
+        set(info_text, 'BackgroundColor', 'w', 'String', '');
+        
+        % Update minimum and maximum voluntary contraction force
+        handles.processed.contrac_max_I(j) = round(x(1)*1/(isi*10^-3));
+        handles.processed.contrac_max(j) = y(1);
+        % ---
+        
+
+end

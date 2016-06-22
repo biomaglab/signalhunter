@@ -41,27 +41,57 @@ movegui(hObject, 'center');
 
 id = handles.id_mod(handles.id_cond);
 
+% id == 6 was split in two different cases to make logical easier
+% so id = 10 is the set of contractions 
+if id == 6
+    if handles.id_axes == 1
+        id = 10;
+    elseif handles.id_axes == 2
+        id = 6;
+    end
+end
+
 % pushbutton names
-pb_names = {{'Contraction Duration',...
+pb_names = {{'Contraction Duration',... #id 1
     'Voluntary Amplitudes',...
     'Superimposed Force',...
     'Neurostim Amplitudes'},...
-    {'Contraction Duration',...
+    {'Neurostim Duration',... #id 2
     'Neurostim Amplitudes',...
-    'Superimposed Force',...
-    'Neurostim Amplitudes'},...
-    {'M-wave Duration',...
+    'None',...
+    'None'},...
+    {'M-wave Duration',... #id 3
     'M-wave Amplitudes',...
-    'Superimposed Force',...
-    'Neurostim Amplitudes'},...
-    {'M-wave Duration',...
+    'None',...
+    'None'},...
+    {'M-wave Duration',... #id 4
     'M-wave Amplitudes',...
-    'Superimposed Force',...
-    'Neurostim Amplitudes'},...
-    {'MEP Duration',...
+    'None',...
+    'None'},...
+    {'MEP Duration',... #id 5
     'MEP Amplitudes',...
     'EMG Recovery',...
-    'TMS Pulse'}};
+    'TMS Pulse'},...
+    {'Neurostim Duration',... #id 6
+    'Neurostim Amplitudes',...
+    'None',...
+    'None'},...
+    {'M-wave Duration',... #id 7
+    'M-wave Amplitudes',...
+    'None',...
+    'None'},...
+    {'Maximum Force',...#id 8
+    'Force Duration',...
+    'None',...
+    'None'},...
+    {'Force Duration',...#id 9
+    'None',...
+    'None',...
+    'None'},...
+    {'Contraction Duration 1',... #id 10
+    'Maximum Contraction 1',...
+    'Contraction Duration 2',...
+    'Maximum Contraction 2'}};
 
 % creates the panel for buttons in dialog_detect
 panelgraph_pos = [1.5/50 0.275 1/4 4/6];
@@ -106,7 +136,7 @@ pb_close_pos = [0.17, 0.05, 4/6, 0.10];
 pb_detect(1) = uicontrol(panel_graph, 'String', pb_names{id}(1), ...
     'FontSize', 10, 'FontWeight', 'bold', 'Units', 'normalized');
 set(pb_detect(1), 'Position', pb_detect_1_pos, ...
-    'Callback', @pb_detect_1_Callback);
+    'Callback', @(obj, eventdata)pb_detect_Callback(obj, eventdata, id, 1));
 
 % static text for minimum superimposed force selection
 hstr(1,1) = uicontrol(panel_graph, 'String', '0.00', 'Style', 'text', ...
@@ -126,7 +156,7 @@ set(hstr(1,2), 'Position', str_1_max_pos);
 pb_detect(2) = uicontrol(panel_graph, 'String', pb_names{id}(2), ...
     'FontSize', 10, 'FontWeight', 'bold', 'Units', 'normalized');
 set(pb_detect(2), 'Position', pb_detect_2_pos, ...
-    'Callback', @pb_detect_2_Callback);
+    'Callback', @(obj, eventdata)pb_detect_Callback(obj, eventdata, id, 2));
 
 % static text for minimum contraction selection
 hstr(2,1) = uicontrol(panel_graph, 'String', '0.00', 'Style', 'text', ...
@@ -146,7 +176,7 @@ set(hstr(2,2), 'Position', str_2_max_pos);
 pb_detect(3) = uicontrol(panel_graph, 'String', pb_names{id}(3), ...
     'FontSize', 10, 'FontWeight', 'bold','Units', 'normalized');    
 set(pb_detect(3), 'Position', pb_detect_3_pos, 'Visible', 'off', ...
-    'Callback', @pb_detect_3_Callback);
+    'Callback', @(obj, eventdata)pb_detect_Callback(obj, eventdata, id, 3));
 
 % static text for start of voluntary contraction
 hstr(3,1) = uicontrol(panel_graph, 'String', '0.00', 'Style', 'text', ...
@@ -166,7 +196,7 @@ set(hstr(3,2), 'Visible', 'off', 'Position', str_3_max_pos);
 pb_detect(4) = uicontrol(panel_graph, 'String', pb_names{id}(4), ...
     'FontSize', 10, 'FontWeight', 'bold','Units', 'normalized');    
 set(pb_detect(4), 'Position', pb_detect_4_pos, 'Visible', 'off', ...
-    'Callback', @pb_detect_4_Callback);
+    'Callback', @(obj, eventdata)pb_detect_Callback(obj, eventdata, id, 4));
 
 % static text for neurostim minimum force selection
 hstr(4,1) = uicontrol(panel_graph, 'String', '0.00', 'Style', 'text', ...
@@ -207,25 +237,44 @@ elseif id == 2
 elseif id == 3
         
 elseif id == 4
-        
-else
+    
+elseif id == 5
     set(pb_detect(3), 'Visible', 'on');
     set(hstr(3,1), 'Visible', 'on');
     set(pb_detect(4), 'Visible', 'on');
     set(hstr(4,1), 'Visible', 'on');
+        
+elseif id == 6
+    
+elseif id == 7
+    
+elseif id == 8
+    
+elseif id == 9
+    set(pb_detect(2), 'Visible', 'off');
+    set(hstr(2,1), 'Visible', 'off');
+    
+elseif id == 10
+    set(hstr(2,2), 'Visible', 'off');
+    set(pb_detect(3), 'Visible', 'on');
+    set(hstr(3,1), 'Visible', 'on');
+    set(hstr(3,2), 'Visible', 'on');
+    set(pb_detect(4), 'Visible', 'on');
+    set(hstr(4,1), 'Visible', 'on');
+    
 end
 
 handles.axesdetect = axesdetect;
 handles.hstr = hstr;
 handles.pb_names = pb_names;
 
-handles = plot_graph(handles);
+handles = plot_graph(handles, id);
 
 guidata(hObject, handles);
 
-function handles = plot_graph(handles)
+function handles = plot_graph(handles, id)
 
-handles = plot_detect(handles, handles.id_mod(handles.id_cond));
+handles = plot_detect(handles, id);
 
 
 function key_press_callback(~, eventdata)
@@ -242,11 +291,11 @@ disp('the key was pressed')
 % set(handles.dcm_obj, 'Enable', 'off');
 eventdata.Key
 
-function pb_detect_1_Callback(hObject, ~)
+function pb_detect_Callback(hObject, ~, id, id_pb)
 % Callback - button for superimposed force selection
 handles = guidata(hObject);
 
-handles = callback_detect_tms_vc(handles, 1);
+handles = callback_detect_tms_vc(handles, id, id_pb);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -255,32 +304,6 @@ function pushbutton_close_Callback(~, ~)
 % Callback - button to resume window
 uiresume;
 
-function pb_detect_2_Callback(hObject, ~)
-% Callback - button for voluntary contraction force selection
-handles = guidata(hObject);
-
-handles = callback_detect_tms_vc(handles, 2);
-
-% Update handles structure
-guidata(hObject, handles);
-
-function pb_detect_3_Callback(hObject, ~)
-% Callback - button for contraction time selection
-handles = guidata(hObject);
-
-handles = callback_detect_tms_vc(handles, 3);
-
-% Update handles structure
-guidata(hObject, handles);
-
-function pb_detect_4_Callback(hObject, ~)
-% Callback - button for neurostimulation contraction force
-handles = guidata(hObject);
-
-handles = callback_detect_tms_vc(handles, 4);
-
-% Update handles structure
-guidata(hObject, handles);
 
 % --- Set of functions to collect cursor coordinates in a graph
 

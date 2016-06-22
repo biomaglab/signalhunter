@@ -741,11 +741,11 @@ elseif process_id == 2
     
     [Twitch_y, Twitch_x] = max(data(contrac_start(1):contrac_end(1)));
     Twitch_x = Twitch_x + contrac_start(1);
-    force(1) = Twitch_y - baseline;
-    force(2) = (Twitch_x - contrac_start(1))* isi;
+%     force(1) = Twitch_y - baseline;
+%     force(2) = (Twitch_x - contrac_start(1))* isi;
     HRT = find(data(Twitch_x:contrac_end(1)) < (Twitch_y-baseline)/2+baseline ,1);
     HRT = HRT + Twitch_x;
-    force(3) = (HRT - Twitch_x) * isi;
+%     force(3) = (HRT - Twitch_x) * isi;
     
     %% WORK ON MAX
     
@@ -766,7 +766,7 @@ elseif process_id == 2
         end
     end
     
-    force(4:5) = contrac_max(2:3) - baseline;
+%     force(4:5) = contrac_max(2:3) - baseline;
     
     %% WORK ON NEUROSTIM @ BEGINNING OF FILE
     
@@ -822,7 +822,7 @@ elseif process_id == 2
             M_wave_ex_start_I(k) = M_wave_ex_min_I(k) - j;
             M_wave_ex_start(k) = data(M_wave_ex_start_I(k),k);
         end
-        clearvars diff
+        clearvars differ
         
         % find M-wave end
         j=1;
@@ -849,19 +849,19 @@ elseif process_id == 2
         M_wave_area_2(k) = trapz_perso(abs(data(M_wave_ex_start_I(k+1):M_wave_ex_end_I(k+1),k+1)), fs);
     end
     
-    descriptors(1:4,1) = [M_wave_amp(2);M_wave_duration(2);M_wave_area(1);M_wave_area_2(1)];
-    descriptors(5:8,1) = [M_wave_amp(3);M_wave_duration(3);M_wave_area(2);M_wave_area_2(2)];
-    descriptors(9:12,1) = [M_wave_amp(4);M_wave_duration(4);M_wave_area(3);M_wave_area_2(3)];
+%     descriptors(1:4,1) = [M_wave_amp(2);M_wave_duration(2);M_wave_area(1);M_wave_area_2(1)];
+%     descriptors(5:8,1) = [M_wave_amp(3);M_wave_duration(3);M_wave_area(2);M_wave_area_2(2)];
+%     descriptors(9:12,1) = [M_wave_amp(4);M_wave_duration(4);M_wave_area(3);M_wave_area_2(3)];
     
     
     clearvars work_zone temp contrac_neurostim_I potent real_contrac_I
     clearvars M_wave_ex_max M_wave_ex_min diff
     
-    force = force';
+    %force = force';
     
     % variables used in model 2
-    output.force = force;
-    output.descriptors = descriptors;
+%     output.force = force;
+%     output.descriptors = descriptors;
     output.serie_num = serie_num;
     output.signal = signal;
     
@@ -878,9 +878,14 @@ elseif process_id == 2
     output.M_wave_ex_max_I = M_wave_ex_max_I;
     output.M_wave_ex_start_I = M_wave_ex_start_I;
     output.M_wave_ex_end_I = M_wave_ex_end_I;
+    output.M_wave_max = M_wave_max;
+    output.M_wave_min = M_wave_min;
+    output.M_wave_area = M_wave_area;
+    output.M_wave_area_2 = M_wave_area_2;
+    output.M_wave_amp = M_wave_amp;
+    output.M_wave_duration = M_wave_duration;
     
     
-
 elseif process_id == 3
     
     serie_num = 0;
@@ -898,11 +903,11 @@ elseif process_id == 3
     if strcmp(pathname(end-11:end-1),'Gabriele_ND') == 1
         force_start = 4.5 * 1/(isi*10^-3);
     else
-    while differ >= 0
-        differ = force_f(work_zone(j+1)) - force_f(work_zone(j));
-        j=j+1;
-    end
-    force_start = work_zone(j);
+        while differ >= 0
+            differ = force_f(work_zone(j+1)) - force_f(work_zone(j));
+            j=j+1;
+        end
+        force_start = work_zone(j);
     end
     
     
