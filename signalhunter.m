@@ -335,15 +335,26 @@ switch filetype
     case 'otbio'
         set(handles.popup2, 'Enable', 'on');
         set(handles.popup3, 'Enable', 'on');
+        
+        popup2_Callback(hObject)
     case 'biopac'
         set(handles.popup2, 'Enable', 'on');
         set(handles.popup3, 'Enable', 'on');
+        
+        popup2_Callback(hObject)
     case 'bin'
-        set(handles.popup2, 'Enable', 'on');
-        set(handles.popup3, 'Enable', 'on');
+        set(handles.popup2, 'Enable', 'off');
+        set(handles.popup3, 'Enable', 'off');
+        
+        set(handles.popup2, 'value', 1);
+        set(handles.popup3, 'value', 1);
+        
+        popup2_Callback(hObject)
     case 'ascii'
         set(handles.popup2, 'Enable', 'on');
         set(handles.popup3, 'Enable', 'on');
+        
+        popup2_Callback(hObject)
 end
 
 
