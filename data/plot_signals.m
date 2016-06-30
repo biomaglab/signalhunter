@@ -49,6 +49,8 @@ del = round(1*1/(isi*10^-3));
 
 axes(ax(1, id_cond));
 plot(Time,data(:,1));
+xlabel('Time (s)')
+ylabel('Force (N)')
 hold on
 x=axis;
 for i=1:4
@@ -103,6 +105,8 @@ for j=1:4
         [max_C(j) max_C(j)],'k')
     to_plot = ['zoom on force plateau #' num2str(j)];
     title(to_plot);
+    xlabel('Time (s)')
+    ylabel('Force (N)')
     
     if j > 1
         % plot of minimum and maximum neurostim contraction
@@ -165,6 +169,8 @@ for j=15:1:21
     end
     to_plot = ['superimposed #' num2str(j-14)];
     title(to_plot);
+    xlabel('Time (s)')
+    ylabel('Force (N)')
     hold off
 end
 
@@ -218,6 +224,8 @@ for i=1:1:3
     plot([neurostim_max_I(i)* isi*10^-3 neurostim_max_I(i)* isi*10^-3],...
         [x(3) neurostim_max(i)],'k--');
 end
+xlabel('Time (s)')
+ylabel('Force (N)')
 hold off
 
 % loop for second row of graphs
@@ -245,6 +253,8 @@ for j=4:1:6
         [x(3) neurostim_max(i)],'k--')
     to_plot = ['zoom on neurostim while @ rest #' num2str(i)];
     title(to_plot);
+    xlabel('Time (s)')
+    ylabel('Force (N)')
     hold off
     
 end
@@ -277,6 +287,8 @@ for i=2:3
         [x(3) x(4)],'r');
 end
 legend('EMG','neurostim')
+xlabel('Time (s)')
+ylabel('EMG (V)')
 hold off
 
 % loop for second row of graphs
@@ -299,6 +311,8 @@ for i=6:7
     to_plot = ['zoom on neurostim M-wave while @ rest #' num2str(i-4)];
     title(to_plot);
     legend('EMG','Start','End','Min','Max')
+    xlabel('Time (s)')
+    ylabel('EMG (V)')
     hold off
 end
 
@@ -309,6 +323,8 @@ for i=8:9
     area(Time(M_wave_start_I(i-6,k):M_wave_end_I(i-6,k)),...
         data(M_wave_start_I(i-6,k):M_wave_end_I(i-6,k),k));
     to_plot = ['zoom on neurostim M-wave while @ rest #' num2str(i-6)];
+    xlabel('Time (s)')
+    ylabel('EMG (V)')
     title(to_plot);
     
     axes(ax(j, id_cond));
@@ -316,6 +332,8 @@ for i=8:9
         data(max_M_wave_I(i-6,k):min_M_wave_I(i-6,k),k));
     to_plot = ['zoom on neurostim M-wave while @ rest #' num2str(i-6)];
     title(to_plot);
+    xlabel('Time (s)')
+    ylabel('EMG (V)')
 end
 
 % Plot for neurostimulation at exercise
@@ -343,6 +361,8 @@ x=axis;
 plot([Time(contrac_neurostim(:,k)) Time(contrac_neurostim(:,k))],...
     [x(3) x(4)],'r')
 legend('EMG','neurostim')
+xlabel('Time (s)')
+ylabel('EMG (V)')
 hold off
 
 % loop for second row of graphs
@@ -364,6 +384,8 @@ for l=2:4
         [x(3) x(4)],'--k')
     to_plot = ['zoom on neurostim M-wave during exercise #' num2str(l)];
     title(to_plot);
+    xlabel('Time (s)')
+    ylabel('EMG (V)')
     legend('EMG','Start','End','Min','Max')
     hold off
 end
@@ -375,6 +397,8 @@ for i=7:9
         data(M_wave_ex_start_I(i-5,k):M_wave_ex_end_I(i-5,k),k));
     to_plot = ['Neurostim exercise #' num2str(i-5)];
     title(to_plot);
+    xlabel('Time (s)')
+    ylabel('EMG (V)')
 end
 
 % Plot for TMS and MEP
@@ -403,6 +427,8 @@ hold on
 x=axis;
 plot([Time(TMS_stim) Time(TMS_stim)],[x(3) x(4)],'r')
 legend('EMG','TMS')
+xlabel('Time (s)')
+ylabel('EMG (V)')
 hold off
 
 % loop for second row of graphs
@@ -429,6 +455,8 @@ for i=7:2:12
         [x(3) x(4)],'y')
     to_plot = ['zoom on TMS M-wave during exercise #' num2str(l)];
     title(to_plot);
+    xlabel('Time (s)')
+    ylabel('EMG (V)')
     legend('EMG','Start','End','Min','Max','TMS','Recovery');
     hold off
     l=l+1;
@@ -442,13 +470,16 @@ for i=8:10
         data(M_wave_MEP_start_I(i-7,k):M_wave_MEP_end_I(i-7,k),k));
     to_plot = ['TMS during exercise #' num2str(i-7)];
     title(to_plot);
+    xlabel('Time (s)')
+    ylabel('EMG (V)')
     
     axes(ax(j+1, id_cond));
     area(Time(M_wave_MEP_max_I(i-7,k):M_wave_MEP_min_I(i-7,k)),...
         data(M_wave_MEP_max_I(i-7,k):M_wave_MEP_min_I(i-7,k),k));
     to_plot = ['TMS during exercise #' num2str(i-7)];
     title(to_plot);
-    
+    xlabel('Time (s)')
+    ylabel('EMG (V)')    
 end
 
 function plot_fcn6(ax, processed, id_cond)
@@ -576,5 +607,7 @@ for i=1:1:3
     end
     plot([Time(round(force_end)) Time(round(force_end))],[x(3) x(4)],'r')
     plot([Time(round(force_start)) Time(round(force_start))],[x(3) x(4)],'r')
+    xlabel('Time (s)')
+    ylabel('EMG (V)')
     hold off
 end

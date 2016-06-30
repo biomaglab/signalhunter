@@ -140,8 +140,6 @@ if process_id == 1
         set(ax(1, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn, ...
             'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
         set(get(ax(1, id_cond),'Title'),'String','Detection of Force Production')
-        set(get(ax(1, id_cond),'XLabel'),'String','Time (s)')
-        set(get(ax(1, id_cond),'YLabel'),'String','Force (N)')
         
     elseif nr == 2
         % for two rows configuration
@@ -150,9 +148,7 @@ if process_id == 1
             'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
         set(ax(1, id_cond), 'LooseInset', loose_inset, ...
             'FontSize', 7, 'NextPlot', 'add');
-        set(get(ax(1, id_cond),'Title'),'String','Detection of Force Production')
-        set(get(ax(1, id_cond),'XLabel'),'String','Time (s)')
-        set(get(ax(1, id_cond),'YLabel'),'String','Force (N)')
+%         set(get(ax(1, id_cond),'Title'),'String','Detection of Force Production')
         
         for i = 1:nc(2)
             outer_pos = [(i-1)*axes_w2, axes_pos(1), axes_w2, axes_h];
@@ -160,8 +156,6 @@ if process_id == 1
                 'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
             set(ax(nc(1)+i, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn,...
                 'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
-            set(get(ax(nc(1)+i, id_cond),'XLabel'),'String','Time (s)')
-            set(get(ax(nc(1)+i, id_cond),'YLabel'),'String','Force (N)')
         end
     else
         % for three rows configuration
@@ -171,9 +165,6 @@ if process_id == 1
             'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
         set(ax(1, id_cond), 'LooseInset', loose_inset, ...
             'FontSize', 7, 'NextPlot', 'add');
-        set(get(ax(1, id_cond),'Title'),'String','Detection of Force Production')
-        set(get(ax(1, id_cond),'XLabel'),'String','Time (s)')
-        set(get(ax(1, id_cond),'YLabel'),'String','Force (N)')
         
         % second row from the top
         for i = 1:nc(2)
@@ -182,8 +173,6 @@ if process_id == 1
                 'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
             set(ax(nc(1)+i, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn,...
                 'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
-            set(get(ax(nc(1)+i, id_cond),'XLabel'),'String','Time (s)')
-            set(get(ax(nc(1)+i, id_cond),'YLabel'),'String','Force (N)')
         end
         
         % third row from the top
@@ -193,8 +182,6 @@ if process_id == 1
                 'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
             set(ax(sum(nc(1:2))+i, id_cond), 'LooseInset', loose_inset, ...
                 'FontSize', 7, 'NextPlot', 'add');
-            set(get(ax(sum(nc(1:2))+i, id_cond),'XLabel'),'String','Time (s)')
-            set(get(ax(sum(nc(1:2))+i, id_cond),'YLabel'),'String','Force (N)')
         end
         
     end
@@ -262,8 +249,6 @@ else
         % removed the button down callback for this graph
 %         set(ax(1, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn, ...
 %             'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
-        set(get(ax(1, id_cond),'XLabel'),'String','Time (s)')
-        set(get(ax(1, id_cond),'YLabel'),'String','Force (N)')
         
     % nr == 3
     else
@@ -277,8 +262,6 @@ else
             set(ax(i, id_cond), 'LooseInset', loose_inset, ...
                 'FontSize', 7, 'NextPlot', 'add');
             set(get(ax(i, id_cond),'Title'),'String',labels{i})
-            set(get(ax(i, id_cond),'XLabel'),'String','Time (s)')
-            set(get(ax(i, id_cond),'YLabel'),'String','Force (N)')
         end
         
     end

@@ -126,14 +126,14 @@ switch id_pb
             'String', ['Select the minimum ' pb_name ' and click ENTER']);
         [x(1), y(1)] = getpts(axesdetect);
         set(hstr(1,1), 'String', num2str(y(1),'%.2f'));
-        handles.hsup_force_min = plot(axesdetect, [x(1)-dt x(1)+dt], [y(1) y(1)],'r');
+        handles.hsup_force_min = plot(axesdetect, [x(1)-dt x(1)+dt], [y(1) y(1)],'k');
         
         % ---- Maximum superimposed force
         set(info_text, 'BackgroundColor', [1 1 0.5], ...
             'String', ['Select the maximum ' pb_name ' and click ENTER']);
         [x(2), y(2)] = getpts(axesdetect);
         set(hstr(1,2), 'String', num2str(y(2),'%.2f'));
-        handles.hsup_force_max = plot(axesdetect, [x(2)-dt x(2)+dt], [y(2) y(2)],'g');
+        handles.hsup_force_max = plot(axesdetect, [x(2)-dt x(2)+dt], [y(2) y(2)],'k');
         
         hold off
         % ----
@@ -169,14 +169,14 @@ switch id_pb
                 'String', ['Select the minimum ' pb_name ' and click ENTER']);
             [x(1), y(1)] = getpts(axesdetect);
             set(hstr(1,1), 'String', num2str(y(1),'%.2f'));
-            handles.hneurostim_min = plot(axesdetect, [x(1)-dt x(1)+dt], [y(1) y(1)],'--k');
+            handles.hneurostim_min = plot(axesdetect, [x(1)-dt x(1)+dt], [y(1) y(1)],'--g');
             
             % ---- Maximum neurostimulation force
             set(info_text, 'BackgroundColor', [1 1 0.5], ...
                 'String', ['Select the maximum ' pb_name ' and click ENTER']);
             [x(2), y(2)] = getpts(axesdetect);
             set(hstr(1,2), 'String', num2str(y(2),'%.2f'));
-            handles.hneurostim_max = plot(axesdetect, [x(2)-dt x(2)+dt], [y(2) y(2)],'--m');
+            handles.hneurostim_max = plot(axesdetect, [x(2)-dt x(2)+dt], [y(2) y(2)],'--g');
             
             hold off
             % ----
