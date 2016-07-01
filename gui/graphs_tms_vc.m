@@ -97,8 +97,10 @@ handles = guidata(hObject);
 % ['coisa ' num2str(find(gca == handles.haxes(:)))]
 handles.id_axes = find(gca == handles.haxes(:,:));
 handles = dialog_detect(handles);
-handles.haxes = refresh_axes(handles.haxes, handles.processed,...
-    handles.reader.process_id, handles.id_mod, handles.id_cond);
+% handles.haxes = refresh_axes(handles.haxes, handles.processed,...
+%     handles.reader.process_id, handles.id_mod, handles.id_cond);
+
+handles.haxes = refresh_axes(handles);
 
 msg = ['Data and plots for ', '" ', handles.cond_names{handles.id_cond}, ' " updated.'];
 handles = panel_textlog(handles, msg);
@@ -133,7 +135,7 @@ loose_inset = [0 0 0 0];
 if process_id == 1
     % Series
     if nr == 1
-        % for two rows configuration
+        % for one rows configuration
         outer_pos = [0, 0, 1, 1];
         ax(1, id_cond) = axes('Parent', panel_graph(id_cond),...
             'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
@@ -146,8 +148,8 @@ if process_id == 1
         outer_pos = [0, axes_pos(1) + 1/nr, 1-axes_pos(1), axes_h];
         ax(1, id_cond) = axes('Parent', panel_graph(id_cond),...
             'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
-        set(ax(1, id_cond), 'LooseInset', loose_inset, ...
-            'FontSize', 7, 'NextPlot', 'add');
+        set(ax(1, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn, ...
+            'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
 %         set(get(ax(1, id_cond),'Title'),'String','Detection of Force Production')
         
         for i = 1:nc(2)
@@ -163,8 +165,11 @@ if process_id == 1
         outer_pos = [0, axes_pos(1) + 2/nr, 1-axes_pos(1), axes_h];
         ax(1, id_cond) = axes('Parent', panel_graph(id_cond),...
             'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
-        set(ax(1, id_cond), 'LooseInset', loose_inset, ...
-            'FontSize', 7, 'NextPlot', 'add');
+        set(ax(1, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn, ...
+            'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
+        if find(id_cond == [3, 4, 5, 9, 10, 11])
+            set(ax(1, id_cond), 'ButtonDownFcn', [])
+        end
         
         % second row from the top
         for i = 1:nc(2)
@@ -268,39 +273,52 @@ else
     
 end
 
-function ax = refresh_axes(ax, processed, process_id, id_mod, id_cond)
+% function ax = refresh_axes(ax, processed, process_id, id_mod, id_cond)
+function ax = refresh_axes(handles)
 % Function to update all plots after manual changes in dialog detect
 
+process_id = handles.reader.process_id;
+ax = handles.haxes;
+id_cond = handles.id_cond;
+id_mod = handles.id_mod;
+
 for i = 1:size(ax,1)
-    if ishandle(ax(i, id_cond))
-        cla(ax(i, id_cond));
+    for j = 1:size(ax,2)
+        if ishandle(ax(i, j))
+            cla(ax(i, j));
+        end
     end
 end
 
-plot_signals(ax, processed, id_mod(id_cond), process_id, id_cond);
+for i = 1:length(handles.conditions)
+
+    plot_signals(ax, handles.processed, handles.id_mod(i), process_id, i);
+    
+end
 
 % After refreshing axes, set the ButtonDownFcn callback function
 if process_id == 1
-    
-    if id_mod(id_cond) == 1
-        for j = 2:5
-            set(ax(j, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn);
-        end
-    elseif id_mod(id_cond) == 2
-        for j = 2:4
-            set(ax(j, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn);
-        end
-    elseif id_mod(id_cond) == 3
-        for j = 2:3
-            set(ax(j, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn);
-        end
-    elseif id_mod(id_cond) == 4
-        for j = 2:4
-            set(ax(j, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn);
-        end
-    elseif id_mod(id_cond) == 5
-        for j = 2:4
-            set(ax(j, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn);
+    for k = 1:11
+        if id_mod(k) == 1
+            for j = 1:5
+                set(ax(j, k), 'ButtonDownFcn', @axes_ButtonDownFcn);
+            end
+        elseif id_mod(k) == 2
+            for j = 1:4
+                set(ax(j, k), 'ButtonDownFcn', @axes_ButtonDownFcn);
+            end
+        elseif id_mod(k) == 3
+            for j = 2:3
+                set(ax(j, k), 'ButtonDownFcn', @axes_ButtonDownFcn);
+            end
+        elseif id_mod(k) == 4
+            for j = 1:4
+                set(ax(j, k), 'ButtonDownFcn', @axes_ButtonDownFcn);
+            end
+        elseif id_mod(k) == 5
+            for j = 2:4
+                set(ax(j, k), 'ButtonDownFcn', @axes_ButtonDownFcn);
+            end
         end
     end
     

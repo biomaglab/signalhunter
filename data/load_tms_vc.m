@@ -22,6 +22,10 @@ if filt_id
     data_load = load([load_path load_file]);
     reader = data_load.reader;
     processed = data_load.processed;
+    
+    if ~isfield(reader, 'process_id')
+        reader.process_id = 1;
+    end
 end
 
 

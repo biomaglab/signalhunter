@@ -41,15 +41,23 @@ movegui(hObject, 'center');
 
 id = handles.id_mod(handles.id_cond);
 
-% id == 6 was split in two different cases to make logical easier
-% so id = 10 is the set of contractions 
-if id == 6
+if id == 1 || id == 4
     if handles.id_axes == 1
-        id = 10;
-    elseif handles.id_axes == 2
-        id = 6;
+        id = 11;
+    elseif handles.id_axes == 61 || handles.id_axes == 73 || handles.id_axes == 85
+        id = 14;
     end
+elseif id == 2 && handles.id_axes == 13
+    id = 12;
+elseif id == 3
+    % This is disabled beacuse it's not necessary now
+    if handles.id_axes == 25 || handles.id_axes == 37 || handles.id_axes == 49
+        id = 13;
+    end
+elseif id == 6 && handles.id_axes == 1
+    id = 10;
 end
+
 
 % pushbutton names
 pb_names = {{'Contraction Duration',... #id 1
@@ -91,7 +99,23 @@ pb_names = {{'Contraction Duration',... #id 1
     {'Contraction Duration 1',... #id 10
     'Maximum Contraction 1',...
     'Contraction Duration 2',...
-    'Maximum Contraction 2'}};
+    'Maximum Contraction 2'},...
+     {'Contraction 1',... #id 11
+    'Contraction 2',...
+    'Contraction 3',...
+    'Contraction 4'},...
+    {'Contraction 1',... #id 12
+    'Contraction 2',...
+    'Contraction 3',...
+    'None'},...
+    {'Contraction 1',... #id 13
+    'Contraction 2',...
+    'None',...
+    'None'},...
+    {'Contraction 1',... #id 14
+    'Contraction 2',...
+    'Contraction 3',...
+    'Contraction 4'}};
 
 % creates the panel for buttons in dialog_detect
 panelgraph_pos = [1.5/50 0.275 1/4 4/6];
@@ -232,23 +256,12 @@ if id == 1
     set(pb_detect(4), 'Visible', 'on');
     set(hstr(4,1), 'Visible', 'on');
     set(hstr(4,2), 'Visible', 'on');
-elseif id == 2
-    
-elseif id == 3
-        
-elseif id == 4
     
 elseif id == 5
     set(pb_detect(3), 'Visible', 'on');
     set(hstr(3,1), 'Visible', 'on');
     set(pb_detect(4), 'Visible', 'on');
     set(hstr(4,1), 'Visible', 'on');
-        
-elseif id == 6
-    
-elseif id == 7
-    
-elseif id == 8
     
 elseif id == 9
     set(pb_detect(2), 'Visible', 'off');
@@ -262,6 +275,27 @@ elseif id == 10
     set(pb_detect(4), 'Visible', 'on');
     set(hstr(4,1), 'Visible', 'on');
     
+elseif id == 11
+    set(pb_detect(3), 'Visible', 'on');
+    set(hstr(3,1), 'Visible', 'on');
+    set(hstr(3,2), 'Visible', 'on');
+    set(pb_detect(4), 'Visible', 'on');
+    set(hstr(4,1), 'Visible', 'on');
+    set(hstr(4,2), 'Visible', 'on');
+      
+elseif id == 12
+    set(pb_detect(3), 'Visible', 'on');
+    set(hstr(3,1), 'Visible', 'on');
+    set(hstr(3,2), 'Visible', 'on');
+    
+elseif id == 14
+    set(hstr(1,2), 'Visible', 'off');
+    set(hstr(2,2), 'Visible', 'off');
+    set(pb_detect(3), 'Visible', 'on');
+    set(hstr(3,1), 'Visible', 'on');
+    set(pb_detect(4), 'Visible', 'on');
+    set(hstr(4,1), 'Visible', 'on');
+
 end
 
 handles.axesdetect = axesdetect;
@@ -304,93 +338,3 @@ function pushbutton_close_Callback(~, ~)
 % Callback - button to resume window
 uiresume;
 
-
-% --- Set of functions to collect cursor coordinates in a graph
-
-% Function GETPTS used to detect (x,y) coordinates. The best one is to use
-% DATACURSORMODE, but it changes the focus of window to MATLAB main
-% window after pressing ENTER to select the point. The funcion GINPUT is
-% also a better approach, but the cross is not limited to the AXES, which
-% makes the interface ugly.
-% hold on
-%
-% GETPTS script to get (x,y) coordinates.
-% % Show information text to guide user to press enter button.
-% set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
-%     'String', 'Select the minimum contraction force and click ENTER');
-% [x(1), y(1)] = getpts(handles.axesdetect);
-% str = ['(',num2str(x(1),'%0.3g'),', ',num2str(y(1),'%0.3g'),')'];
-% text(x(1),y(1),str,'VerticalAlignment','bottom');
-% % plot(handles.axesdetect, x(1), y(1), 'xr', 'MarkerFaceColor', 'r', ...
-% %     'LineWidth', 2, 'MarkerSize', 11);
-% plot([x(1)*0.95 x(1)*1.05], [y(1) y(1)],'r');
-% set(handles.text_contrac_min, 'String', num2str(y(1)));
-% 
-% % Show information text to guide user to press enter button.
-% set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
-%     'String', 'Select the maximum contraction force and click ENTER');
-% [x(2), y(2)] = getpts(handles.axesdetect);
-% str = ['(',num2str(x(2),'%0.3g'),', ',num2str(y(2),'%0.3g'),')'];
-% text(x(2),y(2),str,'VerticalAlignment','bottom');
-% % plot(handles.axesdetect, x(2), y(2), 'xg', 'MarkerFaceColor', 'g', ...
-% %     'LineWidth', 2, 'MarkerSize', 11);
-% plot([x(2)*0.95 x(2)*1.05], [y(2) y(2)],'r');
-% set(handles.text_contrac_max, 'String', num2str(y(2)));
-% 
-% hold off
-% 
-% % Remove information text to guide user to press enter button.
-% set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
-% 
-% handles.peaks = [x(1), y(1); x(2), y(2)];
-
-% --------
-
-% GINPUT script to get (x,y) coordinates.
-% hold on
-% pos = ginput(1);
-% plot(handles.axesdetect, pos(1), pos(2), 'or');
-% set(handles.text_amp_min, 'String', num2str(pos(2)));
-% 
-% pos = ginput(1);
-% plot(handles.axesdetect, pos(1), pos(2), 'ob');
-% set(handles.text_amp_max, 'String', num2str(pos(2)));
-% hold off
-
-% --------
-
-% DATACURSORMODE script to get (x,y) coordinates.
-% hold on
-% for i = 1:2
-%     dcm_obj = datacursormode(gcf);
-%     set(dcm_obj,'DisplayStyle','datatip',...
-%         'SnapToDataVertex','off','Enable','on', ...
-%         'UpdateFcn', @update_data_text)  
-%     
-%     pause
-%    
-%     c_info = getCursorInfo(dcm_obj);
-%     pos = c_info.Position;
-%     
-%     if i == 1
-%         set(handles.text_amp_min, 'String', num2str(pos(2)));
-%         plot(handles.axesdetect, pos(1), pos(2), '+r','LineWidth', 3);
-%     else
-%         set(handles.text_amp_max, 'String', num2str(pos(2)));
-%         plot(handles.axesdetect, pos(1), pos(2), '+g','LineWidth', 3);
-%     end
-%     dcm_obj.removeDataCursor(dcm_obj.CurrentDataCursor);
-%     set(dcm_obj, 'Enable', 'off');
-% end
-% hold off
-
-
-% Extra function to add text to graph with points coordinates
-% % function txt = update_data_text(hObject, eventdata)
-% % % Callback - function to update DataTip for DATACURSORMODE
-% % handles = guidata(hObject);
-% % 
-% % pos = get(eventdata,'Position');
-% % txt = {['Time: ',num2str(pos(1))],...
-% % 	   ['Amplitude: ',num2str(pos(2))],...
-% %        'Press Enter to Select Point.'};

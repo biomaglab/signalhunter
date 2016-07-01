@@ -1077,3 +1077,251 @@ switch id_pb
         
 
 end
+
+
+function handles = pb_mod11(handles, id_pb, id)
+% Mode 1, first graph
+% Allow user to change start and end of each contraction
+
+axesdetect = handles.axesdetect;
+pb_name = handles.pb_names{id}(id_pb);
+info_text = handles.info_text;
+hstr = handles.hstr(id_pb, :);
+
+isi = handles.processed.signal.isi;
+
+% ---- Delete previous plots
+if isfield(handles,'hvol_contrac_start')
+    if ishandle(handles.hvol_contrac_start(id_pb))
+        delete(handles.hvol_contrac_start(id_pb))
+        delete(handles.hvol_contrac_end(id_pb))
+    end
+end
+% ----
+
+yl = get(axesdetect, 'YLim');
+
+% ---- Contraction neurostim instant
+hold on
+
+% Show information text to guide user to press enter button.
+set(info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', ['Select ' pb_name ' start and click ENTER']);
+[x(1), ~] = getpts(axesdetect);
+set(hstr(1,1), 'String', num2str(x(1),'%.2f'));
+handles.hvol_contrac_start(id_pb) = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)],'r');
+
+% ---- Contraction end
+set(info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', ['Select ' pb_name ' end and click ENTER']);
+[x(2), ~] = getpts(axesdetect);
+set(hstr(1,2), 'String', num2str(x(2),'%.2f'));
+handles.hvol_contrac_end(id_pb) = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)],'g');
+
+% ----
+
+% Remove information text to guide user to press enter button.
+set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
+
+% Update contraction start and end
+handles.processed.vol_contrac_start(id_pb) = round(x(1)*1/(isi*10^-3));
+handles.processed.vol_contrac_end(id_pb) = round(x(2)*1/(isi*10^-3));
+
+function handles = pb_mod12(handles, id_pb, id)
+% Mode 2, second graphic 1
+% Allow user to change start and end of each contraction
+
+axesdetect = handles.axesdetect;
+pb_name = handles.pb_names{id}(id_pb);
+info_text = handles.info_text;
+hstr = handles.hstr(id_pb, :);
+
+isi = handles.processed.signal.isi;
+
+% ---- Delete previous plots
+if isfield(handles,'hvol_contrac_start')
+    if ishandle(handles.hstim_contrac_start_p(id_pb))
+        delete(handles.hstim_contrac_start_p(id_pb))
+        delete(handles.hstim_contrac_end(id_pb))
+    end
+end
+% ----
+
+yl = get(axesdetect, 'YLim');
+
+% ---- Contraction neurostim instant
+hold on
+
+% Show information text to guide user to press enter button.
+set(info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', ['Select ' pb_name ' start and click ENTER']);
+[x(1), ~] = getpts(axesdetect);
+set(hstr(1,1), 'String', num2str(x(1),'%.2f'));
+handles.hvol_contrac_start(id_pb) = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)],'r');
+
+% ---- Contraction end
+set(info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', ['Select ' pb_name ' end and click ENTER']);
+[x(2), ~] = getpts(axesdetect);
+set(hstr(1,2), 'String', num2str(x(2),'%.2f'));
+handles.hvol_contrac_end(id_pb) = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)],'g');
+
+% ----
+
+% Remove information text to guide user to press enter button.
+set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
+
+% Update contraction start and end
+handles.processed.stim_contrac_start_p(id_pb) = round(x(1)*1/(isi*10^-3));
+handles.processed.stim_contrac_end(id_pb) = round(x(2)*1/(isi*10^-3));
+
+
+function handles = pb_mod13(handles, id_pb, id)
+% Mode 2, second graphic 1
+% Allow user to change start and end of each contraction
+% This is disabled beacuse it's not necessary now
+
+axesdetect = handles.axesdetect;
+pb_name = handles.pb_names{id}(id_pb);
+info_text = handles.info_text;
+hstr = handles.hstr(id_pb, :);
+
+k = handles.id_cond - 1;
+
+isi = handles.processed.signal.isi;
+
+% ---- Delete previous plots
+if isfield(handles,'hM_wave_start_I')
+    if ishandle(handles.hM_wave_start_I(id_pb))
+        delete(handles.hM_wave_start_I(id_pb))
+        delete(handles.hM_wave_end_I(id_pb))
+    end
+end
+% ----
+
+yl = get(axesdetect, 'YLim');
+
+% ---- Contraction neurostim instant
+hold on
+
+% Show information text to guide user to press enter button.
+set(info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', ['Select ' pb_name ' start and click ENTER']);
+[x(1), ~] = getpts(axesdetect);
+set(hstr(1,1), 'String', num2str(x(1),'%.2f'));
+handles.hM_wave_start_I(id_pb) = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)],'r');
+
+% ---- Contraction end
+set(info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', ['Select ' pb_name ' end and click ENTER']);
+[x(2), ~] = getpts(axesdetect);
+set(hstr(1,2), 'String', num2str(x(2),'%.2f'));
+handles.hM_wave_end_I(id_pb) = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)],'g');
+
+% ----
+
+% Remove information text to guide user to press enter button.
+set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
+
+% Update contraction start and end
+handles.processed.M_wave_start_I(id_pb+1,k) = round(x(1)*1/(isi*10^-3));
+handles.processed.M_wave_end_I(id_pb+1,k) = round(x(2)*1/(isi*10^-3));
+
+
+function handles = pb_mod14(handles, id_pb, id)
+% Mode 4 and screens 6, 7, 8
+% Allow user to change instant of neurostimulation
+axesdetect = handles.axesdetect;
+pb_name = handles.pb_names{id}(id_pb);
+info_text = handles.info_text;
+hstr = handles.hstr(id_pb, :);
+
+i = handles.id_cond - 4;
+
+processed = handles.processed;
+contrac_neurostim = processed.contrac_neurostim;
+M_wave_ex_max_I = processed.M_wave_ex_max_I;
+M_wave_ex_min_I = processed.M_wave_ex_min_I;
+M_wave_ex_start_I = processed.M_wave_ex_start_I;
+M_wave_ex_end_I = processed.M_wave_ex_end_I;
+signal = processed.signal;
+data = signal.data;
+isi = processed.signal.isi;
+
+
+% ---- Delete previous plots
+if isfield(handles,'hcontrac_neurostim')
+    if ishandle(handles.hcontrac_neurostim(id_pb))
+        delete(handles.hcontrac_neurostim(id_pb))
+    end
+end
+% ----
+
+yl = get(axesdetect, 'YLim');
+
+% ---- Contraction neurostim instant
+hold on
+
+% Show information text to guide user to press enter button.
+set(info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', ['Select ' pb_name ' start and click ENTER']);
+[x(1), ~] = getpts(axesdetect);
+set(hstr(1,1), 'String', num2str(x(1),'%.2f'));
+handles.hcontrac_neurostim(id_pb) = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)],'r');
+% ----
+
+% Remove information text to guide user to press enter button.
+set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
+
+% Update contraction start and end
+contrac_neurostim(id_pb,i) = round(x(1)*1/(isi*10^-3));
+
+% Update the neurostim instant and M_wave properties of three correspondent
+% muscles only related to the modified neurostim.
+for k=2:1:4
+    [~, M_wave_ex_max] = max(data(contrac_neurostim(id_pb,k)+20 : contrac_neurostim(id_pb,k)+2000,k));
+    M_wave_ex_max_I(id_pb,k) = M_wave_ex_max + contrac_neurostim(id_pb,k)+20;
+    [~, M_wave_ex_min] = min(data(contrac_neurostim(id_pb,k)+20 : contrac_neurostim(id_pb,k)+2000,k));
+    M_wave_ex_min_I(id_pb,k) = M_wave_ex_min + contrac_neurostim(id_pb,k)+20;
+    
+    % find M_wave start for neurostim during exercise
+    if M_wave_ex_max_I(id_pb,k) < M_wave_ex_min_I(id_pb,k)
+        j=1; diff_dat=1;
+        while diff_dat>=0
+            diff_dat = data(M_wave_ex_max_I(id_pb,k)-j,k) - data(M_wave_ex_max_I(id_pb,k)-j-1,k);
+            j=j+1;
+        end
+        M_wave_ex_start_I(id_pb,k) = M_wave_ex_max_I(id_pb,k) - j;
+        M_wave_ex_start(id_pb,k) = data(M_wave_ex_start_I(id_pb,k),k);
+    else
+        j=1; diff_dat=1;
+        while diff_dat>=0
+            diff_dat = data(M_wave_ex_min_I(id_pb,k)-j,k) - data(M_wave_ex_min_I(id_pb,k)-j-1,k);
+            j=j+1;
+        end
+        M_wave_ex_start_I(id_pb,k) = M_wave_ex_min_I(id_pb,k) - j;
+        M_wave_ex_start(id_pb,k) = data(M_wave_ex_start_I(id_pb,k),k);
+    end
+    clearvars diff_dat
+    
+    % find M-wave end for neurostim during exercise
+    j=1;
+    while data(M_wave_ex_min_I(id_pb,k) + j,k)<= 0.001 %0.05
+        j = j+1;
+    end
+    win_after = 1000;
+    if j > 10 && j < win_after
+        M_wave_ex_end_I(id_pb,k) = M_wave_ex_min_I(id_pb,k)+j;
+        M_wave_ex_end(id_pb,k) = data(M_wave_ex_min_I(id_pb,k),k);
+    else
+        [M_wave_endt, M_wave_end_It] = max(data(M_wave_ex_min_I(id_pb,k)+1:M_wave_ex_min_I(id_pb,k) + win_after,k));
+        M_wave_ex_end(id_pb,k) = M_wave_endt;
+        M_wave_ex_end_I(id_pb,k) = M_wave_end_It + M_wave_ex_min_I(id_pb,k) + 1;
+    end
+end
+
+handles.processed.contrac_neurostim = contrac_neurostim;
+handles.processed.M_wave_ex_max_I = M_wave_ex_max_I;
+handles.processed.M_wave_ex_min_I = M_wave_ex_min_I;
+handles.processed.M_wave_ex_start_I = M_wave_ex_start_I;
+handles.processed.M_wave_ex_end_I = M_wave_ex_end_I;

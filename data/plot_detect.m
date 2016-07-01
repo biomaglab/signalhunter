@@ -378,3 +378,107 @@ for i=2:1:3
     handles.hcontrac_max(i) = plot(axesdetect, [Time(contrac_max_I(i)-10000) Time(contrac_max_I(i)+10000)],[contrac_max(i) contrac_max(i)],'k');
 end
 hold off
+
+
+function handles = plot_fcn11(handles)
+
+axesdetect = handles.axesdetect;
+processed = handles.processed;
+
+vol_contrac_start = processed.vol_contrac_start;
+vol_contrac_end = processed.vol_contrac_end;
+
+signal = processed.signal;
+data = signal.data;
+Time = signal.time;
+isi = signal.isi;
+
+
+plot(axesdetect, Time,data(:,1));
+yl = get(axesdetect, 'YLim');
+
+hold on
+for i=1:4
+    handles.hvol_contrac_start(i) = plot(axesdetect, [vol_contrac_start(i)*isi*10^-3 vol_contrac_start(i)*isi*10^-3],...
+        [yl(1) yl(2)],'r');
+    handles.hvol_contrac_end(i) = plot(axesdetect, [vol_contrac_end(i)* isi*10^-3 vol_contrac_end(i)* isi*10^-3],...
+        [yl(1) yl(2)],'r');
+end
+hold off
+
+function handles = plot_fcn12(handles)
+
+axesdetect = handles.axesdetect;
+processed = handles.processed;
+
+stim_contrac_start_p = processed.stim_contrac_start_p;
+stim_contrac_end = processed.stim_contrac_end;
+
+signal = processed.signal;
+data = signal.data;
+Time = signal.time;
+isi = signal.isi;
+
+plot(axesdetect, Time,data(:,1));
+hold on
+yl = get(axesdetect, 'YLim');
+
+for i = 1:3
+    handles.hstim_contrac_start_p(i) = plot(axesdetect, [stim_contrac_start_p(i)* isi*10^-3 stim_contrac_start_p(i)* isi*10^-3],...
+        [yl(1) yl(2)],'r');
+    handles.hstim_contrac_end(i) = plot(axesdetect, [stim_contrac_end(i)* isi*10^-3 stim_contrac_end(i)* isi*10^-3],...
+        [yl(1) yl(2)],'r');
+end
+hold off
+
+function handles = plot_fcn13(handles)
+% This is disabled beacuse it's not necessary now
+
+axesdetect = handles.axesdetect;
+processed = handles.processed;
+
+M_wave_start_I = processed.M_wave_start_I;
+M_wave_end_I = processed.M_wave_end_I;
+
+k = handles.id_cond - 1;
+
+signal = processed.signal;
+data = signal.data;
+Time = signal.time;
+isi = signal.isi;
+
+plot(axesdetect, Time,data(:,k));
+hold on
+yl = get(axesdetect, 'YLim');
+
+for i = 2:3
+    handles.hM_wave_start_I(i-1) = plot(axesdetect, [M_wave_start_I(i,k)* isi*10^-3 M_wave_start_I(i,k)* isi*10^-3],...
+        [yl(1) yl(2)],'r');
+    handles.hM_wave_end_I(i-1) = plot(axesdetect, [M_wave_end_I(i,k)* isi*10^-3 M_wave_end_I(i,k)* isi*10^-3],...
+        [yl(1) yl(2)],'r');
+end
+hold off
+
+function handles = plot_fcn14(handles)
+
+axesdetect = handles.axesdetect;
+processed = handles.processed;
+
+contrac_neurostim = processed.contrac_neurostim;
+k = handles.id_cond - 4;
+
+signal = processed.signal;
+data = signal.data;
+Time = signal.time;
+
+nr = size(contrac_neurostim,1);
+
+plot(axesdetect, Time,data(:,k));
+hold on
+yl = get(axesdetect, 'YLim');
+
+for i = 1:nr
+    handles.hcontrac_neurostim(i) = plot(axesdetect,...
+        [Time(contrac_neurostim(i,k)) Time(contrac_neurostim(i,k))], [yl(1) yl(2)],'r');
+end
+hold off
