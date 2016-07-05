@@ -5,10 +5,10 @@ function varargout = dialog_detect(handles)
 
 % create the figure, uicontrols and return the handles
 hObject = figure_creation(handles);
-varargout{1} = output_dialog_detect(hObject);
+varargout{1} = output_dialog(hObject);
 
 
-function varargout = output_dialog_detect(hObject)
+function varargout = output_dialog(hObject)
 % Output function for dialog_detect
 
 uiwait(hObject);

@@ -9,8 +9,6 @@ else
 end
 
 
-
-
 function handles = panel_creation(handles)
 
 % position of panel text log considering the panel files and progress bar
@@ -53,6 +51,7 @@ opening_log = ['% -- Processing started at ', day,...
     '/', month, '/', num2str(t(1)), ' ',...
     hour, ':', min];
 
+
 % Text field to real-time log
 handles.edit_log = uicontrol(handles.panel_txtlog, 'Style', 'edit',...
     'Units', 'normalized', 'String', opening_log, 'Enable', 'inactive',...
@@ -60,14 +59,10 @@ handles.edit_log = uicontrol(handles.panel_txtlog, 'Style', 'edit',...
     'HorizontalAlignment', 'left');
 set(handles.edit_log, 'Position', edit_pos);
 
+
 function write_text_log(heditlog, msg)
 
 msg = ['>> ', msg];
 oldmsgs = cellstr(get(heditlog,'String'));
 set(heditlog,'String',[cellstr(msg);oldmsgs]);
 
-% for i = 1:50
-%     oldmsgs = cellstr(get(handles.edit_log,'String'));
-%     set(handles.edit_log,'String',[{['>>> My message ' num2str(i)]};oldmsgs]);
-%     pause(0.5);
-% end

@@ -5,7 +5,6 @@ function handles = panel_files(handles)
 handles = panel_creation(handles);
 
 
-
 function handles = panel_creation(handles)
 
 paneltools_pos = get(handles.panel_tools, 'Position');
@@ -57,7 +56,6 @@ switch lower(handles.data_id)
         set(pushbutton_save, 'Visible', 'off')
         align([pushbutton_load, pushbutton_export, pushbutton_save], 'None', 'Distribute');
 end
-
 
 
 function pushbutton_load_Callback(hObject, eventdata)

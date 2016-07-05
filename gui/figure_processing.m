@@ -1,20 +1,18 @@
-function figure_processing(varargin)
-if ~isempty(varargin)
-    handles.data_id = varargin{1};
-    handles.map_template = varargin{2};
-    handles.map_shape = varargin{3};
-else
-    handles.map_shape = [5,13];
-    handles.map_template = (1:handles.map_shape(1)*handles.map_shape(2));
-end
+function figure_processing
+% if ~isempty(varargin)
+%     handles.data_id = varargin{1};
+%     handles.map_template = varargin{2};
+%     handles.map_shape = varargin{3};
+% else
+%     handles.map_shape = [5,13];
+%     handles.map_template = (1:handles.map_shape(1)*handles.map_shape(2));
+% end
 
-map_figure_creation(handles);
-
-
+map_figure_creation;
 
 
 % --- Executes just before map_figure is made visible.
-function hObject = map_figure_creation(handles)
+function map_figure_creation
 
 set(0,'units','pixels');
 scnsize = get(0,'screensize');
@@ -82,52 +80,14 @@ axis off;
 % create logos panel
 panel_logo_biomag(handles);
 
-if isfield(handles,'data_id')
-    % decide wich panel tools to create depending on the type of application
-    switch lower(handles.data_id)
-        
-        case 'tms + vc'
-            % create text log panel
-            handles = panel_textlog(handles, []);
-            handles = panel_tms_vc(handles);
-            set(handles.subtools(1), 'Checked', 'on');
-            
-        case 'mep analysis'
-            % create text log panel
-            handles = panel_textlog(handles, []);
-            handles = panel_mepanalysis(handles);
-            set(handles.subtools(2), 'Checked', 'on');
-            
-        case 'otbio'
-            handles = panel_otbio(handles);
-            set(handles.subtools(3), 'Checked', 'on');
-            
-        case 'myosystem'
-            disp('myosystem selected');
-            
-        case 'biopac'
-            disp('biopac selected');
-            
-        case 'bin'
-            disp('bin selected');
-            
-        case 'ascii'
-            disp('ascii selected');
-    end
-    
-    handles = panel_files(handles);
-else
-    handles = panel_textlog(handles, []);
-end
-
+% start processing log
+handles = panel_textlog(handles, []);
 
 % Update handles structure
 guidata(hObject, handles);
 
 
-
 % --- Callbacks for GUI objects.
-
 function callback_open(hObject, eventdata)
 % Callback - Sub Menu 1
 handles = guidata(hObject);
@@ -190,9 +150,11 @@ switch lower(handles.data_id)
         disp('bin selected');
         
     case 'ascii'
-        disp('ascii selected');  
+        disp('ascii selected');
     
 end
+
+handles = panel_files(handles);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -201,8 +163,10 @@ function callback_createnew(hObject, eventdata)
 % Callback - Sub Menu 2
 handles = guidata(hObject);
 % set(handles.fig,'Visible','off')
-close(handles.fig)
-signalhunter
+% close(handles.fig)
+% signalhunter
+[data_id, map_template, map_shape] = dialog_create_new;
+guidata(hObject, handles);
 
 function callback_savelog(hObject, eventdata)
 % Callback - Sub Menu 2
