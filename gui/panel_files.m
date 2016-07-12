@@ -64,24 +64,18 @@ handles = guidata(hObject);
 
 switch lower(handles.data_id)
     case 'tms + vc'
-%         try
-%             [handles.reader, handles.processed] = load_tms_vc(handles.reader);
-%             delete(handles.panel_graph);
-%             handles = graphs_tms_vc(handles);
-%             % message to progress log
-%             msg = 'Processed data loaded.';
-%             handles = panel_textlog(handles, msg);          
-%         catch
-%             % message to progress log
-%             msg = 'Loading canceled.';
-%             handles = panel_textlog(handles, msg);            
-%         end
-        [handles.reader, handles.processed] = load_tms_vc(handles.reader);
-        delete(handles.panel_graph);
-        handles = graphs_tms_vc(handles);
-        % message to progress log
-        msg = 'Processed data loaded.';
-        handles = panel_textlog(handles, msg);
+        try
+            [handles.reader, handles.processed] = load_tms_vc(handles.reader);
+            delete(handles.panel_graph);
+            handles = graphs_tms_vc(handles);
+            % message to progress log
+            msg = 'Processed data loaded.';
+            handles = panel_textlog(handles, msg);          
+        catch
+            % message to progress log
+            msg = 'Loading canceled.';
+            handles = panel_textlog(handles, msg);            
+        end
         
     case 'mep analysis'
         % message to progress log

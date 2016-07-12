@@ -1,4 +1,10 @@
 function figure_processing
+% Main figure of signalhunter to open and process all data
+% Figure is divided into panels and menus. Each panel may be filled
+% according to the application of interest. Modular programming must be
+% done to avoid redundancy.
+
+% Example of old varargin use for figure_processing
 % if ~isempty(varargin)
 %     handles.data_id = varargin{1};
 %     handles.map_template = varargin{2};
@@ -94,6 +100,8 @@ handles = guidata(hObject);
 
 handles.data_id = get(hObject,'Label');
 
+guidata(handles.fig, handles);
+
 % message to progress log
 msg = 'Reading signal data...';
 handles = panel_textlog(handles, msg);
@@ -157,7 +165,7 @@ end
 handles = panel_files(handles);
 
 % Update handles structure
-guidata(hObject, handles);
+guidata(handles.fig, handles);
 
 function callback_createnew(hObject, eventdata)
 % Callback - Sub Menu 2
