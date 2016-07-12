@@ -30,6 +30,7 @@ frame_start = cell(output_reader.n_meps,1);
 mep_amp = zeros(output_reader.n_meps,1);
 mep_pmin = zeros(output_reader.n_meps,2);
 mep_pmax = zeros(output_reader.n_meps,2);
+
 for i = 1:output_reader.n_meps
     fig_titles{i,1} = data.frameinfo(i).label;
     states{i,1} = data.frameinfo(i).state;
@@ -37,6 +38,7 @@ for i = 1:output_reader.n_meps
     [mep_amp(i), mep_pmin(i,:), mep_pmax(i,:)] = peak2peak_amplitude(output_reader.xs,...
         output_reader.signal(:,i), output_reader.fs);
 end
+
 output_reader.fig_titles = fig_titles;
 output_reader.states = states;
 output_reader.frame_start = frame_start;
@@ -53,6 +55,4 @@ output_reader.mep_pmax_bkp = mep_pmax;
 output_reader.mep_lat_bkp = zeros(output_reader.n_meps,1);
 output_reader.mep_end_bkp = zeros(output_reader.n_meps,1);
 output_reader.mep_dur_bkp = zeros(output_reader.n_meps,1);
-
-
 

@@ -1,20 +1,24 @@
-function figure_processing(varargin)
-if ~isempty(varargin)
-    handles.data_id = varargin{1};
-    handles.map_template = varargin{2};
-    handles.map_shape = varargin{3};
-else
-    handles.map_shape = [5,13];
-    handles.map_template = (1:handles.map_shape(1)*handles.map_shape(2));
-end
+function figure_processing
+% Main figure of signalhunter to open and process all data
+% Figure is divided into panels and menus. Each panel may be filled
+% according to the application of interest. Modular programming must be
+% done to avoid redundancy.
 
-map_figure_creation(handles);
+% Example of old varargin use for figure_processing
+% if ~isempty(varargin)
+%     handles.data_id = varargin{1};
+%     handles.map_template = varargin{2};
+%     handles.map_shape = varargin{3};
+% else
+%     handles.map_shape = [5,13];
+%     handles.map_template = (1:handles.map_shape(1)*handles.map_shape(2));
+% end
 
-
+map_figure_creation;
 
 
 % --- Executes just before map_figure is made visible.
-function hObject = map_figure_creation(handles)
+function map_figure_creation
 
 set(0,'units','pixels');
 scnsize = get(0,'screensize');
@@ -82,57 +86,21 @@ axis off;
 % create logos panel
 panel_logo_biomag(handles);
 
-if isfield(handles,'data_id')
-    % decide wich panel tools to create depending on the type of application
-    switch lower(handles.data_id)
-        
-        case 'tms + vc'
-            % create text log panel
-            handles = panel_textlog(handles, []);
-            handles = panel_tms_vc(handles);
-            set(handles.subtools(1), 'Checked', 'on');
-            
-        case 'mep analysis'
-            % create text log panel
-            handles = panel_textlog(handles, []);
-            handles = panel_mepanalysis(handles);
-            set(handles.subtools(2), 'Checked', 'on');
-            
-        case 'otbio'
-            handles = panel_otbio(handles);
-            set(handles.subtools(3), 'Checked', 'on');
-            
-        case 'myosystem'
-            disp('myosystem selected');
-            
-        case 'biopac'
-            disp('biopac selected');
-            
-        case 'bin'
-            disp('bin selected');
-            
-        case 'ascii'
-            disp('ascii selected');
-    end
-    
-    handles = panel_files(handles);
-else
-    handles = panel_textlog(handles, []);
-end
-
+% start processing log
+handles = panel_textlog(handles, []);
 
 % Update handles structure
 guidata(hObject, handles);
 
 
-
 % --- Callbacks for GUI objects.
-
 function callback_open(hObject, eventdata)
 % Callback - Sub Menu 1
 handles = guidata(hObject);
 
 handles.data_id = get(hObject,'Label');
+
+guidata(handles.fig, handles);
 
 % message to progress log
 msg = 'Reading signal data...';
@@ -190,19 +158,23 @@ switch lower(handles.data_id)
         disp('bin selected');
         
     case 'ascii'
-        disp('ascii selected');  
+        disp('ascii selected');
     
 end
 
+handles = panel_files(handles);
+
 % Update handles structure
-guidata(hObject, handles);
+guidata(handles.fig, handles);
 
 function callback_createnew(hObject, eventdata)
 % Callback - Sub Menu 2
 handles = guidata(hObject);
 % set(handles.fig,'Visible','off')
-close(handles.fig)
-signalhunter
+% close(handles.fig)
+% signalhunter
+[data_id, map_template, map_shape] = dialog_create_new;
+guidata(hObject, handles);
 
 function callback_savelog(hObject, eventdata)
 % Callback - Sub Menu 2
@@ -212,23 +184,38 @@ handles = guidata(hObject);
 value = 1/2;
 progbar_update(handles.progress_bar, value)
 
-sub_name = handles.reader.sub_name;
-leg = handles.reader.leg;
-series_nb = handles.reader.series_nb;
-
-filename = [sub_name '_' leg '_' num2str(series_nb) '.txt'];
+if isfield(handles,'reader')
+    
+    sub_name = handles.reader.sub_name;
+    leg = handles.reader.leg;
+    series_nb = handles.reader.series_nb;
+    process_id = handles.reader.process_id;
+    
+    if process_id == 1
+        filename = [sub_name '_' leg '_Serie' num2str(series_nb) '.txt'];
+    elseif process_id == 2
+        filename = [sub_name '_' leg '_MVCpre.txt'];
+    elseif process_id == 3
+        filename = [sub_name '_' leg '_MVC2min.txt'];       
+    end
+    
+else
+    filename = 'processing_log.txt';
+end
 
 % loading output template
-[output_file, ouput_path, ~] = uiputfile({'*.txt','Text File (*.txt)'},...
+[output_file, ouput_path, filt_id] = uiputfile({'*.txt','Text File (*.txt)'},...
     'Save processing log', filename);
 
 log = get(handles.edit_log,'String');
 
-fileID = fopen([ouput_path output_file],'w');
-for i = 1:length(log)
-    fprintf(fileID,'%s \r\n', log{i});
+if filt_id
+    fileID = fopen([ouput_path output_file],'w');
+    for i = 1:length(log)
+        fprintf(fileID,'%s \r\n', log{i});
+    end
+    fclose(fileID);
 end
-fclose(fileID);
 
 % progress bar update
 value = 1;

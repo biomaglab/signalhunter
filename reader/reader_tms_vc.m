@@ -69,7 +69,10 @@ line_to_read_2 = find(find_name==1,1);
 line_to_read_2 = line_to_read_2 - 2;
 order_TMS = num_S(line_to_read_2,1);
 
-fig_titles = {'Whole set of contractions + voluntary contractions characteristics',...
+%TODO: Show an error if none of the following condintions is satisfied
+if strcmp(filename(1:5),'Serie') == 1
+    process_id = 1;
+    fig_titles = {'Whole set of contractions + voluntary contractions characteristics',...
     'Whole set of contractions + neurostim while @ rest',...
     strcat('Neurostim @ rest ', signal.labels(2,:)),...
     strcat('Neurostim @ rest ', signal.labels(3,:)),...
@@ -80,8 +83,20 @@ fig_titles = {'Whole set of contractions + voluntary contractions characteristic
     strcat('TMS & MEP ', signal.labels(2,:)),...
     strcat('TMS & MEP ', signal.labels(3,:)),...
     strcat('TMS & MEP ', signal.labels(4,:))};
+elseif strcmp(filename(1:6),'MVCpre') == 1
+    process_id = 2;
+    fig_titles = {'Force channel MVC pre',...
+    'EMG channels MVC pre'};
+elseif strcmp(filename(1:7),'MVC2min') == 1
+    process_id = 3;
+    fig_titles = {'MVC 2min force analysis',...
+    'MVC 2min, RMS channels'};
+else
+    process_id = 4;   
+end
 
 output_reader.filename = filename;
+output_reader.process_id = process_id;
 output_reader.pathname = pathname;
 output_reader.sub_name = sub_name;
 output_reader.leg = leg;
