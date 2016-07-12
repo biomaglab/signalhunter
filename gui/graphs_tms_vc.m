@@ -94,17 +94,15 @@ function axes_ButtonDownFcn(hObject, eventdata)
 % Callback for Button Down in each axes
 handles = guidata(hObject);
 
-% ['coisa ' num2str(find(gca == handles.haxes(:)))]
 handles.id_axes = find(gca == handles.haxes(:,:));
-handles = dialog_detect(handles);
-% handles.haxes = refresh_axes(handles.haxes, handles.processed,...
-%     handles.reader.process_id, handles.id_mod, handles.id_cond);
-
+handles = dialog_detect_tms_vc(handles);
+hwbar = waitbar(0.5, 'Updating graphics...');
 handles.haxes = refresh_axes(handles);
 
 msg = ['Data and plots for ', '" ', handles.cond_names{handles.id_cond}, ' " updated.'];
 handles = panel_textlog(handles, msg);
-
+waitbar(1.0, hwbar)
+close(hwbar)
 % Update handles structure
 guidata(hObject, handles);
 
@@ -115,7 +113,6 @@ function ax = graph_model(panel_graph, ax, model, process_id, id_cond)
 % columns (nc)
 % axes pos: is the set of axes position in normalized units
 % axes_w, axes_h    axes width and heigth, respectively - depends on the
-
 
 nr = model(1);
 nc = model(2:nr+1);

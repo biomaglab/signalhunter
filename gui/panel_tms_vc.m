@@ -149,8 +149,7 @@ end
 value = 1;
 progbar_update(handles.progress_bar, value)
 % cla(handles.haxes(1:end,1:end));
-
-'pushbutton clean callback'
+% 'pushbutton clean callback'
 
 % Update handles structure
 guidata(hObject, handles);
@@ -189,8 +188,6 @@ function pushbutton_reset_Callback(hObject, eventdata)
 vars = guidata(hObject);
 
 handles.data_id = vars.data_id;
-handles.map_template = vars.map_template;
-handles.map_shape = vars.map_shape;
 handles.fig = vars.fig;
 handles.menufile = vars.menufile;
 handles.subopen = vars.subopen;
