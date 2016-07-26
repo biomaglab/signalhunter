@@ -55,6 +55,8 @@ handles.otbio = uimenu(handles.subopen, 'Label', 'OTBio',...
     'Callback', @callback_open);
 handles.tms_vc = uimenu(handles.subopen, 'Label', 'TMS + VC',...
     'Callback', @callback_open);
+handles.tms_vc = uimenu(handles.subopen, 'Label', 'EMF Analysis',...
+    'Callback', @callback_open);
 
 
 handles.subsavelog = uimenu(handles.menufile, 'Label', 'Save log',...
@@ -159,6 +161,14 @@ switch lower(handles.data_id)
         
     case 'ascii'
         disp('ascii selected');
+        
+    case 'emf analysis'
+        msg = 'EMF data are oppening';
+        handles = panel_textlog(handles, msg);
+        handles = panel_emf(handles);
+        set(handles.subtools(4), 'Checked', 'on');
+        msg = '>>> OK';
+        handles = panel_textlog(handles, msg);
     
 end
 
