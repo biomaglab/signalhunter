@@ -166,7 +166,7 @@ switch lower(handles.data_id)
         msg = 'EMF data are oppening';
         handles = panel_textlog(handles, msg);
         handles = panel_emf(handles);
-        set(handles.subtools(4), 'Checked', 'on');
+%         set(handles.subtools(4), 'Checked', 'on');
         msg = '>>> OK';
         handles = panel_textlog(handles, msg);
     
