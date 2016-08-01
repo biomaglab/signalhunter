@@ -1,4 +1,4 @@
 signalhunter
 ============
 
-Sigal Hunter is a MATLAB software for electrohysiological data analysis and visualization.
+Signal Hunter is a MATLAB software for electrophysiological data analysis and visualization.
