@@ -26,7 +26,7 @@ end
 
 process_id = handles.reader.process_id;
 
-% all_models represente the axes distribution in the panel
+% all_models represents the axes distribution in the panel
 % format: [n rows, mcols in row 1, pcols in row 2, qcols in row n]
 
 if process_id == 1
@@ -72,7 +72,7 @@ for i = 1:length(handles.conditions)
     
     handles.haxes = graph_model(handles.panel_graph, handles.haxes,...
         model, process_id, i);
-    plot_signals(handles.haxes, handles.processed,...
+    plot_tms_vc(handles.haxes, handles.processed,...
         handles.id_mod(i), process_id, i);
     
     % progress bar update
@@ -234,7 +234,7 @@ elseif process_id == 2
             set(ax(nc(1)+i, id_cond), 'LooseInset', loose_inset,...
                 'FontSize', 7, 'NextPlot', 'add');
             set(get(ax(nc(1)+i, id_cond),'XLabel'),'String','Time (s)')
-            set(get(ax(nc(1)+i, id_cond),'YLabel'),'String','Force (N)')
+            set(get(ax(nc(1)+i, id_cond),'YLabel'),'String','EMG (N)')
         end
     end
     
@@ -289,7 +289,7 @@ end
 
 for i = 1:length(handles.conditions)
 
-    plot_signals(ax, handles.processed, handles.id_mod(i), process_id, i);
+    plot_tms_vc(ax, handles.processed, handles.id_mod(i), process_id, i);
     
 end
 

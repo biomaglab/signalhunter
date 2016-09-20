@@ -3,11 +3,12 @@ function [varargout] = dialog_create_new
 %   Detailed explanation goes here
 
 hObject = dialog_creation;
-[varargout{1}, varargout{2}, varargout{3}] = output_dialog(hObject);
-a = 2;
+% [varargout{1}, varargout{2}, varargout{3}] = output_dialog(hObject);
+[varargout{1}, varargout{2}] = output_dialog(hObject);
 
 
-function [data_id, map_template, map_shape] = output_dialog(hObject)
+% function [data_id, map_template, map_shape] = output_dialog(hObject)
+function [map_template, map_shape] = output_dialog(hObject)
 % Output function for dialog_detect
 
 uiwait(hObject);
@@ -33,7 +34,7 @@ end
 
 v = get (handles.popup1, 'Value');
 s = get (handles.popup1, 'String');
-data_id = s{v};
+% data_id = s{v};
 map_template = pos;
 map_shape = size(data_mat);
 

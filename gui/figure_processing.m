@@ -146,13 +146,20 @@ switch lower(handles.data_id)
         
     % TMS and OT Bioelettronica Processing - Victor Souza application
     case 'otbio'
-        callback_otbio(handles.fig);
-        handles = graphs_otbio(handles);
+        handles = callback_otbio(handles.fig);
+        handles = callback_createnew(handles.fig);
+        handles.reader = reader_multi;
+        
+        msg = ['Data opened.', 'Number of frames: '];
+        handles = panel_textlog(handles, msg);
+        
+        handles = graphs_multi(handles);
         
     case 'myosystem'
         disp('myosystem selected');
         msg = 'may the force be with you!';
         handles = panel_textlog(handles, msg);
+        
     case 'biopac'
         disp('biopac selected');
         
@@ -177,13 +184,16 @@ handles = panel_files(handles);
 % Update handles structure
 guidata(handles.fig, handles);
 
-function callback_createnew(hObject, eventdata)
+function handles = callback_createnew(hObject, eventdata)
 % Callback - Sub Menu 2
 handles = guidata(hObject);
 % set(handles.fig,'Visible','off')
 % close(handles.fig)
 % signalhunter
-[data_id, map_template, map_shape] = dialog_create_new;
+% [data_id, map_template, map_shape] = dialog_create_new;
+[map_template, map_shape] = dialog_create_new;
+handles.map_template = map_template;
+handles.map_shape = map_shape;
 guidata(hObject, handles);
 
 function callback_savelog(hObject, eventdata)
@@ -287,7 +297,7 @@ end
 % Update handles structure
 guidata(hObject, handles);
 
-function callback_otbio(hObject, eventdata)
+function handles = callback_otbio(hObject, eventdata)
 % Callback - Sub Menu 2
 
 handles = guidata(hObject);
@@ -302,10 +312,10 @@ if isfield(handles, 'panel_graph')
     handles = rmfield(handles, 'haxes');
 end
 
-if strcmp(get(handles.subtools(2), 'Checked'),'on')
+if strcmp(get(handles.subtools(3), 'Checked'),'on')
     set(handles.subtools(3), 'Checked', 'off');
 else
-    handles = panel_otbio(handles);
+    handles = panel_multi(handles);
     set(handles.subtools(:), 'Checked', 'off');
     set(handles.subtools(3), 'Checked', 'on');
 end
