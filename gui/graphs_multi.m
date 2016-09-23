@@ -1,7 +1,7 @@
 % Creates GUI panel and controls for OT Bioelettronica Processing
 % This module create all panels and its axes that will be used to plot the
 % signals
-function handles = graphs_otbio(handles)
+function handles = graphs_multi(handles)
 % Initialization function to create GUI of axes
 
 handles = graph_creation(handles);

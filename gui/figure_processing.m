@@ -47,11 +47,11 @@ handles.bin = uimenu(handles.subopen, 'Label', 'Bin',...
     'Callback', @callback_open);
 handles.biopac = uimenu(handles.subopen, 'Label', 'Biopac',...
     'Callback', @callback_open);
-handles.mep = uimenu(handles.subopen, 'Label', 'MEP Analysis',...
+handles.mep = uimenu(handles.subopen, 'Label', 'MEP analysis',...
     'Callback', @callback_open);
 handles.myosystem = uimenu(handles.subopen, 'Label', 'Myosystem',...
     'Callback', @callback_open);
-handles.otbio = uimenu(handles.subopen, 'Label', 'OTBio',...
+handles.otbio = uimenu(handles.subopen, 'Label', 'Multi channels',...
     'Callback', @callback_open);
 handles.tms_vc = uimenu(handles.subopen, 'Label', 'TMS + VC',...
     'Callback', @callback_open);
@@ -64,15 +64,26 @@ handles.subsavelog = uimenu(handles.menufile, 'Label', 'Save log',...
 handles.subnew = uimenu(handles.menufile, 'Label', 'Create New',...
     'Callback', @callback_createnew);
 
+handles.hsubdata = uimenu(handles.menufile, 'Label', 'Data');
+
+uimenu(handles.hsubdata, 'Label', 'Export data table',...
+    'Callback', @(obj, eventdata)callback_data(obj, eventdata, 'export'));
+uimenu(handles.hsubdata, 'Label', 'Load MAT file',...
+    'Callback', @(obj, eventdata)callback_data(obj, eventdata, 'load'));
+uimenu(handles.hsubdata, 'Label', 'Save MAT file',...
+    'Callback', @(obj, eventdata)callback_data(obj, eventdata, 'save'));
+
+set(handles.hsubdata, 'Enable', 'off');
+
 %--------------------------------------------------------------------------
 % creates the menu bar 2 with 1 submenu
 handles.menutools = uimenu('Label', 'Processing Tools', 'Parent', hObject);
 handles.subtools(1) = uimenu(handles.menutools, 'Label', 'TMS + VC',...
     'Callback', @callback_tms_vc);
-handles.subtools(2) = uimenu(handles.menutools, 'Label', 'MEP Analysis',...
+handles.subtools(2) = uimenu(handles.menutools, 'Label', 'MEP analysis',...
     'Callback', @callback_mepanalysis);
 handles.subtools(3) = uimenu(handles.menutools, 'Label',...
-    'OT Bioelettronica', 'Callback', @callback_otbio);
+    'Multi channels', 'Callback', @callback_multi);
 
 set(handles.menutools, 'Visible', 'on');
 
@@ -100,7 +111,8 @@ function callback_open(hObject, eventdata)
 % Callback - Sub Menu 1
 handles = guidata(hObject);
 
-handles.data_id = get(hObject,'Label');
+handles.data_id = lower(get(hObject,'Label'));
+set(handles.hsubdata, 'Enable', 'on');
 
 guidata(handles.fig, handles);
 
@@ -109,13 +121,14 @@ msg = 'Reading signal data...';
 handles = panel_textlog(handles, msg);
 
 % decide wich set of axes to create depending on type of application
-switch lower(handles.data_id)
+switch handles.data_id
     
     % TMS and Voluntary Contraction Processing - Sarah Dias application
     case 'tms + vc'
         if strcmp(get(handles.subtools(1), 'Checked'),'off')
             handles = callback_tms_vc(handles.fig);
         end
+        handles = panel_tms_vc(handles);
         handles.reader = reader_tms_vc;
         
         msg = ['Data opened: "', handles.reader.sub_name,...
@@ -137,6 +150,7 @@ switch lower(handles.data_id)
     % MEP analysis Signal Processing - Abrahao Baptista application
     case 'mep analysis'
         callback_mepanalysis(handles.fig);
+        handles = panel_otbio(handles);
         handles.reader = reader_mepanalysis;
         
         msg = ['Data opened.', 'Number of frames: ',  handles.reader.n_meps,];
@@ -144,15 +158,18 @@ switch lower(handles.data_id)
         
         handles = graphs_mepanalysis(handles);
         
-    % TMS and OT Bioelettronica Processing - Victor Souza application
-    case 'otbio'
-        handles = callback_otbio(handles.fig);
+    % Multiple channels - Victor Souza application
+    case 'multi channels'
+        handles = callback_multi(handles.fig);
         handles = callback_createnew(handles.fig);
         handles.reader = reader_multi;
         
         msg = ['Data opened.', 'Number of frames: '];
         handles = panel_textlog(handles, msg);
         
+        set(handles.hsubdata, 'Enable', 'on');
+        
+        handles = panel_multi(handles);
         handles = graphs_multi(handles);
         
     case 'myosystem'
@@ -263,7 +280,6 @@ end
 if strcmp(get(handles.subtools(1), 'Checked'),'on')
     set(handles.subtools(1), 'Checked', 'off');
 else
-    handles = panel_tms_vc(handles);
     set(handles.subtools(:), 'Checked', 'off');
     set(handles.subtools(1), 'Checked', 'on');
 end
@@ -289,7 +305,6 @@ end
 if strcmp(get(handles.subtools(2), 'Checked'),'on')
     set(handles.subtools(2), 'Checked', 'off');
 else
-    handles = panel_otbio(handles);
     set(handles.subtools(:), 'Checked', 'off');
     set(handles.subtools(2), 'Checked', 'on');
 end
@@ -297,7 +312,7 @@ end
 % Update handles structure
 guidata(hObject, handles);
 
-function handles = callback_otbio(hObject, eventdata)
+function handles = callback_multi(hObject, eventdata)
 % Callback - Sub Menu 2
 
 handles = guidata(hObject);
@@ -315,7 +330,6 @@ end
 if strcmp(get(handles.subtools(3), 'Checked'),'on')
     set(handles.subtools(3), 'Checked', 'off');
 else
-    handles = panel_multi(handles);
     set(handles.subtools(:), 'Checked', 'off');
     set(handles.subtools(3), 'Checked', 'on');
 end

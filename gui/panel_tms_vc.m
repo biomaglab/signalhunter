@@ -133,25 +133,26 @@ set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
 % Update handles structure
 guidata(hObject, handles);
 
-function pushbutton_clean_Callback(hObject, eventdata)
-% Callback - Button Clean
-handles = guidata(hObject);
-
-for i = 1:size(handles.haxes,1)
-    for j = 1:size(handles.haxes,2)
-        if ishandle(handles.haxes(i,j))
-            cla(handles.haxes(i,j));
-        end
-    end
-end
-
-% progress bar update
-value = 1;
-progbar_update(handles.progress_bar, value)
-% cla(handles.haxes(1:end,1:end));
-% 'pushbutton clean callback'
-
-% Update handles structure
+% no use
+% function pushbutton_clean_Callback(hObject, eventdata)
+% % Callback - Button Clean
+% handles = guidata(hObject);
+% 
+% for i = 1:size(handles.haxes,1)
+%     for j = 1:size(handles.haxes,2)
+%         if ishandle(handles.haxes(i,j))
+%             cla(handles.haxes(i,j));
+%         end
+%     end
+% end
+% 
+% % progress bar update
+% value = 1;
+% progbar_update(handles.progress_bar, value)
+% % cla(handles.haxes(1:end,1:end));
+% % 'pushbutton clean callback'
+% 
+% % Update handles structure
 guidata(hObject, handles);
 
 function pushbutton_open_Callback(hObject, eventdata)
@@ -199,13 +200,15 @@ handles.panel_tools = vars.panel_tools;
 handles.edit_idcond = vars.edit_idcond;
 handles.panel_txtlog = vars.edit_idcond;
 handles.edit_log = vars.edit_log;
+handles.hsubdata = vars.hsubdata;
 
 set(handles.edit_idcond, 'String', '1');
+set(handles.hsubdata, 'Enable', 'off');
 
 delete(vars.panel_graph);
 
 % message to progress log
-msg = 'Signal Hunter for TMS + VC restarted.';
+msg = 'Signal Hunter restarted.';
 handles = panel_textlog(handles, msg);
 
 % Update handles structure

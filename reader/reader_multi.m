@@ -8,6 +8,18 @@ function output_reader = reader_multi
 
 % signal = load([pathname filename]);
 
+% works for CSV file
+[A, dlmout, hdrout] = importdata(f1); 
+
+%get sampling frequency
+fs_str = A7.textdata{1};
+a1 = find(fs_str == '=');
+b1 = find (fs_str == '/');
+fs = str2double(fs_str(a1+2:b1-1));
+chans = str2double(fs_str(b1+1:end-1));
+
+fs = A7.textdata{1};
+
 signal.Time = linspace(0,2*pi,100);
 % y = sin(signal.Time)';
 % signal.data = repmat(y, 1, 15, 2);
