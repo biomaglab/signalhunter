@@ -42,16 +42,11 @@ pos_x = flipud(pos_x);
 % second row of buttons
 pb_clean_pos = [pos_x(2,1), pos_y(2), w(2), h];
 pb_reset_pos = [pos_x(2,2), pos_y(2), w(2), h];
+
 % first row of buttons
 pb_prev_pos = [pos_x(1,1), pos_y(1), w(1)+0.07, h];
 pb_next_pos = [pos_x(1,2)+0.07, pos_y(1), w(1)+0.07, h];
 edit_idcond_pos = [pos_x(1,3)+0.15, pos_y(1)+0.02, w(1)-0.05, h-0.05];
-
-% % push button to clean plots
-% pushbutton_clean = uicontrol(handles.panel_tools, 'String', 'Clean',...
-%     'Units', 'normalized', 'FontWeight', 'bold', ...
-%     'Callback', @pushbutton_clean_Callback);
-% set(pushbutton_clean, 'Position', pb_clean_pos);
 
 % push button to clean plots
 pushbutton_open = uicontrol(handles.panel_tools, 'String', 'Open',...
@@ -84,12 +79,11 @@ handles.edit_idcond = uicontrol(handles.panel_tools, 'Style', 'edit',...
     'Callback', @edit_idcond_Callback);
 set(handles.edit_idcond, 'Position', edit_idcond_pos, 'FontSize', 0.4);
 
-% align([pushbutton_prev, pushbutton_next, handles.edit_idcond], 'Distribute', 'Center');
-
 % Update handles structure
 guidata(hObject, handles);
 
-function pushbutton_next_Callback(hObject, eventdata)
+
+function pushbutton_next_Callback(hObject, ~)
 % Callback - Button Next Condition
 handles = guidata(hObject);
 
@@ -111,7 +105,8 @@ set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
 % Update handles structure
 guidata(hObject, handles);
 
-function pushbutton_prev_Callback(hObject, eventdata)
+
+function pushbutton_prev_Callback(hObject, ~)
 % Callback - Button Previous Condition
 handles = guidata(hObject);
 
@@ -133,29 +128,8 @@ set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
 % Update handles structure
 guidata(hObject, handles);
 
-% Butto clean unused
-% function pushbutton_clean_Callback(hObject, eventdata)
-% % Callback - Button Clean
-% handles = guidata(hObject);
-% 
-% for i = 1:size(handles.haxes,1)
-%     for j = 1:size(handles.haxes,2)
-%         if ishandle(handles.haxes(i,j))
-%             cla(handles.haxes(i,j));
-%         end
-%     end
-% end
-% 
-% % progress bar update
-% value = 1;
-% progbar_update(handles.progress_bar, value)
-% % cla(handles.haxes(1:end,1:end));
-% % 'pushbutton clean callback'
-% 
-% % Update handles structure
-% guidata(hObject, handles);
 
-function pushbutton_open_Callback(hObject, eventdata)
+function pushbutton_open_Callback(hObject, ~)
 % Callback - Button Open
 handles = guidata(hObject);
 
@@ -184,7 +158,8 @@ handles = graphs_tms_vc(handles);
 % Update handles structure
 guidata(hObject, handles);
 
-function pushbutton_reset_Callback(hObject, eventdata)
+
+function pushbutton_reset_Callback(hObject, ~)
 % Callback - Button Reset
 vars = guidata(hObject);
 
@@ -206,13 +181,14 @@ set(handles.edit_idcond, 'String', '1');
 delete(vars.panel_graph);
 
 % message to progress log
-msg = 'Signal Hunter for TMS + VC restarted.';
+msg = 'Signal Hunter for multi processing restarted.';
 handles = panel_textlog(handles, msg);
 
 % Update handles structure
 guidata(hObject, handles);
 
-function edit_idcond_Callback(hObject, eventdata)
+
+function edit_idcond_Callback(hObject, ~)
 % Callback - Edit Condition Callback
 handles = guidata(hObject);
 
@@ -223,7 +199,7 @@ progbar_update(handles.progress_bar, value)
 set(handles.panel_graph(handles.id_cond), 'Visible', 'off');
 id = str2double(get(handles.edit_idcond, 'String'));
 
-if id > 0 && id <= length(handles.id_mod)
+if id > 0 && id <= handles.conditions(end)
    handles.id_cond = id; 
 else
    handles.id_cond = 1;

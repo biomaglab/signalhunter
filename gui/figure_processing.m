@@ -110,6 +110,7 @@ guidata(hObject, handles);
 function callback_open(hObject, eventdata)
 % Callback - Sub Menu 1
 handles = guidata(hObject);
+open_id = 0;
 
 handles.data_id = lower(get(hObject,'Label'));
 set(handles.hsubdata, 'Enable', 'on');
@@ -140,12 +141,13 @@ switch handles.data_id
         msg = 'Processing TMS + VC data...';
         handles = panel_textlog(handles, msg);
         
-        handles.processed = processing_tms_vc(handles.reader);
+        handles.processed = process_tms_vc(handles.reader);
         
         msg = 'Data processed.';
         handles = panel_textlog(handles, msg);
         
         handles = graphs_tms_vc(handles);
+        open_id = 1;
     
     % MEP analysis Signal Processing - Abrahao Baptista application
     case 'mep analysis'
@@ -153,24 +155,32 @@ switch handles.data_id
         handles = panel_otbio(handles);
         handles.reader = reader_mepanalysis;
         
-        msg = ['Data opened.', 'Number of frames: ',  handles.reader.n_meps,];
+        msg = ['Data opened.', 'Number of MEPs: ',  handles.reader.n_meps];
         handles = panel_textlog(handles, msg);
         
         handles = graphs_mepanalysis(handles);
+        open_id = 1;
         
     % Multiple channels - Victor Souza application
     case 'multi channels'
         handles = callback_multi(handles.fig);
         handles = callback_createnew(handles.fig);
-        handles.reader = reader_multi;
+        [handles.reader, open_id] = reader_multi;
         
-        msg = ['Data opened.', 'Number of frames: '];
-        handles = panel_textlog(handles, msg);
+        if open_id
+            msg = 'Data opened.';
+            handles = panel_textlog(handles, msg);
+            set(handles.hsubdata, 'Enable', 'on');
+            
+            handles = panel_multi(handles);
+            handles = graphs_multi(handles);
+            
+        else
+           msg = 'Open canceled.';
+           handles = panel_textlog(handles, msg);
+            
+        end
         
-        set(handles.hsubdata, 'Enable', 'on');
-        
-        handles = panel_multi(handles);
-        handles = graphs_multi(handles);
         
     case 'myosystem'
         disp('myosystem selected');
@@ -196,7 +206,9 @@ switch handles.data_id
     
 end
 
-handles = panel_files(handles);
+if open_id
+    handles = panel_files(handles);
+end
 
 % Update handles structure
 guidata(handles.fig, handles);

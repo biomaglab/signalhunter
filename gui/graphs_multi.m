@@ -22,12 +22,14 @@ if ~isfield(handles, 'id_cond')
    handles.id_cond = 1; 
 end
 
-% process_id = handles.reader.process_id;
-process_id = 1;
-data = handles.reader.signal.data;
+% data = handles.reader.signal.data;
 
-nr = handles.map_shape(1);
-nc = handles.map_shape(2);
+% temporary just to test
+% nr = handles.map_shape(1);
+% nc = handles.map_shape(2);
+
+nr = 3;
+nc = 4;
 
 % axes_h = axes_pos(4)/nr;
 % axes_w = axes_pos(3)/nc;
@@ -36,24 +38,22 @@ nc = handles.map_shape(2);
 % format: [n rows, mcols in row 1, pcols in row 2, qcols in row n]
 
 % handles.id_mod = [1, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5];
-handles.id_mod = 1;
+% handles.id_mod = 1;
 handles.processed = [];
-handles.conditions = (1:size(data,3));
-handles.cond_names = {{'cond1'}, {'cond2'}};
-% all_models = {[3 1 4 7], [2 1 3], [3 1 2 4], [3 1 3 3], [3 1 3 6]};
+handles.conditions = (1:handles.reader.n_files);
 model = [nr nc];
 n_axes = nr*nc;
 
-% handles.cond_names = handles.reader.fig_titles;
+handles.cond_names = handles.reader.fig_titles;
 
-handles.panel_graph = zeros(1, length(handles.conditions));
-handles.haxes = zeros(n_axes, length(handles.conditions));
+handles.panel_graph = zeros(1, handles.conditions(end));
+handles.haxes = zeros(n_axes, handles.conditions(end));
 
 % creates the panel for multiple graphs processing
 % position depends on the tool's panel size
 
 tic
-for i = 1:length(handles.conditions)
+for i = 1:handles.conditions(end)
     panelgraph_mar = [panel_pos(1), 2*panel_pos(2),...
         2*panel_pos(1), 3*panel_pos(2)];
     panelgraph_pos = [panelgraph_mar(1), panelgraph_mar(2)+panel_pos(4),...
@@ -64,20 +64,20 @@ for i = 1:length(handles.conditions)
     set(handles.panel_graph(i), 'Position', panelgraph_pos)
        
     handles.haxes = graph_model(handles.panel_graph, handles.haxes,...
-        model, process_id, i);
+        model, i);
 %     plot_multi(handles.haxes, handles.processed,...
 %         handles.id_mod(i), process_id, i);
     for j = 1:n_axes
         id_axes = [j, i];
-        [~] = plot_multi(handles.haxes(j, i), handles.reader, id_axes);
+        [~] = plot_multi(handles.haxes(j, i), handles.reader, id_axes, i);
     end
 %     plot_multi(handles.haxes, handles.reader, i);
     
     % progress bar update
-    value = i/length(handles.conditions);
+    value = i/handles.conditions(end);
     progbar_update(handles.progress_bar, value);
     
-    msg = ['Plots of ', '" ', int2str(i), ' " done.'];
+    msg = ['Plots of ', '" ', handles.cond_names{i}, ' " done.'];
     handles = panel_textlog(handles, msg);
     
 end
@@ -88,17 +88,20 @@ set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
 guidata(handles.fig, handles);
 
 
-function axes_ButtonDownFcn(hObject, eventdata)
+function axes_ButtonDownFcn(hObject, ~)
 % Callback for Button Down in each axes
 handles = guidata(hObject);
 
 handles.id_axes = find(gca == handles.haxes(:,:));
 handles = dialog_detect_multi(handles);
+
 hwbar = waitbar(0.5, 'Updating graphics...');
+
 handles.haxes = refresh_axes(handles);
 
 msg = ['Data and plots for ', '" ', handles.cond_names{handles.id_cond}, ' " updated.'];
 handles = panel_textlog(handles, msg);
+
 waitbar(1.0, hwbar)
 close(hwbar)
 
@@ -106,7 +109,7 @@ close(hwbar)
 guidata(hObject, handles);
 
 
-function ax = graph_model(panel_graph, ax, model, process_id, id_cond)
+function ax = graph_model(panel_graph, ax, model, id_cond)
 
 % creates axes for signal plot
 % all_models and model: configuration number of rows (nr) and columns (nc)
@@ -122,10 +125,8 @@ axes_pos = [0.009, 0.012, 0.991, 0.984];
 axes_h = axes_pos(4)/nr;
 axes_w = axes_pos(3)/nc;
 
-% loose inset set to zero eliminates empty spaces between axes
+% zero loose inset eliminates empty spaces between axes
 loose_inset = [0 0 0 0];
-
-% MVC Pre
 
 for i=1:nr*nc
     ri = ceil(i/nr)-1;
@@ -137,7 +138,7 @@ for i=1:nr*nc
     set(ax(i, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn,...
         'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
     set(get(ax(i, id_cond),'XLabel'),'String','Time (s)')
-    set(get(ax(i, id_cond),'YLabel'),'String','EMG (V)')
+    set(get(ax(i, id_cond),'YLabel'),'String','EMG (uV)')
 end
 
 
@@ -156,10 +157,8 @@ for i = 1:size(ax,1)
     end
 end
 
-for i = 1:length(handles.conditions)
-    
-    plot_signals(ax, handles.processed, handles.id_mod(i), process_id, i);
-    
+for i = 1:handles.conditions(end)
+    [~] = plot_multi(handles.haxes(j, i), handles.reader, id_axes);   
 end
 
 % After refreshing axes, set the ButtonDownFcn callback function

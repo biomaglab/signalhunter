@@ -15,10 +15,12 @@ function handles = graph_creation(handles)
 panel_pos = get(handles.panel_tools, 'Position');
 
 % initializing variables
-% id_cond is the condition identifier; conditions is a vector of all
-% conditions being processed; panel_graph is the vector of panel handles
-% that are parent of all axes, haxes is a vector of handles of all axes and
-% cond_names is the name of all conditions
+% id_cond: condition identifier;
+% conditions: vector of all conditions being processed;
+% panel_graph: vector of panel handles parent of all axes
+% haxes: vector of handles of all axes
+% cond_names: name of all conditions
+
 
 if ~isfield(handles, 'id_cond')
    handles.id_cond = 1; 
