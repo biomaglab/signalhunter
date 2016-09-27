@@ -166,12 +166,13 @@ switch handles.data_id
         handles = callback_multi(handles.fig);
         handles = callback_createnew(handles.fig);
         [handles.reader, open_id] = reader_multi;
-        
+                
         if open_id
             msg = 'Data opened.';
             handles = panel_textlog(handles, msg);
             set(handles.hsubdata, 'Enable', 'on');
             
+            handles.processed = process_multi(handles.reader);
             handles = panel_multi(handles);
             handles = graphs_multi(handles);
             

@@ -47,37 +47,43 @@ n_axes = nr*nc;
 handles.cond_names = handles.reader.fig_titles;
 
 handles.panel_graph = zeros(1, handles.conditions(end));
-handles.haxes = zeros(n_axes, handles.conditions(end));
+handles.haxes = zeros(nr, nc, handles.conditions(end));
 
 % creates the panel for multiple graphs processing
 % position depends on the tool's panel size
 
 tic
-for i = 1:handles.conditions(end)
+for k = 1:handles.conditions(end)
     panelgraph_mar = [panel_pos(1), 2*panel_pos(2),...
         2*panel_pos(1), 3*panel_pos(2)];
     panelgraph_pos = [panelgraph_mar(1), panelgraph_mar(2)+panel_pos(4),...
         1-panelgraph_mar(3) 1-(panelgraph_mar(4)+panel_pos(4))];
-    handles.panel_graph(i) = uipanel(handles.fig, 'BackgroundColor', 'w', ...
-        'Title', handles.cond_names{i},...
+    handles.panel_graph(k) = uipanel(handles.fig, 'BackgroundColor', 'w', ...
+        'Title', handles.cond_names{k},...
         'Units', 'normalized', 'Visible', 'off');
-    set(handles.panel_graph(i), 'Position', panelgraph_pos)
+    set(handles.panel_graph(k), 'Position', panelgraph_pos)
        
     handles.haxes = graph_model(handles.panel_graph, handles.haxes,...
-        model, i);
+        model, k);
 %     plot_multi(handles.haxes, handles.processed,...
 %         handles.id_mod(i), process_id, i);
-    for j = 1:n_axes
-        id_axes = [j, i];
-        [~] = plot_multi(handles.haxes(j, i), handles.reader, id_axes, i);
+%     for j = 1:n_axes
+%         id_axes = [j, k];
+%         [~] = plot_multi(handles.haxes(j, k), handles.reader, id_axes, k);
+%     end
+    for i = 1:nr
+        for j = 1:nc
+            id_axes = [i, j, k];
+            [~] = plot_multi(handles.haxes(i, j, k), handles.reader, id_axes, k);
+        end
     end
 %     plot_multi(handles.haxes, handles.reader, i);
     
     % progress bar update
-    value = i/handles.conditions(end);
+    value = k/handles.conditions(end);
     progbar_update(handles.progress_bar, value);
     
-    msg = ['Plots of ', '" ', handles.cond_names{i}, ' " done.'];
+    msg = ['Plots of ', '" ', handles.cond_names{k}, ' " done.'];
     handles = panel_textlog(handles, msg);
     
 end
@@ -128,19 +134,33 @@ axes_w = axes_pos(3)/nc;
 % zero loose inset eliminates empty spaces between axes
 loose_inset = [0 0 0 0];
 
-for i=1:nr*nc
-    ri = ceil(i/nr)-1;
-    ci = mod(i-1,nr)+1;
-    outer_pos = [axes_pos(1)+(ri)*axes_w,...
-        axes_pos(2)+(nr - ci)*axes_h, axes_w, axes_h];
-    ax(i, id_cond) = axes('Parent', panel_graph(id_cond),...
-        'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
-    set(ax(i, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn,...
-        'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
-    set(get(ax(i, id_cond),'XLabel'),'String','Time (s)')
-    set(get(ax(i, id_cond),'YLabel'),'String','EMG (uV)')
+for i=1:nr
+    for j=1:nc
+        ri = i-1;
+        ci = j;
+        outer_pos = [axes_pos(1)+(ri)*axes_w,...
+            axes_pos(2)+(nr - ci)*axes_h, axes_w, axes_h];
+        ax(i, j, id_cond) = axes('Parent', panel_graph(id_cond),...
+            'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
+        set(ax(i, j, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn,...
+            'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
+        set(get(ax(i, j, id_cond),'XLabel'),'String','Time (s)')
+        set(get(ax(i, j, id_cond),'YLabel'),'String','EMG (uV)')
+    end
 end
 
+% for i=1:nr*nc
+%     ri = ceil(i/nr)-1;
+%     ci = mod(i-1,nr)+1;
+%     outer_pos = [axes_pos(1)+(ri)*axes_w,...
+%         axes_pos(2)+(nr - ci)*axes_h, axes_w, axes_h];
+%     ax(i, id_cond) = axes('Parent', panel_graph(id_cond),...
+%         'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
+%     set(ax(i, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn,...
+%         'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
+%     set(get(ax(i, id_cond),'XLabel'),'String','Time (s)')
+%     set(get(ax(i, id_cond),'YLabel'),'String','EMG (uV)')
+% end
 
 
 function ax = refresh_axes(handles)

@@ -38,8 +38,8 @@ if path_aux
     side = cell(n_frames,1);
     condition = cell(n_frames,1);
     instant = cell(n_frames,n_instants);
-    fsamp = cell(n_frames,n_instants);
-    chans = cell(n_frames,n_instants);
+    fs = cell(n_frames,n_instants);
+%     chans = cell(n_frames,n_instants);
     
     signal = struct;
     
@@ -58,13 +58,17 @@ if path_aux
             file_prop{i,j} = strsplit(file_names{i,j}, {'_', '.'});
             instant{i,j} = file_prop{i,j}(4);
             
-            % extract sampling frequency from comments
-            fs_str = data_aux{i,j}.textdata{1};
-            fsamp{i,j} = str2double(fs_str(find(fs_str == '=')+2:find((fs_str == '/'))-1));
-            chans{i,j} = str2double(fs_str(find((fs_str == '/'))+1:end));
-            data{i,j} = data_aux{i,j}.data(:,2:end-1);
             xs{i,j} = data_aux{i,j}.data(:,1);
+            data{i,j} = data_aux{i,j}.data(:,2:end-1);
             trigger{i,j} = data_aux{i,j}.data(:,end);
+            
+            fs{i,j} =  1/(xs{i,j}(3,1)-xs{i,j}(2,1));
+                        
+            % extract sampling frequency from comments - this Fsamp does
+            % not make sense
+%             fs_str = data_aux{i,j}.textdata{1};
+%             fsamp{i,j} = str2double(fs_str(find(fs_str == '=')+2:find((fs_str == '/'))-1));
+%             chans{i,j} = str2double(fs_str(find((fs_str == '/'))+1:end));
             
         end
         subject(i,1) = file_prop{i,1}(1);
@@ -88,7 +92,7 @@ if path_aux
     output_reader.condition = condition;
     output_reader.instant = instant;
     output_reader.fig_titles = fig_titles;
-    output_reader.fsamp = fsamp;
+    output_reader.fs = fs;
     output_reader.n_files = n_files;
     output_reader.n_conditions = n_conditions;
     output_reader.n_side = n_side;
