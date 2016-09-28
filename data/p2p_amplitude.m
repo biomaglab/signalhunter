@@ -1,68 +1,68 @@
-function [amp, pmin, pmax] = p2p_amplitude(xs, data, fs)
+function [amp, pmin, pmax] = p2p_amplitude(data, fs, twin)
+%P2P_AMPLITUDE Find signal peak to peak amplitude, instant and intensity of
+%greatest intensity peak and valley
+% 
+% INPUT:
+% 
+% data: m x n array (m is signal length and n is number of potentials)
+% fs: sampling frequency in Hz
+% twin: [a b] (a is window start and b is window end for peak finding -
+% milisenconds)
+% 
+% OUTPUT:
+%
+% amp: 1 x n row vector of peak to peak amplitudes
+% pmin: 2 x n array (1st row is valley instants and 2nd row is valley
+% intensity
+% pmax: 2 x n array (1st row is peak instants and 2nd row is peak
+% intensity
+%
+
+% remove singletons dimensions
 data = squeeze(data);
-xs = squeeze(xs);
+n_signals = size(data,2);
 
-if size(data,1) > 1 && size(data,2) > 1
-    error('Data must have one dimension.');
-end
-if size(xs,1) > 1 && size(xs,2) > 1
-    error('Time vector must have one dimension.');
-end
+% convert time window in miliseconds to array position
+t0 = ceil(twin(1)*fs/1000);
+tend = ceil(twin(2)*fs/1000);
 
-t0 = 15;
-tend = 60;
+% potential window for peak finding
+potwindow = zeros(size(data,1),size(data,2));
+potwindow(t0:tend,:) = data(t0:tend,:);
 
-% find mep peak
-mepwindow = data(round(t0*fs/1000):round(tend*fs/1000));
-L = length(mepwindow);              % Length of signal
-t = xs(round(t0*fs/1000)) + (0:L-1)/fs;
-[pks, plocs] = findpeaks(mepwindow);
-%         mep_peak = t(plocs(1)); % instant of mep peak
-pp = pks == max(pks);
+peak = zeros(1, n_signals);
+valley = zeros(1, n_signals);
+tmax = zeros(1, n_signals);
+tmin = zeros(1, n_signals);
 
-% find mep valley
-[vls, vlocs] = findpeaks(-mepwindow);
-%         mep_valley = t(vlocs(1)); % instant of mep peak
-vv = vls == max(vls);
-
-% use this when i need the position of peak and peak intensity separately
-if ~isempty(plocs) && ~isempty(vlocs)
-    tv_aux = t(vlocs(vv));
-    tp_aux = t(plocs(pp));
-    v_aux = mepwindow(vlocs(vv));
-    p_aux = mepwindow(plocs(pp));
+for i = 1:n_signals
     
-    if length(tv_aux)>1 || length(tp_aux)>1
-        tv = tv_aux(1);
-        tp = tp_aux(1);
-        valley = v_aux(1);
-        peak = p_aux(1);
+    [pks, plocs] = findpeaks(potwindow(:,i));        
+    [vls, vlocs] = findpeaks(-potwindow(:,i));
+    
+    if ~isempty(plocs) && ~isempty(vlocs)
+        % instant of potential peak
+        tp_aux = plocs(pks == max(pks));
+        tmax(1,i) = tp_aux(1);
+        peak(1,i) = potwindow(tmax(1,i),i);
         
+        % instant of potential valley
+        tv_aux = vlocs(vls == max(vls));
+        tmin(1,i) = tv_aux(1);
+        valley(1,i) = potwindow(tmin(1,i),i);
     else
-        tv = tv_aux;
-        tp = tp_aux;
-        valley = v_aux;
-        peak = p_aux;
+        tmax(1,i) = 0;
+        peak(1,i) = 0;
+        
+        tmin(1,i) = 0;
+        valley(1,i) = 0;
     end
     
-    % finds the closest value on xs to the instant of peak - this avoid
-    % erros
-    [~, id_v] = min(abs(xs-tv));
-    tmin = xs(id_v);
-    [~, id_p] = min(abs(xs-tp));
-    tmax = xs(id_p);
-
-    
-    pmin = [tmin valley];
-    pmax = [tmax peak];
-
-    amp = pmax(2) - pmin(2);
-    
-else
-    pmax = [0 0];
-    pmin = [0 0];
-    amp = 0;
-    
 end
+
+pmin = [tmin; valley];
+pmax = [tmax; peak];
+
+amp = abs(peak - valley);
 
 

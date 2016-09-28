@@ -1,5 +1,5 @@
 function [split_pots, split_baseline] = split_potentials(data, trigger, fs, tpot, tbase)
-%POTENTIALS_SPLIT Split signal into potentials using trigger channel
+%SPLIT_POTENTIALS Split signal into potentials using trigger channel
 % 
 % INPUT:
 % 
@@ -17,6 +17,7 @@ function [split_pots, split_baseline] = split_potentials(data, trigger, fs, tpot
 % is channels
 % split_baseline: i x j x k array (i is baseline signal, j is potentials
 % and k is channels
+%
 
 % find trigger instants
 triggeron_aux = find(trigger/max(trigger) > 0.5);
