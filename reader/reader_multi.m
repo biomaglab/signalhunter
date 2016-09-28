@@ -9,7 +9,7 @@ function [output_reader, open_id] = reader_multi
 % signal = load([pathname filename]);
 
 % path_aux = uigetdir('D:\repository\signalhunter\tests\ACA');
-path_aux = 'E:\repository\signalhunter\tests\ACA\';
+path_aux = '.\tests\ACA\';
 file_list = struct2cell(dir(path_aux));
 file_aux = file_list(1,3:end);
 sort(file_aux);
