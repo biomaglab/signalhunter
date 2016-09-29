@@ -50,6 +50,10 @@ if path_aux
     
     file_names = reshape(file_aux, n_instants, n_frames)';
     
+    % Waitbar to show frames progess
+    % Used this instead of built-in figure progess bar to avoid need of handles
+    hbar = waitbar(0, 'File ', 'Name','Reading signal...');
+    
     % read file data
     for i = 1:n_frames
         for j = 1:n_instants
@@ -63,12 +67,16 @@ if path_aux
             trigger{i,j} = data_aux{i,j}.data(:,end);
             
             fs{i,j} =  1/(xs{i,j}(3,1)-xs{i,j}(2,1));
-                        
+            
             % extract sampling frequency from comments - this Fsamp does
             % not make sense
 %             fs_str = data_aux{i,j}.textdata{1};
 %             fsamp{i,j} = str2double(fs_str(find(fs_str == '=')+2:find((fs_str == '/'))-1));
 %             chans{i,j} = str2double(fs_str(find((fs_str == '/'))+1:end));
+
+            % Report status of reading in wait bar
+            id_bar = sub2ind([n_instants n_frames], j, i);
+            waitbar(id_bar/(n_frames*n_instants),hbar,sprintf('File %d',id_bar))
             
         end
         subject(i,1) = file_prop{i,1}(1);
@@ -76,8 +84,11 @@ if path_aux
         condition(i,1) = file_prop{i,1}(3);
         fig_titles(i,1) = strcat('subject: ', subject(i,1), ' side: ', side(i,1),...
             ' condition: ', condition(i,1));
+        
     end
+    
     clear data_aux
+    delete(hbar)
         
     signal.xs = xs;
     signal.data = data;

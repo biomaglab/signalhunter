@@ -39,8 +39,8 @@ nc = 4;
 
 % handles.id_mod = [1, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5];
 % handles.id_mod = 1;
-handles.processed = [];
-handles.conditions = (1:handles.reader.n_files);
+processed = handles.processed;
+handles.conditions = (1:handles.reader.n_frames);
 model = [nr nc];
 n_axes = nr*nc;
 
@@ -74,7 +74,7 @@ for k = 1:handles.conditions(end)
     for i = 1:nr
         for j = 1:nc
             id_axes = [i, j, k];
-            [~] = plot_multi(handles.haxes(i, j, k), handles.reader, id_axes, k);
+            [~] = plot_multi(handles.haxes(i, j, k), processed, id_axes);
         end
     end
 %     plot_multi(handles.haxes, handles.reader, i);
@@ -83,7 +83,7 @@ for k = 1:handles.conditions(end)
     value = k/handles.conditions(end);
     progbar_update(handles.progress_bar, value);
     
-    msg = ['Plots of ', '" ', handles.cond_names{k}, ' " done.'];
+    msg = ['Plots of ', int2str(k), ' done.'];
     handles = panel_textlog(handles, msg);
     
 end
@@ -122,24 +122,22 @@ function ax = graph_model(panel_graph, ax, model, id_cond)
 % axes pos: set of axes position in normalized units
 % axes_w, axes_h: axes width and heigth, respectively - depends on the
 
-nr = model(1);
-nc = model(2);
+nr = model(1); % y
+nc = model(2); % x
 
 % axes_pos = [0.009, 0.212, 0.991, 0.984];
 axes_pos = [0.009, 0.012, 0.991, 0.984];
 
+axes_w = (axes_pos(3)-2*axes_pos(1))/nc;
 axes_h = axes_pos(4)/nr;
-axes_w = axes_pos(3)/nc;
 
 % zero loose inset eliminates empty spaces between axes
 loose_inset = [0 0 0 0];
 
 for i=1:nr
     for j=1:nc
-        ri = i-1;
-        ci = j;
-        outer_pos = [axes_pos(1)+(ri)*axes_w,...
-            axes_pos(2)+(nr - ci)*axes_h, axes_w, axes_h];
+        outer_pos = [axes_pos(1)+(j-1)*axes_w,...
+            axes_pos(2)+(nr - i)*axes_h, axes_w, axes_h];
         ax(i, j, id_cond) = axes('Parent', panel_graph(id_cond),...
             'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
         set(ax(i, j, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn,...

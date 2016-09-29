@@ -168,7 +168,7 @@ switch handles.data_id
         [handles.reader, open_id] = reader_multi;
                 
         if open_id
-            msg = 'Data opened.';
+            msg = 'Succesfully read data.';
             handles = panel_textlog(handles, msg);
             set(handles.hsubdata, 'Enable', 'on');
             
@@ -214,7 +214,7 @@ end
 % Update handles structure
 guidata(handles.fig, handles);
 
-function handles = callback_createnew(hObject, eventdata)
+function handles = callback_createnew(hObject, ~)
 % Callback - Sub Menu 2
 handles = guidata(hObject);
 % set(handles.fig,'Visible','off')
@@ -226,7 +226,7 @@ handles.map_template = map_template;
 handles.map_shape = map_shape;
 guidata(hObject, handles);
 
-function callback_savelog(hObject, eventdata)
+function callback_savelog(hObject, ~)
 % Callback - Sub Menu 2
 handles = guidata(hObject);
 
@@ -275,7 +275,7 @@ progbar_update(handles.progress_bar, value)
 % menu.toolbar instatiation
 %--------------------------------------------------------------------------
 
-function handles = callback_tms_vc(hObject, eventdata)
+function handles = callback_tms_vc(hObject, ~)
 % Callback - Sub Menu 2
 
 handles = guidata(hObject);

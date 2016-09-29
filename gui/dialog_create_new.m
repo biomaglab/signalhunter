@@ -40,6 +40,7 @@ map_shape = size(data_mat);
 
 delete(hObject);
 
+
 % Get default command line output from handles structure
 % varargout{1} = data_id;
 % varargout{2} = map_template;
@@ -203,7 +204,7 @@ guidata(hObject, handles);
 
 
 % --- Executes on button press in pushbutton_ok.
-function pb_ok_Callback(~, ~)
+function pb_ok_Callback(hObject, ~)
 
 % Callback - button to resume window
 
@@ -211,7 +212,9 @@ function pb_ok_Callback(~, ~)
 % figure_processing(data_id, map_template, map_shape);
 
 % close(handles.dialog_new)
-uiresume;
+handles = guidata(hObject);
+uiresume(handles.dialog_new);
+
 
 
 % --- Executes on button press in pushbutton_OpenTemplate.
