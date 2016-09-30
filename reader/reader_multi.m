@@ -52,7 +52,7 @@ if path_aux
     
     % Waitbar to show frames progess
     % Used this instead of built-in figure progess bar to avoid need of handles
-    hbar = waitbar(0, 'File ', 'Name','Reading signal...');
+    hbar = waitbar(0, 'File 1', 'Name','Reading signal...');
     
     % read file data
     for i = 1:n_frames
@@ -118,9 +118,3 @@ else
     
 end
 
-% for j = 1:2
-%     for i = 1:15
-%         y(:, i, j) = sin(signal.Time)'/(i*j);
-%     end
-% end
-% signal.data = y;

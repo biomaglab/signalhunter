@@ -27,7 +27,7 @@ figh = floor(scnsize(4)*0.8);
 
 % Figure creation
 % hObject is the handle to the figure
-hObject = figure('Name', 'Parameters Detection', 'Color', 'w', ...
+hObject = figure('Name', 'Parameters Detection', 'Color', [74 84 89]/255, ...
     'MenuBar', 'none', 'ToolBar', 'figure', ...
     'DockControls', 'off', 'NumberTitle','off');
 handles.fig = hObject;
@@ -91,7 +91,7 @@ set(handles.menutools, 'Visible', 'on');
 pos_progbar = [0.831, 0.011, 0.16, 0.04];
 handles.progress_bar = axes('Parent', hObject, 'Units', 'Normalized');
 set(handles.progress_bar, 'Position', pos_progbar);
-hfill = fill([0 1 1 0],[0 0 1 1], 'b');
+hfill = fill([0 1 1 0],[0 0 1 1], 'g');
 axis([0 1 0 1]);
 set(hfill,'EdgeColor','k');
 axis off;

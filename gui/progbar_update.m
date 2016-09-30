@@ -11,5 +11,5 @@ axis([0 1 0 1]);
 hold on
 h1 = fill([0 1 1 0], [0 0 1 1], 'w');
 set(h1,'EdgeColor','k');
-fill([0 value value 0],[0 0 1 1], 'b');
+fill([0 value value 0],[0 0 1 1], 'g');
 hold off
