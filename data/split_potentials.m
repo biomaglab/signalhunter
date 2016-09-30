@@ -23,7 +23,7 @@ function [split_pots, split_baseline] = split_potentials(data, trigger, fs, tpot
 triggeron_aux = find(trigger/max(trigger) > 0.5);
 triggeron_aux = (triggeron_aux(diff([-inf;triggeron_aux])>1));
 
-% define epoch over which MEPs will be averaged
+% define epoch over which potentials will be split
 samples_to_offset = ceil((tpot(1)/1000)*fs);
 samples_after_trigger = ceil((tpot(2)/1000)*fs);
 

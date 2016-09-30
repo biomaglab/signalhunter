@@ -6,41 +6,43 @@ i = id_axes(1);
 j = id_axes(2);
 k = id_axes(3);
 
-% a = 1;
-% b = 7;
-% r = round((b-a).*rand(1000,1) + a);
-% id = r(1);
-
 split_pots = processed.split_pots{k,j}(:,:,i);
 average_pots = processed.average_pots{k,j}(:,:,i);
 
 % TODO: standardize xs in time starting from trigger
 n_signals = size(split_pots,2);
-split_xs = repmat(processed.split_xs{k,j}(:,1), [1 n_signals]);
+xs_norm = 1000*processed.xs_norm{k,j};
 
 latency_I_av = processed.latency_I_av{k,j}(:,:,i);
+% latency_av = 1000*processed.latency_av{k,j}(:,:,i);
 pmin_av = processed.pmin_av{k,j}(:,:,i);
 pmax_av = processed.pmax_av{k,j}(:,:,i);
+
+globalmin = processed.globalmin(k,j);
+globalmax = processed.globalmax(k,j);
 
 axes(ax);
 hold on
 
 % signal
-hsig = plot(split_xs, split_pots, split_xs(:,1), average_pots);
+hsig = plot(xs_norm, split_pots, xs_norm(:,1), average_pots);
 for n = 1:n_signals
     hsig(n).Color = [153 153 153]/255;
 end
 hsig(end).Color = 'k';
 hsig(end).Visible = 'on';
 
+axis([xs_norm(1,1) xs_norm(end,1) 1.2*globalmin 1.2*globalmax]);
+
 lim = axis;
 
 % potential minimum
-hmin = plot(split_xs(pmin_av(1),1), pmin_av(2), '+r', 'markersize', 10) ;
+hmin = plot(xs_norm(pmin_av(1),1), pmin_av(2), '+r', 'markersize', 9) ;
 % potential maximum
-hmax = plot(split_xs(pmax_av(1),1), pmax_av(2), '+r', 'markersize', 10);
+hmax = plot(xs_norm(pmax_av(1),1), pmax_av(2), '+r', 'markersize', 9);
 % latency line
-hlat = plot([split_xs(latency_I_av,1) split_xs(latency_I_av,1)], [lim(3)  lim(4)], 'g');
+hlat = plot([xs_norm(latency_I_av,1) xs_norm(latency_I_av,1)], [lim(3)  lim(4)], 'g');
+% hlat2 = plot([latency_av latency_av], [lim(3)  lim(4)], '--k');
 
 hold off
 

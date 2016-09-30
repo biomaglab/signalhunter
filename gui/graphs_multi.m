@@ -142,7 +142,7 @@ for i=1:nr
             'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
         set(ax(i, j, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn,...
             'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
-        set(get(ax(i, j, id_cond),'XLabel'),'String','Time (s)')
+        set(get(ax(i, j, id_cond),'XLabel'),'String','Time (ms)')
         set(get(ax(i, j, id_cond),'YLabel'),'String','EMG (uV)')
     end
 end
