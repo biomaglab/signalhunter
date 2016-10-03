@@ -33,19 +33,19 @@ fontsize = 0.5;
 % push button load
 pushbutton_load = uicontrol(handles.panel_files, 'FontWeight', 'bold',...
     'String', 'Load', 'Units', 'normalized', 'FontUnits', 'normalized', ...
-    'Callback', @(obj, eventdata)callback_data(obj, eventdata, 'load'));
+    'Callback', @(obj, eventdata)callback_data(obj, 'load'));
 set(pushbutton_load, 'Position', pb_load_pos, 'FontSize', fontsize);
 
 % push button export
 pushbutton_export = uicontrol(handles.panel_files, 'FontWeight', 'bold',...
     'String', 'Export', 'Units', 'normalized', 'FontUnits', 'normalized',...
-    'Callback', @(obj, eventdata)callback_data(obj, eventdata, 'export'));
+    'Callback', @(obj, eventdata)callback_data(obj, 'export'));
 set(pushbutton_export, 'Position', pb_export_pos, 'FontSize', fontsize);
 
 % push button export
 pushbutton_save = uicontrol(handles.panel_files, 'FontWeight', 'bold',...
     'String', 'Save', 'Units', 'normalized', 'FontUnits', 'normalized',...
-    'Callback', @(obj, eventdata)callback_data(obj, eventdata, 'save'));
+    'Callback', @(obj, eventdata)callback_data(obj, 'save'));
 %     'Callback', @pushbutton_save_Callback);
     
 set(pushbutton_save, 'Position', pb_save_pos, 'FontSize', fontsize);
@@ -59,3 +59,35 @@ switch lower(handles.data_id)
         align([pushbutton_load, pushbutton_export, pushbutton_save], 'None', 'Distribute');
 end
 
+
+function callback_data(hObject, menu_id)
+%CALLBACK_DATA Summary of this function goes here
+%   Detailed explanation goes here
+
+handles = guidata(hObject);
+menu_id_up = [upper(menu_id(1)) menu_id(2:end)];
+
+% message to progress log
+msg = [menu_id_up ' data in progress...'];
+handles = panel_textlog(handles, msg);
+
+value = 1/2;
+progbar_update(handles.progress_bar, value)
+
+% call function to save, load or export
+input = '(handles)';
+[handles, filt_id] = eval(['data_' menu_id input]);
+
+value = 1;
+progbar_update(handles.progress_bar, value)
+
+% message to progress log
+if filt_id
+    msg = [menu_id_up ' data finished.'];
+    handles = panel_textlog(handles, msg);
+else
+    msg = [menu_id_up ' canceled.'];
+    handles = panel_textlog(handles, msg);
+end
+
+guidata(hObject, handles)

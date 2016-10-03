@@ -74,7 +74,7 @@ for k = 1:handles.conditions(end)
     for i = 1:nr
         for j = 1:nc
             id_axes = [i, j, k];
-            [~] = plot_multi(handles.haxes(i, j, k), processed, id_axes);
+            [hsig, hpeaks, hlat] = plot_multi(handles.haxes(i, j, k), processed, id_axes);
         end
     end
 %     plot_multi(handles.haxes, handles.reader, i);
@@ -98,7 +98,8 @@ function axes_ButtonDownFcn(hObject, ~)
 % Callback for Button Down in each axes
 handles = guidata(hObject);
 
-handles.id_axes = find(gca == handles.haxes(:,:));
+[i, j, k] = find(gca == handles.haxes(:,:));
+handles.id_axes = [i, j, k];
 handles = dialog_detect_multi(handles);
 
 hwbar = waitbar(0.5, 'Updating graphics...');

@@ -1,5 +1,5 @@
-function [ax] = plot_multi(ax, processed, id_axes)
-%UNTITLED Summary of this function goes here
+function [hsig, hpeaks, hlat] = plot_multi(ax, processed, id_axes)
+%PLOT_MULTI: Summary of this function goes here
 %   Detailed explanation goes here
 
 i = id_axes(1);
@@ -9,7 +9,7 @@ k = id_axes(3);
 split_pots = processed.split_pots{k,j}(:,:,i);
 average_pots = processed.average_pots{k,j}(:,:,i);
 
-% TODO: standardize xs in time starting from trigger
+% xs starting from trigger
 n_signals = size(split_pots,2);
 xs_norm = 1000*processed.xs_norm{k,j};
 
@@ -30,17 +30,21 @@ for n = 1:n_signals
     hsig(n).Color = [153 153 153]/255;
 end
 hsig(end).Color = 'k';
-hsig(end).Visible = 'on';
 
 axis([xs_norm(1,1) xs_norm(end,1) 1.2*globalmin 1.2*globalmax]);
 
 lim = axis;
 
-% potential minimum
-hmin = plot(xs_norm(pmin_av(1),1), pmin_av(2), '+r', 'markersize', 9) ;
-% potential maximum
-hmax = plot(xs_norm(pmax_av(1),1), pmax_av(2), '+r', 'markersize', 9);
-% latency line
+% potential peaks
+hpeaks = plot(xs_norm(pmin_av(1),1), pmin_av(2), xs_norm(pmax_av(1),1), pmax_av(2)) ;
+hpeaks(1).Marker = '+';
+hpeaks(1).Color = 'r';
+hpeaks(1).MarkerSize = 9;
+hpeaks(2).Marker = '+';
+hpeaks(2).Color = 'r';
+hpeaks(2).MarkerSize = 9;
+
+% potential latency
 hlat = plot([xs_norm(latency_I_av,1) xs_norm(latency_I_av,1)], [lim(3)  lim(4)], 'g');
 % hlat2 = plot([latency_av latency_av], [lim(3)  lim(4)], '--k');
 

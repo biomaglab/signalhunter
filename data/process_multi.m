@@ -115,6 +115,12 @@ output.ppamp_av = ppamp_av;
 output.pmin_av = pmin_av;
 output.pmax_av = pmax_av;
 
+output.latency_I_av_bkp = latency_I_av;
+output.latency_av_bkp = latency_av;
+output.ppamp_av_bkp = ppamp_av;
+output.pmin_av_bkp = pmin_av;
+output.pmax_av_bkp = pmax_av;
+
 output.globalmin = globalmin;
 output.globalmax = globalmax;
 

@@ -39,19 +39,19 @@ hObject = figure('Name', 'Parameters Detection', 'Color', 'w', ...
 % center the figure window on the screen
 movegui(hObject, 'center');
 
-id = handles.id_cond;
-% mep_pmin = handles.reader.mep_pmin(id,2);
-% mep_pmax = handles.reader.mep_pmax(id,2);
-% mep_lat = handles.reader.mep_lat(id);
-% mep_end = handles.reader.mep_end(id);
-mep_pmin = 0.8;
-mep_pmax = -0.8;
-mep_lat = 6;
-mep_end = 12;;
+% set initial values of text boxes
+id(1) = handles.id_axes(1);
+id(2) = handles.id_axes(2);
+id(3) = handles.id_axes(3);
+
+pmin_av = handles.processed.pmin_av{id(3),id(2)}(2,:,id(1));
+pmax_av = handles.processed.pmax_av{id(3),id(2)}(2,:,id(1));
+
+latency_I_av = handles.processed.latency_I_av{id(3),id(2)}(:,:,id(1));
+lat = 1000*handles.processed.xs_norm{id(3),id(2)}(latency_I_av,1);
 
 % pushbutton names
-pb_names = {'Amplitude', 'Latency',...
-    'No MEP', 'Initial Values'};
+pb_names = {'Amplitude', 'Latency', 'No Potential', 'Initial Values'};
 cond_names = handles.cond_names;
 
 % creates the panel for buttons in dialog_detect
@@ -74,7 +74,7 @@ loose_inset = [0 0 0 0];
 outer_pos = [0.30, 1/15, 2/3, 7/8];
 axesdetect = axes('Parent', hObject, 'OuterPosition',outer_pos,...
     'Box', 'on', 'Units', 'normalized', 'LooseInset', loose_inset);
-set(get(axesdetect,'Title'),'String',cond_names{id})
+set(get(axesdetect,'Title'),'String',cond_names{id(3)})
 
 % ----- Position of Controls
 
@@ -94,17 +94,17 @@ pb_close_pos = [0.17, 0.05, 4/6, 0.10];
 pb_detect(1) = uicontrol(panel_graph, 'String', pb_names{1}, ...
     'FontSize', 10, 'FontWeight', 'bold', 'Units', 'normalized');
 set(pb_detect(1), 'Position', pb_detect_1_pos, ...
-    'Callback', @pb_detect_1_Callback);
+    'Callback', @(obj, eventdata)callback_detect_multi(obj, 1));
 
 % static text for minimum amplitude selection
-hstr(1,1) = uicontrol(panel_graph, 'String', num2str(mep_pmin,'%.3f'), 'Style', 'text', ...
-    'BackgroundColor', 'w', 'FontSize', 10, 'FontWeight', ...
+hstr(1,1) = uicontrol(panel_graph, 'String', num2str(pmin_av,'%.2f'),...
+    'Style', 'text', 'BackgroundColor', 'w', 'FontSize', 10,'FontWeight',...
     'bold', 'Units', 'normalized', 'HorizontalAlignment', 'center');
 set(hstr(1,1), 'Position', str_1_min_pos);
 
 % static text for maximum amplitude selection
-hstr(1,2) = uicontrol(panel_graph, 'String', num2str(mep_pmax,'%.3f'), 'Style', 'text', ...
-    'BackgroundColor', 'w', 'FontSize', 10, 'FontWeight', ...
+hstr(1,2) = uicontrol(panel_graph, 'String', num2str(pmax_av,'%.2f'),...
+    'Style', 'text', 'BackgroundColor', 'w', 'FontSize', 10, 'FontWeight',...
     'bold', 'Units', 'normalized');
 set(hstr(1,2), 'Position', str_1_max_pos);
 
@@ -114,27 +114,28 @@ set(hstr(1,2), 'Position', str_1_max_pos);
 pb_detect(2) = uicontrol(panel_graph, 'String', pb_names{2}, ...
     'FontSize', 10, 'FontWeight', 'bold', 'Units', 'normalized');
 set(pb_detect(2), 'Position', pb_detect_2_pos, ...
-    'Callback', @pb_detect_2_Callback);
+    'Callback', @(obj, eventdata)callback_detect_multi(obj, 2));
 
 % static text for minimum latency selection
-hstr(2,1) = uicontrol(panel_graph, 'String', num2str(mep_lat,'%.3f'), 'Style', 'text', ...
-    'BackgroundColor', 'w', 'FontSize', 10, 'FontWeight', ...
+hstr(2,1) = uicontrol(panel_graph, 'String', num2str(lat,'%.2f'),...
+    'Style', 'text', 'BackgroundColor', 'w', 'FontSize', 10, 'FontWeight',...
     'bold', 'Units', 'normalized', 'HorizontalAlignment', 'center');
 set(hstr(2,1), 'Position', str_2_min_pos);
 
 % static text for maximum latency selection
-hstr(2,2) = uicontrol(panel_graph, 'String', num2str(mep_end,'%.3f'), 'Style', 'text', ...
-    'BackgroundColor', 'w', 'FontSize', 10, 'FontWeight', ...
+hstr(2,2) = uicontrol(panel_graph, 'String', num2str(lat,'%.2f'),...
+    'Style', 'text', 'BackgroundColor', 'w', 'FontSize', 10, 'FontWeight',...
     'bold', 'Units', 'normalized');
 set(hstr(2,2), 'Position', str_2_max_pos);
+set(hstr(2,2), 'Visible', 'off');
 
-% ----- No MEP selection
+% ----- No potential selection
 
 % push button for absence of mep selection
 pb_detect(3) = uicontrol(panel_graph, 'String', pb_names{3}, ...
     'FontSize', 10, 'FontWeight', 'bold','Units', 'normalized');    
 set(pb_detect(3), 'Position', pb_detect_3_pos, ...
-    'Callback', @pb_detect_3_Callback);
+    'Callback', @(obj, eventdata)callback_detect_multi(obj, 3));
 
 % ----- Return initial values
 
@@ -142,7 +143,7 @@ set(pb_detect(3), 'Position', pb_detect_3_pos, ...
 pb_detect(4) = uicontrol(panel_graph, 'String', pb_names{4}, ...
     'FontSize', 10, 'FontWeight', 'bold','Units', 'normalized');    
 set(pb_detect(4), 'Position', pb_detect_4_pos, ...
-    'Callback', @pb_detect_4_Callback);
+    'Callback', @(obj, eventdata)callback_detect_multi(obj, 4));
 
 % push button to close dialog_detect figure
 pb_close = uicontrol(panel_graph, 'String', 'Finished', 'BackgroundColor', 'g', ...
@@ -164,22 +165,14 @@ handles.axesdetect = axesdetect;
 handles.hstr = hstr;
 handles.pb_names = pb_names;
 
-% signal = handles.reader.signal;
-%xs = handles.reader.xs;
-%pmin = handles.reader.mep_pmin;
-%pmax = handles.reader.mep_pmax;
-id_axes = [handles.id_axes, id];
-[~] = plot_multi(axesdetect, handles.reader, id_axes);
-% [handles.hpmin, handles.hpmax, handles.hlat, handles.hend] = plot_mepanalysis(axesdetect,...
-%     signal(:,id), xs, pmin(id,:), pmax(id,:), [mep_lat, mep_end]);
+[handles.hsig, handles.hpeaks, handles.hlat] = plot_multi(axesdetect,...
+    handles.processed, handles.id_axes);
 
-% handles = plot_graph(handles);
+for i = 1:length(handles.hsig)-1
+    handles.hsig(i).Visible = 'off';
+end
 
 guidata(hObject, handles);
-
-% function handles = plot_graph(handles)
-% 
-% handles = plot_detect(handles, handles.id_mod(handles.id_cond));
 
 
 function key_press_callback(~, eventdata)
@@ -196,41 +189,6 @@ disp('the key was pressed')
 % set(handles.dcm_obj, 'Enable', 'off');
 eventdata.Key
 
-function pb_detect_1_Callback(hObject, ~)
-% Callback - button for amplitude selection
-handles = guidata(hObject);
-
-handles = callback_detect_mepanalysis(handles, 1);
-
-% Update handles structure
-guidata(hObject, handles);
-
-function pb_detect_2_Callback(hObject, ~)
-% Callback - button for latency selection
-handles = guidata(hObject);
-
-handles = callback_detect_mepanalysis(handles, 2);
-
-% Update handles structure
-guidata(hObject, handles);
-
-function pb_detect_3_Callback(hObject, ~)
-% Callback - button for mep absence
-handles = guidata(hObject);
-
-handles = callback_detect_mepanalysis(handles, 3);
-
-% Update handles structure
-guidata(hObject, handles);
-
-function pb_detect_4_Callback(hObject, ~)
-% Callback - button for mep absence
-handles = guidata(hObject);
-
-handles = callback_detect_mepanalysis(handles, 4);
-
-% Update handles structure
-guidata(hObject, handles);
 
 function pushbutton_close_Callback(~, ~)
 % Callback - button to resume window
