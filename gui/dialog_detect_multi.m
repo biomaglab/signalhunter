@@ -40,19 +40,20 @@ hObject = figure('Name', 'Parameters Detection', 'Color', 'w', ...
 movegui(hObject, 'center');
 
 % set initial values of text boxes
-id(1) = handles.id_axes(1);
-id(2) = handles.id_axes(2);
-id(3) = handles.id_axes(3);
+id_cond = handles.id_axes(1);
+ci = handles.id_axes(2);
+ri = handles.id_axes(3);
 
-pmin_av = handles.processed.pmin_av{id(3),id(2)}(2,:,id(1));
-pmax_av = handles.processed.pmax_av{id(3),id(2)}(2,:,id(1));
+pmin_av = handles.processed.pmin_av{id_cond,ci}(2,:,ri);
+pmax_av = handles.processed.pmax_av{id_cond,ci}(2,:,ri);
 
-latency_I_av = handles.processed.latency_I_av{id(3),id(2)}(:,:,id(1));
-lat = 1000*handles.processed.xs_norm{id(3),id(2)}(latency_I_av,1);
+latency_av = handles.processed.latency_av{id_cond,ci}(2,:,ri);
+% lat = 1000*handles.processed.xs_norm{id_cond,ci}(latency_I_av,1);
+
+cond_name = handles.reader.fig_titles{id_cond};
 
 % pushbutton names
 pb_names = {'Amplitude', 'Latency', 'No Potential', 'Initial Values'};
-cond_names = handles.cond_names;
 
 % creates the panel for buttons in dialog_detect
 panelgraph_pos = [1.5/50 0.275 1/4 4/6];
@@ -74,7 +75,7 @@ loose_inset = [0 0 0 0];
 outer_pos = [0.30, 1/15, 2/3, 7/8];
 axesdetect = axes('Parent', hObject, 'OuterPosition',outer_pos,...
     'Box', 'on', 'Units', 'normalized', 'LooseInset', loose_inset);
-set(get(axesdetect,'Title'),'String',cond_names{id(3)})
+set(get(axesdetect,'Title'),'String',cond_name)
 
 % ----- Position of Controls
 
@@ -94,7 +95,7 @@ pb_close_pos = [0.17, 0.05, 4/6, 0.10];
 pb_detect(1) = uicontrol(panel_graph, 'String', pb_names{1}, ...
     'FontSize', 10, 'FontWeight', 'bold', 'Units', 'normalized');
 set(pb_detect(1), 'Position', pb_detect_1_pos, ...
-    'Callback', @(obj, eventdata)callback_detect_multi(obj, 1));
+    'Callback', @(obj, eventdata)pb_detect_callback(obj, 1));
 
 % static text for minimum amplitude selection
 hstr(1,1) = uicontrol(panel_graph, 'String', num2str(pmin_av,'%.2f'),...
@@ -114,16 +115,16 @@ set(hstr(1,2), 'Position', str_1_max_pos);
 pb_detect(2) = uicontrol(panel_graph, 'String', pb_names{2}, ...
     'FontSize', 10, 'FontWeight', 'bold', 'Units', 'normalized');
 set(pb_detect(2), 'Position', pb_detect_2_pos, ...
-    'Callback', @(obj, eventdata)callback_detect_multi(obj, 2));
+    'Callback', @(obj, eventdata)pb_detect_callback(obj, 2));
 
 % static text for minimum latency selection
-hstr(2,1) = uicontrol(panel_graph, 'String', num2str(lat,'%.2f'),...
+hstr(2,1) = uicontrol(panel_graph, 'String', num2str(latency_av,'%.2f'),...
     'Style', 'text', 'BackgroundColor', 'w', 'FontSize', 10, 'FontWeight',...
     'bold', 'Units', 'normalized', 'HorizontalAlignment', 'center');
 set(hstr(2,1), 'Position', str_2_min_pos);
 
 % static text for maximum latency selection
-hstr(2,2) = uicontrol(panel_graph, 'String', num2str(lat,'%.2f'),...
+hstr(2,2) = uicontrol(panel_graph, 'String', num2str(latency_av,'%.2f'),...
     'Style', 'text', 'BackgroundColor', 'w', 'FontSize', 10, 'FontWeight',...
     'bold', 'Units', 'normalized');
 set(hstr(2,2), 'Position', str_2_max_pos);
@@ -135,15 +136,20 @@ set(hstr(2,2), 'Visible', 'off');
 pb_detect(3) = uicontrol(panel_graph, 'String', pb_names{3}, ...
     'FontSize', 10, 'FontWeight', 'bold','Units', 'normalized');    
 set(pb_detect(3), 'Position', pb_detect_3_pos, ...
-    'Callback', @(obj, eventdata)callback_detect_multi(obj, 3));
+    'Callback', @(obj, eventdata)pb_detect_callback(obj, 3));
 
 % ----- Return initial values
 
 % push button to return for initial values
+% pb_detect(4) = uicontrol(panel_graph, 'String', pb_names{4}, ...
+%     'FontSize', 10, 'FontWeight', 'bold','Units', 'normalized');    
+% set(pb_detect(4), 'Position', pb_detect_4_pos, ...
+%     'Callback', @(obj, eventdata)callback_detect_multi(obj, 4));
+
 pb_detect(4) = uicontrol(panel_graph, 'String', pb_names{4}, ...
     'FontSize', 10, 'FontWeight', 'bold','Units', 'normalized');    
 set(pb_detect(4), 'Position', pb_detect_4_pos, ...
-    'Callback', @(obj, eventdata)callback_detect_multi(obj, 4));
+    'Callback', @(obj, eventdata)pb_detect_callback(obj, 4));
 
 % push button to close dialog_detect figure
 pb_close = uicontrol(panel_graph, 'String', 'Finished', 'BackgroundColor', 'g', ...
@@ -188,6 +194,15 @@ disp('the key was pressed')
 % handles.dcm_obj.removeDataCursor(dcm_obj.CurrentDataCursor);
 % set(handles.dcm_obj, 'Enable', 'off');
 eventdata.Key
+
+function pb_detect_callback(hObject, id_pb)
+% Callback - button for superimposed force selection
+handles = guidata(hObject);
+
+handles = callback_detect_multi(handles, id_pb);
+
+% Update handles structure
+guidata(hObject, handles);
 
 
 function pushbutton_close_Callback(~, ~)

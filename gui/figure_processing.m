@@ -297,7 +297,7 @@ end
 % Update handles structure
 guidata(hObject, handles);
 
-function callback_mepanalysis(hObject, eventdata)
+function callback_mepanalysis(hObject, ~)
 % Callback - Sub Menu 2
 
 handles = guidata(hObject);
@@ -322,7 +322,7 @@ end
 % Update handles structure
 guidata(hObject, handles);
 
-function handles = callback_multi(hObject, eventdata)
+function handles = callback_multi(hObject, ~)
 % Callback - Sub Menu 2
 
 handles = guidata(hObject);

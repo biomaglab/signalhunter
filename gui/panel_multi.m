@@ -133,27 +133,30 @@ function pushbutton_open_Callback(hObject, ~)
 % Callback - Button Open
 handles = guidata(hObject);
 
-% message to progress log
-msg = 'Reading signal data...';
-handles = panel_textlog(handles, msg);
+if isfield(handles, 'panel_graph')
+    delete(handles.panel_graph);
+    handles = rmfield(handles, 'panel_graph');
+    handles = rmfield(handles, 'haxes');
+end
 
-handles.reader = reader_tms_vc;
+[map_template, map_shape] = dialog_create_new;
+handles.map_template = map_template;
+handles.map_shape = map_shape;
 
-msg = ['Data opened: "', handles.reader.sub_name,...
-            '"; leg: "',  handles.reader.leg,...
-            '"; series number: "', num2str(handles.reader.series_nb),...
-            '"; TMS order: "', num2str(handles.reader.order_TMS),...
-            '"; file name: "', handles.reader.filename, '".'];
-        handles = panel_textlog(handles, msg);
-msg = 'Processing TMS + VC data...';
-handles = panel_textlog(handles, msg);
+[handles.reader, open_id] = reader_multi;
 
-handles.processed = processing_tms_vc(handles.reader);
-
-msg = 'Data processed.';
-handles = panel_textlog(handles, msg);
-
-handles = graphs_tms_vc(handles);
+if open_id
+    msg = 'Succesfully read data.';
+    handles = panel_textlog(handles, msg);
+    
+    handles.processed = process_multi(handles.reader);
+    handles = graphs_multi(handles);
+    
+else
+    msg = 'Open canceled.';
+    handles = panel_textlog(handles, msg);
+    
+end
 
 % Update handles structure
 guidata(hObject, handles);
@@ -173,10 +176,12 @@ handles.panel_files = vars.panel_files;
 handles.progress_bar = vars.progress_bar;
 handles.panel_tools = vars.panel_tools;
 handles.edit_idcond = vars.edit_idcond;
-handles.panel_txtlog = vars.edit_idcond;
+handles.panel_txtlog = vars.panel_txtlog;
 handles.edit_log = vars.edit_log;
+handles.hsubdata = vars.hsubdata;
 
 set(handles.edit_idcond, 'String', '1');
+set(handles.hsubdata, 'Enable', 'off');
 
 delete(vars.panel_graph);
 

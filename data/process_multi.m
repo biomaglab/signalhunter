@@ -53,44 +53,48 @@ hbar = waitbar(0,'Frame 1','Name','Processing signals...');
 
 tic
 
-for i = 1:n_frames
-    for j = 1:n_instants
+for id_cond = 1:n_frames
+    for ci = 1:n_instants
                
-        [split_pots{i, j}, split_baseline{i, j}] = split_potentials(data{i,j},...
-            trigger{i,j}, fs{i,j}, [t0 t1], [tb0 tb1]);
-        [split_xs{i, j}, ~] = split_potentials(xs{i,j}, trigger{i,j},...
-            fs{i,j}, [t0 t1], [tb0 tb1]);
+        [split_pots{id_cond, ci}, split_baseline{id_cond, ci}] = split_potentials(data{id_cond,ci},...
+            trigger{id_cond,ci}, fs{id_cond,ci}, [t0 t1], [tb0 tb1]);
+        % time array in seconds and split relative to trigger
+        [split_xs{id_cond, ci}, ~] = split_potentials(xs{id_cond,ci}, trigger{id_cond,ci},...
+            fs{id_cond,ci}, [t0 t1], [tb0 tb1]);
         
-        ppamp{i,j} = zeros(1,size(split_pots{i, j},2), size(split_pots{i, j},3));
-        pmin{i,j} = zeros(2,size(split_pots{i, j},2), size(split_pots{i, j},3));
-        pmax{i,j} = zeros(2,size(split_pots{i, j},2), size(split_pots{i, j},3));
+        ppamp{id_cond,ci} = zeros(1,size(split_pots{id_cond, ci},2), size(split_pots{id_cond, ci},3));
+        pmin{id_cond,ci} = zeros(2,size(split_pots{id_cond, ci},2), size(split_pots{id_cond, ci},3));
+        pmax{id_cond,ci} = zeros(2,size(split_pots{id_cond, ci},2), size(split_pots{id_cond, ci},3));
         
-        average_pots{i,j} = mean(split_pots{i,j},2);
+        average_pots{id_cond,ci} = mean(split_pots{id_cond,ci},2);
         
-        triggeron_aux = find(trigger{i,j}/max(trigger{i,j}) > 0.5);
+        triggeron_aux = find(trigger{id_cond,ci}/max(trigger{id_cond,ci}) > 0.5);
         triggeron_aux = (triggeron_aux(diff([-inf;triggeron_aux])>1));
-        xs_norm{i,j} = split_xs{i,j} - repmat(xs{i,j}(triggeron_aux)', [size(split_xs{i,j},1) 1]);
+        % xs_norm in miliseconds and zero as trigger instant
+        xs_norm{id_cond,ci} = (split_xs{id_cond,ci} - repmat(xs{id_cond,ci}(triggeron_aux)', [size(split_xs{id_cond,ci},1) 1]))*1000;
         
-        for k = 1:size(split_pots{i, j},3)
+        for ri = 1:size(split_pots{id_cond, ci},3)
             
-            [ppamp{i,j}(:,:,k), pmin{i,j}(:,:,k), pmax{i,j}(:,:,k)] = p2p_amplitude(split_pots{i,j}(:,:,k), fs{i,j}, [tstart t1]);
-            latency_I{i,j}(:,:,k) = find_latency(split_pots{i,j}(:,:,k), thresh_lat);
+            [ppamp{id_cond,ci}(:,:,ri), pmin{id_cond,ci}(:,:,ri), pmax{id_cond,ci}(:,:,ri)] = p2p_amplitude(split_pots{id_cond,ci}(:,:,ri), fs{id_cond,ci}, [tstart t1]);
+%             latency_I{id_cond,ci}(:,:,ri) = find_latency(split_pots{id_cond,ci}(:,:,ri), thresh_lat);
 %             latency{i,j}(:,:,k) = latency_I{i,j}(:,:,k)/fs{i,j} + t0/1000;
             
-            [ppamp_av{i,j}(:,:,k), pmin_av{i,j}(:,:,k), pmax_av{i,j}(:,:,k)] = p2p_amplitude(average_pots{i,j}(:,:,k), fs{i,j}, [tstart t1]);
-            latency_I_av{i,j}(:,:,k) = find_latency(average_pots{i,j}(:,:,k), thresh_lat);
+            [ppamp_av{id_cond,ci}(:,:,ri), pmin_av{id_cond,ci}(:,:,ri), pmax_av{id_cond,ci}(:,:,ri)] = p2p_amplitude(average_pots{id_cond,ci}(:,:,ri), fs{id_cond,ci}, [tstart t1]);
+%             latency_I_av{id_cond,ci}(:,:,ri) = find_latency(average_pots{id_cond,ci}(:,:,ri), thresh_lat);
             
-            latency{i,j}(:,:,k) = xs_norm{i,j}(latency_I{i,j}(:,:,k));
-            latency_av{i,j}(:,:,k) = xs_norm{i,j}(latency_I_av{i,j}(:,:,k));
+            latency{id_cond,ci}(1,:,ri) = find_latency(split_pots{id_cond,ci}(:,:,ri), thresh_lat);
+            latency{id_cond,ci}(2,:,ri) = xs_norm{id_cond,ci}(latency{id_cond,ci}(1,:,ri));
+            latency_av{id_cond,ci}(1,:,ri) = find_latency(average_pots{id_cond,ci}(:,:,ri), thresh_lat);
+            latency_av{id_cond,ci}(2,:,ri) = xs_norm{id_cond,ci}(latency_av{id_cond,ci}(1,:,ri));
             
         end
         
-        globalmin(i,j) = min(min(min(pmin{i,j})));
-        globalmax(i,j) = max(max(max(pmax{i,j})));
+        globalmin(id_cond,ci) = min(min(min(pmin{id_cond,ci})));
+        globalmax(id_cond,ci) = max(max(max(pmax{id_cond,ci})));
     end
     
     % Report current estimate in the waitbar's message field
-    waitbar(i/n_frames,hbar,sprintf('Frame %d',i))
+    waitbar(id_cond/n_frames,hbar,sprintf('Frame %d',id_cond))
 end
 
 delete(hbar)
@@ -109,13 +113,13 @@ output.pmin = pmin;
 output.pmax = pmax;
 
 output.average_pots = average_pots;
-output.latency_I_av = latency_I_av;
+% output.latency_I_av = latency_I_av;
 output.latency_av = latency_av;
 output.ppamp_av = ppamp_av;
 output.pmin_av = pmin_av;
 output.pmax_av = pmax_av;
 
-output.latency_I_av_bkp = latency_I_av;
+% output.latency_I_av_bkp = latency_I_av;
 output.latency_av_bkp = latency_av;
 output.ppamp_av_bkp = ppamp_av;
 output.pmin_av_bkp = pmin_av;

@@ -47,7 +47,7 @@ n_axes = nr*nc;
 handles.cond_names = handles.reader.fig_titles;
 
 handles.panel_graph = zeros(1, handles.conditions(end));
-handles.haxes = zeros(nr, nc, handles.conditions(end));
+handles.haxes = zeros(handles.conditions(end), nc, nr);
 
 % creates the panel for multiple graphs processing
 % position depends on the tool's panel size
@@ -65,19 +65,13 @@ for k = 1:handles.conditions(end)
        
     handles.haxes = graph_model(handles.panel_graph, handles.haxes,...
         model, k);
-%     plot_multi(handles.haxes, handles.processed,...
-%         handles.id_mod(i), process_id, i);
-%     for j = 1:n_axes
-%         id_axes = [j, k];
-%         [~] = plot_multi(handles.haxes(j, k), handles.reader, id_axes, k);
-%     end
-    for i = 1:nr
-        for j = 1:nc
-            id_axes = [i, j, k];
-            [hsig, hpeaks, hlat] = plot_multi(handles.haxes(i, j, k), processed, id_axes);
+
+    for ri = 1:nr
+        for ci = 1:nc
+            id_axes = [k, ci, ri];
+            [hsig, hpeaks, hlat] = plot_multi(handles.haxes(k, ci, ri), processed, id_axes);
         end
     end
-%     plot_multi(handles.haxes, handles.reader, i);
     
     % progress bar update
     value = k/handles.conditions(end);
@@ -98,19 +92,18 @@ function axes_ButtonDownFcn(hObject, ~)
 % Callback for Button Down in each axes
 handles = guidata(hObject);
 
-[i, j, k] = find(gca == handles.haxes(:,:));
-handles.id_axes = [i, j, k];
+[ci, ri] = find(gca == squeeze(handles.haxes(handles.id_cond,:,:)));
+handles.id_axes = [handles.id_cond, ci, ri];
 handles = dialog_detect_multi(handles);
 
-hwbar = waitbar(0.5, 'Updating graphics...');
+progbar_update(handles.progress_bar, 0.5);
 
-handles.haxes = refresh_axes(handles);
+handles.haxes(handles.id_cond, ci, ri) = refresh_axes(handles);
 
-msg = ['Data and plots for ', '" ', handles.cond_names{handles.id_cond}, ' " updated.'];
+msg = ['Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " updated.'];
 handles = panel_textlog(handles, msg);
 
-waitbar(1.0, hwbar)
-close(hwbar)
+progbar_update(handles.progress_bar, 1.0);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -135,16 +128,16 @@ axes_h = axes_pos(4)/nr;
 % zero loose inset eliminates empty spaces between axes
 loose_inset = [0 0 0 0];
 
-for i=1:nr
-    for j=1:nc
-        outer_pos = [axes_pos(1)+(j-1)*axes_w,...
-            axes_pos(2)+(nr - i)*axes_h, axes_w, axes_h];
-        ax(i, j, id_cond) = axes('Parent', panel_graph(id_cond),...
+for ri=1:nr
+    for rj=1:nc
+        outer_pos = [axes_pos(1)+(rj-1)*axes_w,...
+            axes_pos(2)+(nr - ri)*axes_h, axes_w, axes_h];
+        ax(id_cond, rj, ri) = axes('Parent', panel_graph(id_cond),...
             'OuterPosition',outer_pos, 'Box', 'on', 'Units', 'normalized');
-        set(ax(i, j, id_cond), 'ButtonDownFcn', @axes_ButtonDownFcn,...
+        set(ax(id_cond, rj, ri), 'ButtonDownFcn', @axes_ButtonDownFcn,...
             'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
-        set(get(ax(i, j, id_cond),'XLabel'),'String','Time (ms)')
-        set(get(ax(i, j, id_cond),'YLabel'),'String','EMG (uV)')
+        set(get(ax(id_cond, rj, ri),'XLabel'),'String','Time (ms)')
+        set(get(ax(id_cond, rj, ri),'YLabel'),'String','EMG (uV)')
     end
 end
 
@@ -165,20 +158,14 @@ end
 function ax = refresh_axes(handles)
 % Function to update all plots after manual changes in dialog detect
 
-process_id = handles.reader.process_id;
-ax = handles.haxes;
+id_axes = handles.id_axes;
+ax = handles.haxes(id_axes(1), id_axes(2), id_axes(3));
 
-for i = 1:size(ax,1)
-    for j = 1:size(ax,2)
-        if ishandle(ax(i, j))
-            cla(ax(i, j));
-        end
-    end
+if ishandle(ax)
+    cla(ax);
 end
 
-for i = 1:handles.conditions(end)
-    [~] = plot_multi(handles.haxes(j, i), handles.reader, id_axes);   
-end
+[hsig, hpeaks, hlat] = plot_multi(ax, handles.processed, id_axes);
 
 % After refreshing axes, set the ButtonDownFcn callback function
 set(ax, 'ButtonDownFcn', @axes_ButtonDownFcn);

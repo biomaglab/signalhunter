@@ -2,24 +2,23 @@ function [hsig, hpeaks, hlat] = plot_multi(ax, processed, id_axes)
 %PLOT_MULTI: Summary of this function goes here
 %   Detailed explanation goes here
 
-i = id_axes(1);
-j = id_axes(2);
-k = id_axes(3);
+id_cond = id_axes(1);
+ci = id_axes(2);
+ri = id_axes(3);
 
-split_pots = processed.split_pots{k,j}(:,:,i);
-average_pots = processed.average_pots{k,j}(:,:,i);
+split_pots = processed.split_pots{id_cond,ci}(:,:,ri);
+average_pots = processed.average_pots{id_cond,ci}(:,:,ri);
 
 % xs starting from trigger
 n_signals = size(split_pots,2);
-xs_norm = 1000*processed.xs_norm{k,j};
+xs_norm = processed.xs_norm{id_cond,ci};
 
-latency_I_av = processed.latency_I_av{k,j}(:,:,i);
-% latency_av = 1000*processed.latency_av{k,j}(:,:,i);
-pmin_av = processed.pmin_av{k,j}(:,:,i);
-pmax_av = processed.pmax_av{k,j}(:,:,i);
+latency_av = processed.latency_av{id_cond,ci}(1,:,ri);
+pmin_av = processed.pmin_av{id_cond,ci}(:,:,ri);
+pmax_av = processed.pmax_av{id_cond,ci}(:,:,ri);
 
-globalmin = processed.globalmin(k,j);
-globalmax = processed.globalmax(k,j);
+globalmin = processed.globalmin(id_cond,ci);
+globalmax = processed.globalmax(id_cond,ci);
 
 axes(ax);
 hold on
@@ -45,7 +44,7 @@ hpeaks(2).Color = 'r';
 hpeaks(2).MarkerSize = 9;
 
 % potential latency
-hlat = plot([xs_norm(latency_I_av,1) xs_norm(latency_I_av,1)], [lim(3)  lim(4)], 'g');
+hlat = plot([xs_norm(latency_av,1) xs_norm(latency_av,1)], [lim(3)  lim(4)], 'g');
 % hlat2 = plot([latency_av latency_av], [lim(3)  lim(4)], '--k');
 
 hold off
