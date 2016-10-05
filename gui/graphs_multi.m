@@ -22,7 +22,6 @@ if ~isfield(handles, 'id_cond')
    handles.id_cond = 1; 
 end
 
-% data = handles.reader.signal.data;
 
 % temporary just to test
 % nr = handles.map_shape(1);
@@ -42,7 +41,6 @@ nc = 4;
 processed = handles.processed;
 handles.conditions = (1:handles.reader.n_frames);
 model = [nr nc];
-n_axes = nr*nc;
 
 handles.cond_names = handles.reader.fig_titles;
 
@@ -69,7 +67,7 @@ for k = 1:handles.conditions(end)
     for ri = 1:nr
         for ci = 1:nc
             id_axes = [k, ci, ri];
-            [hsig, hpeaks, hlat] = plot_multi(handles.haxes(k, ci, ri), processed, id_axes);
+            [~, ~, ~] = plot_multi(handles.haxes(k, ci, ri), processed, id_axes);
         end
     end
     

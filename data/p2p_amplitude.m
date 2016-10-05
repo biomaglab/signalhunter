@@ -23,8 +23,16 @@ data = squeeze(data);
 n_signals = size(data,2);
 
 % convert time window in miliseconds to array position
-t0 = ceil(twin(1)*fs/1000);
-tend = ceil(twin(2)*fs/1000);
+if ~exist('twin', 'var')
+    t0 = 1;
+    tend = size(data,1);
+elseif isempty(twin)
+    t0 = 1;
+    tend = size(data,1);
+else
+    t0 = ceil(twin(1)*fs/1000);
+    tend = ceil(twin(2)*fs/1000);
+end
 
 % potential window for peak finding
 potwindow = zeros(size(data,1),size(data,2));

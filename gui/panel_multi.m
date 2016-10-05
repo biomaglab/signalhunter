@@ -143,6 +143,10 @@ end
 % handles.map_template = map_template;
 % handles.map_shape = map_shape;
 
+if isfield(handles, 'reader')
+    delete(handles.reader.tmp_signal);
+end
+
 [handles.reader, open_id] = reader_multi;
 
 handles.id_cond = 1;
@@ -169,7 +173,6 @@ function pushbutton_reset_Callback(hObject, ~)
 % Callback - Button Reset
 vars = guidata(hObject);
 
-handles.data_id = vars.data_id;
 handles.fig = vars.fig;
 handles.menufile = vars.menufile;
 handles.subopen = vars.subopen;
@@ -182,6 +185,12 @@ handles.edit_idcond = vars.edit_idcond;
 handles.panel_txtlog = vars.panel_txtlog;
 handles.edit_log = vars.edit_log;
 handles.hsubdata = vars.hsubdata;
+
+try
+    delete(vars.reader.tmp_signal);
+catch
+    warning('Temporary file not found or renamed. Delete manually');
+end
 
 set(handles.edit_idcond, 'String', '1');
 set(handles.hsubdata, 'Enable', 'off');

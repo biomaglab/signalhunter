@@ -38,7 +38,6 @@ ppamp = cell(n_frames, n_instants);
 pmin = cell(n_frames, n_instants);
 pmax = cell(n_frames, n_instants);
 
-latency_I_av = cell(n_frames, n_instants);
 latency_av = cell(n_frames, n_instants);
 ppamp_av = cell(n_frames, n_instants);
 pmin_av = cell(n_frames, n_instants);
@@ -113,7 +112,6 @@ output.pmin = pmin;
 output.pmax = pmax;
 
 output.average_pots = average_pots;
-% output.latency_I_av = latency_I_av;
 output.latency_av = latency_av;
 output.ppamp_av = ppamp_av;
 output.pmin_av = pmin_av;

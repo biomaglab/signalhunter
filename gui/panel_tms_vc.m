@@ -174,7 +174,7 @@ msg = ['Data opened: "', handles.reader.sub_name,...
 msg = 'Processing TMS + VC data...';
 handles = panel_textlog(handles, msg);
 
-handles.processed = processing_tms_vc(handles.reader);
+handles.processed = process_tms_vc(handles.reader);
 
 msg = 'Data processed.';
 handles = panel_textlog(handles, msg);

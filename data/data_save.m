@@ -11,7 +11,7 @@ switch handles.data_id
         save_mepanalysis(handles)
         
     case 'multi channels'
-        filt_id = save_multi(handles.reader, handles.processed)
+        filt_id = save_multi(handles.reader, handles.processed);
         
 end
 

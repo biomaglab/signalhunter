@@ -1,12 +1,12 @@
 % --- Creates GUI panel and controls for TMS and Voluntary Contraction Processing
-function panel_logo_biomag(handles)
+function panel_logo_biomag(fig_main)
 
 % create the panel and controls, and return the handles
-panel_creation(handles);
+panel_creation(fig_main);
 
 
 
-function panel_creation(handles)
+function panel_creation(fig_main)
 
 % position of biomag logo considering the progress bar
 % panelprogbar_pos = get(handles.progress_bar, 'Position');
@@ -14,7 +14,7 @@ function panel_creation(handles)
 %     panelprogbar_pos(3), 0.095];
 
 panel_pos = [0.8310, 0.061, 0.16, 0.095];
-panel_biomaglogo = uipanel(handles.fig, 'Position', panel_pos,...
+panel_biomaglogo = uipanel(fig_main, 'Position', panel_pos,...
     'BackgroundColor', 'w', 'Units', 'normalized', 'BorderWidth', 1);
 
 biomaglogo = load('logo_biomag_usp.mat');

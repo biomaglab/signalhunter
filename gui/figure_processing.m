@@ -28,64 +28,63 @@ figh = floor(scnsize(4)*0.8);
 % Figure creation
 % hObject is the handle to the figure
 hObject = figure('Name', 'Parameters Detection', 'Color', [255 255 255]/255, ...
-    'MenuBar', 'none', 'ToolBar', 'figure', ...
+    'MenuBar', 'none', 'ToolBar', 'figure', 'CloseRequestFcn', @close_signalhunter,...
     'DockControls', 'off', 'NumberTitle','off');
-handles.fig = hObject;
-set(hObject, 'Units', 'Pixels', 'Position', [0 0 figw figh]);
 
+set(hObject, 'Units', 'Pixels', 'Position', [0 0 figw figh]);
 % center the figure window on the screen
 movegui(hObject, 'center');
 
 %--------------------------------------------------------------------------
 % creates the menu bar 1 with 1 submenu
-handles.menufile = uimenu('Label', 'File', 'Parent', hObject);
-handles.subopen = uimenu(handles.menufile, 'Label', 'Open');
+hmenufile = uimenu('Label', 'File', 'Parent', hObject);
+hsubopen = uimenu(hmenufile, 'Label', 'Open');
 
-handles.ascii = uimenu(handles.subopen, 'Label', 'ASCII',...
+uimenu(hsubopen, 'Label', 'ASCII',...
     'Callback', @callback_open);
-handles.bin = uimenu(handles.subopen, 'Label', 'Bin',...
+uimenu(hsubopen, 'Label', 'Bin',...
     'Callback', @callback_open);
-handles.biopac = uimenu(handles.subopen, 'Label', 'Biopac',...
+uimenu(hsubopen, 'Label', 'Biopac',...
     'Callback', @callback_open);
-handles.mep = uimenu(handles.subopen, 'Label', 'MEP analysis',...
+uimenu(hsubopen, 'Label', 'MEP analysis',...
     'Callback', @callback_open);
-handles.myosystem = uimenu(handles.subopen, 'Label', 'Myosystem',...
+uimenu(hsubopen, 'Label', 'Myosystem',...
     'Callback', @callback_open);
-handles.otbio = uimenu(handles.subopen, 'Label', 'Multi channels',...
+uimenu(hsubopen, 'Label', 'Multi channels',...
     'Callback', @callback_open);
-handles.tms_vc = uimenu(handles.subopen, 'Label', 'TMS + VC',...
+uimenu(hsubopen, 'Label', 'TMS + VC',...
     'Callback', @callback_open);
-handles.tms_vc = uimenu(handles.subopen, 'Label', 'EMF Analysis',...
+uimenu(hsubopen, 'Label', 'EMF Analysis',...
     'Callback', @callback_open);
 
-
-handles.subsavelog = uimenu(handles.menufile, 'Label', 'Save log',...
+uimenu(hmenufile, 'Label', 'Save log',...
     'Callback', @callback_savelog);
-handles.subnew = uimenu(handles.menufile, 'Label', 'Create New',...
+
+hsubnew = uimenu(hmenufile, 'Label', 'Create New',...
     'Callback', @callback_createnew);
 
-handles.hsubdata = uimenu(handles.menufile, 'Label', 'Data');
+hsubdata = uimenu(hmenufile, 'Label', 'Data');
 
-uimenu(handles.hsubdata, 'Label', 'Export data table',...
+uimenu(hsubdata, 'Label', 'Export data table',...
     'Callback', @(obj, eventdata)callback_data(obj, 'export'));
-uimenu(handles.hsubdata, 'Label', 'Load MAT file',...
+uimenu(hsubdata, 'Label', 'Load MAT file',...
     'Callback', @(obj, eventdata)callback_data(obj, 'load'));
-uimenu(handles.hsubdata, 'Label', 'Save MAT file',...
+uimenu(hsubdata, 'Label', 'Save MAT file',...
     'Callback', @(obj, eventdata)callback_data(obj, 'save'));
-
-set(handles.hsubdata, 'Enable', 'off');
 
 %--------------------------------------------------------------------------
 % creates the menu bar 2 with 1 submenu
-handles.menutools = uimenu('Label', 'Processing Tools', 'Parent', hObject);
-handles.subtools(1) = uimenu(handles.menutools, 'Label', 'TMS + VC',...
+hmenutools = uimenu('Label', 'Processing Tools', 'Parent', hObject);
+hsubtools(1) = uimenu(hmenutools, 'Label', 'TMS + VC',...
     'Callback', @callback_tms_vc);
-handles.subtools(2) = uimenu(handles.menutools, 'Label', 'MEP analysis',...
+hsubtools(2) = uimenu(hmenutools, 'Label', 'MEP analysis',...
     'Callback', @callback_mepanalysis);
-handles.subtools(3) = uimenu(handles.menutools, 'Label',...
+hsubtools(3) = uimenu(hmenutools, 'Label',...
     'Multi channels', 'Callback', @callback_multi);
 
-set(handles.menutools, 'Visible', 'on');
+set(hsubnew, 'Enable', 'off');
+set(hsubdata, 'Enable', 'off');
+set(hmenutools, 'Visible', 'off');
 
 % creates the progress bar as an axes with variable filling and start full
 pos_progbar = [0.831, 0.011, 0.16, 0.04];
@@ -93,8 +92,14 @@ handles.progress_bar = axes('Parent', hObject, 'Units', 'Normalized');
 set(handles.progress_bar, 'Position', pos_progbar);
 progbar_update(handles.progress_bar, 1);
 
+handles.fig = hObject;
+handles.hsubtools = hsubtools;
+handles.hsubdata = hsubdata;
+handles.hmenufile = hmenufile;
+handles.hsubopen = hsubopen;
+
 % create logos panel
-panel_logo_biomag(handles);
+panel_logo_biomag(hObject);
 
 % start processing log
 handles = panel_textlog(handles, []);
@@ -104,7 +109,7 @@ guidata(hObject, handles);
 
 
 % --- Callbacks for GUI objects.
-function callback_open(hObject, eventdata)
+function callback_open(hObject, ~)
 % Callback - Sub Menu 1
 handles = guidata(hObject);
 open_id = 0;
@@ -123,7 +128,7 @@ switch handles.data_id
     
     % TMS and Voluntary Contraction Processing - Sarah Dias application
     case 'tms + vc'
-        if strcmp(get(handles.subtools(1), 'Checked'),'off')
+        if strcmp(get(handles.hsubtools(1), 'Checked'),'off')
             handles = callback_tms_vc(handles.fig);
         end
         handles = panel_tms_vc(handles);
@@ -149,7 +154,7 @@ switch handles.data_id
     % MEP analysis Signal Processing - Abrahao Baptista application
     case 'mep analysis'
         callback_mepanalysis(handles.fig);
-        handles = panel_otbio(handles);
+        handles = panel_mepanalysis(handles);
         handles.reader = reader_mepanalysis;
         
         msg = ['Data opened.', 'Number of MEPs: ',  handles.reader.n_meps];
@@ -166,14 +171,21 @@ switch handles.data_id
 %         handles.map_template = map_template;
 %         handles.map_shape = map_shape;
         
-        [handles.reader, open_id] = reader_multi;
+        [reader, open_id] = reader_multi;
                 
         if open_id
             msg = 'Succesfully read data.';
             handles = panel_textlog(handles, msg);
             set(handles.hsubdata, 'Enable', 'on');
             
-            handles.processed = process_multi(handles.reader);
+            processed = process_multi(reader);
+                      
+            if isfield(reader, 'signal')
+                reader = rmfield(reader, 'signal');
+            end
+            
+            handles.reader = reader;
+            handles.processed = processed;
             handles = panel_multi(handles);
             handles = graphs_multi(handles);
             
@@ -202,7 +214,7 @@ switch handles.data_id
         msg = 'EMF data are oppening';
         handles = panel_textlog(handles, msg);
         handles = panel_emf(handles);
-%         set(handles.subtools(4), 'Checked', 'on');
+%         set(handles.hsubtools(4), 'Checked', 'on');
         msg = '>>> OK';
         handles = panel_textlog(handles, msg);
     
@@ -275,11 +287,11 @@ if isfield(handles, 'panel_graph')
     handles = rmfield(handles, 'haxes');
 end
 
-if strcmp(get(handles.subtools(1), 'Checked'),'on')
-    set(handles.subtools(1), 'Checked', 'off');
+if strcmp(get(handles.hsubtools(1), 'Checked'),'on')
+    set(handles.hsubtools(1), 'Checked', 'off');
 else
-    set(handles.subtools(:), 'Checked', 'off');
-    set(handles.subtools(1), 'Checked', 'on');
+    set(handles.hsubtools(:), 'Checked', 'off');
+    set(handles.hsubtools(1), 'Checked', 'on');
 end
 
 % Update handles structure
@@ -301,11 +313,11 @@ if isfield(handles, 'panel_graph')
     handles = rmfield(handles, 'haxes');
 end
 
-if strcmp(get(handles.subtools(2), 'Checked'),'on')
-    set(handles.subtools(2), 'Checked', 'off');
+if strcmp(get(handles.hsubtools(2), 'Checked'),'on')
+    set(handles.hsubtools(2), 'Checked', 'off');
 else
-    set(handles.subtools(:), 'Checked', 'off');
-    set(handles.subtools(2), 'Checked', 'on');
+    set(handles.hsubtools(:), 'Checked', 'off');
+    set(handles.hsubtools(2), 'Checked', 'on');
 end
 
 % Update handles structure
@@ -321,16 +333,18 @@ if isfield(handles, 'panel_tools')
     handles = rmfield(handles, 'panel_tools');
 end
 if isfield(handles, 'panel_graph')
-    delete(handles.panel_graph);
-    handles = rmfield(handles, 'panel_graph');
-    handles = rmfield(handles, 'haxes');
+    if ishandle(handles.panel_graph)
+        delete(handles.panel_graph);
+        handles = rmfield(handles, 'panel_graph');
+        handles = rmfield(handles, 'haxes');
+    end
 end
 
-if strcmp(get(handles.subtools(3), 'Checked'),'on')
-    set(handles.subtools(3), 'Checked', 'off');
+if strcmp(get(handles.hsubtools(3), 'Checked'),'on')
+    set(handles.hsubtools(3), 'Checked', 'off');
 else
-    set(handles.subtools(:), 'Checked', 'off');
-    set(handles.subtools(3), 'Checked', 'on');
+    set(handles.hsubtools(:), 'Checked', 'off');
+    set(handles.hsubtools(3), 'Checked', 'on');
 end
 
 % Update handles structure
@@ -367,3 +381,28 @@ else
 end
 
 guidata(hObject, handles)
+
+function close_signalhunter(hObject,~)
+
+selection = questdlg('Close Signal Hunter?', 'Close', 'Yes', 'No', 'Yes');
+switch selection
+    case 'Yes'
+        
+        handles = guidata(hObject);
+        if isfield(handles, 'data_id')
+            switch handles.data_id
+                
+                case 'multi channels'
+                    delete(handles.reader.tmp_signal);
+                    delete(get(0,'CurrentFigure'))
+                    
+                otherwise
+                    delete(get(0,'CurrentFigure'))
+            end
+        else
+            delete(get(0,'CurrentFigure'))
+        end
+        
+    case 'No'
+        return
+end

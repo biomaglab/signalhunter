@@ -7,9 +7,10 @@ function [output_reader, open_id] = reader_multi
 %     'Select the signal file');
 
 % signal = load([pathname filename]);
+% path_aux = '.\tests\ACA\';
+path_aux = uigetdir;
+path_aux = [path_aux '\'];
 
-% path_aux = uigetdir('D:\repository\signalhunter\tests\ACA');
-path_aux = '.\tests\ACA2\';
 file_list = struct2cell(dir(path_aux));
 file_aux = file_list(1,3:end);
 sort(file_aux);
@@ -67,18 +68,8 @@ if path_aux
             data{id_cond,ci} = data_aux{id_cond,ci}.data(:,2:end-1);
             trigger{id_cond,ci} = data_aux{id_cond,ci}.data(:,end);
             
+            
             fs{id_cond,ci} =  1/(xs{id_cond,ci}(3,1)-xs{id_cond,ci}(2,1));
-            
-            % extract sampling frequency from comments - this Fsamp does
-            % not make sense
-%             fs_str = data_aux{i,j}.textdata{1};
-%             fsamp{i,j} = str2double(fs_str(find(fs_str == '=')+2:find((fs_str == '/'))-1));
-%             chans{i,j} = str2double(fs_str(find((fs_str == '/'))+1:end));
-
-            % Report status of reading in wait bar
-            id_bar = sub2ind([n_instants n_frames], ci, id_cond);
-            waitbar(id_bar/(n_frames*n_instants),hbar,sprintf('File %d',id_bar))
-            
             subject(id_cond,ci) = strcat('S', file_prop{id_cond,1}(1));
             side(id_cond,ci) = file_prop{id_cond,1}(2);
             condition(id_cond,ci) = strcat('C', file_prop{id_cond,1}(3));
@@ -87,6 +78,10 @@ if path_aux
                 muscle(id_cond,ci,ri) = muscle_id(1,ri);
             end
             
+            % Report status of reading in waitbar
+            id_bar = sub2ind([n_instants n_frames], ci, id_cond);
+            waitbar(id_bar/(n_frames*n_instants),hbar,sprintf('File %d',id_bar))
+            
         end
         fig_titles(id_cond,1) = strcat('subject: ', subject(id_cond,1), ' side: ', side(id_cond,1),...
             ' condition: ', condition(id_cond,1));
@@ -94,18 +89,21 @@ if path_aux
     end
     
     clear data_aux
-    delete(hbar)
-        
+    
     signal.xs = xs;
     signal.data = data;
     signal.trigger = trigger;
     signal.filename = file_names;
+    signal.file_prop = file_prop;
+    save([path_aux 'tmp_signal.mat'], '-struct', 'signal');
+    
+    delete(hbar)
     
     n_muscles = size(data{1,1}, 2);
-
+    
+    output_reader.tmp_signal = [path_aux 'tmp_signal.mat'];
     output_reader.signal = signal;
     output_reader.path = path_aux;
-%     output_reader.filename = file_names;
     output_reader.subject = subject;
     output_reader.side = side;
     output_reader.condition = condition;
@@ -128,3 +126,8 @@ else
     
 end
 
+% extract sampling frequency from comments - this Fsamp does
+            % not make sense
+%             fs_str = data_aux{i,j}.textdata{1};
+%             fsamp{i,j} = str2double(fs_str(find(fs_str == '=')+2:find((fs_str == '/'))-1));
+%             chans{i,j} = str2double(fs_str(find((fs_str == '/'))+1:end));
