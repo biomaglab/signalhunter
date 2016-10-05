@@ -17,12 +17,25 @@ switch handles.data_id
     case 'mepanalysis'
         handles.reader = load_mepanalysis(handles.reader);
         
-    case 'otbio'
-        handles.reader = load_multi(handles.reader);
+    case 'multi channels'
+        try
+        [handles.reader, handles.processed] = load_multi(handles.reader);
         
+        if isfield(handles, 'panel_graph')
+            delete(handles.panel_graph);
+            handles = rmfield(handles, 'panel_graph');
+            handles = rmfield(handles, 'haxes');
+        end
+        
+        handles = graphs_multi(handles);
+        
+        filt_id = 1;
+        
+        catch
+            filt_id = 0;
+        
+        end
 end
-
-
 
 
 function [reader, processed] = load_tms_vc(reader)
@@ -53,4 +66,21 @@ if filt_id
     if ~isfield(reader, 'process_id')
         reader.process_id = 1;
     end
+end
+
+function [reader, processed] = load_multi(reader)
+%LOAD_MULTI Summary of this function goes here
+%   Detailed explanation goes here
+
+subject = reader.subject;
+filename_aux = [subject{1,1} 'data.mat'];
+
+[filename, pathname, filt_id] = uigetfile({'*.mat','MATLAB File (*.mat)'},...
+    'Select the saved processed file', filename_aux);
+
+if filt_id
+    data_load = load([pathname filename]);
+    reader = data_load.reader;
+    processed = data_load.processed;
+    
 end

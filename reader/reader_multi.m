@@ -9,7 +9,7 @@ function [output_reader, open_id] = reader_multi
 % signal = load([pathname filename]);
 
 % path_aux = uigetdir('D:\repository\signalhunter\tests\ACA');
-path_aux = '.\tests\ACA\';
+path_aux = '.\tests\ACA2\';
 file_list = struct2cell(dir(path_aux));
 file_aux = file_list(1,3:end);
 sort(file_aux);
@@ -17,6 +17,7 @@ sort(file_aux);
 n_files = size(file_aux, 2);
 n_instants = 4;
 n_side = 2;
+muscle_id = {'M1', 'M2', 'M3'};
 
 if n_files == 40
     n_conditions = 5;
@@ -39,7 +40,7 @@ if path_aux
     condition = cell(n_frames,1);
     instant = cell(n_frames,n_instants);
     fs = cell(n_frames,n_instants);
-%     chans = cell(n_frames,n_instants);
+    muscle = cell(n_frames,n_instants);
     
     signal = struct;
     
@@ -55,18 +56,18 @@ if path_aux
     hbar = waitbar(0, 'File 1', 'Name','Reading signal...');
     
     % read file data
-    for i = 1:n_frames
-        for j = 1:n_instants
+    for id_cond = 1:n_frames
+        for ci = 1:n_instants
             
-            data_aux{i,j} = importdata([path_aux file_names{i,j}]);
-            file_prop{i,j} = strsplit(file_names{i,j}, {'_', '.'});
-            instant{i,j} = file_prop{i,j}(4);
+            data_aux{id_cond,ci} = importdata([path_aux file_names{id_cond,ci}]);
+            file_prop{id_cond,ci} = strsplit(file_names{id_cond,ci}, {'_', '.'});
+            instant(id_cond,ci) = strcat('T', file_prop{id_cond,ci}(4));
             
-            xs{i,j} = data_aux{i,j}.data(:,1);
-            data{i,j} = data_aux{i,j}.data(:,2:end-1);
-            trigger{i,j} = data_aux{i,j}.data(:,end);
+            xs{id_cond,ci} = data_aux{id_cond,ci}.data(:,1);
+            data{id_cond,ci} = data_aux{id_cond,ci}.data(:,2:end-1);
+            trigger{id_cond,ci} = data_aux{id_cond,ci}.data(:,end);
             
-            fs{i,j} =  1/(xs{i,j}(3,1)-xs{i,j}(2,1));
+            fs{id_cond,ci} =  1/(xs{id_cond,ci}(3,1)-xs{id_cond,ci}(2,1));
             
             % extract sampling frequency from comments - this Fsamp does
             % not make sense
@@ -75,15 +76,20 @@ if path_aux
 %             chans{i,j} = str2double(fs_str(find((fs_str == '/'))+1:end));
 
             % Report status of reading in wait bar
-            id_bar = sub2ind([n_instants n_frames], j, i);
+            id_bar = sub2ind([n_instants n_frames], ci, id_cond);
             waitbar(id_bar/(n_frames*n_instants),hbar,sprintf('File %d',id_bar))
             
+            subject(id_cond,ci) = strcat('S', file_prop{id_cond,1}(1));
+            side(id_cond,ci) = file_prop{id_cond,1}(2);
+            condition(id_cond,ci) = strcat('C', file_prop{id_cond,1}(3));
+            
+            for ri = 1:size(data{1,1}, 2);
+                muscle(id_cond,ci,ri) = muscle_id(1,ri);
+            end
+            
         end
-        subject(i,1) = file_prop{i,1}(1);
-        side(i,1) = file_prop{i,1}(2);
-        condition(i,1) = file_prop{i,1}(3);
-        fig_titles(i,1) = strcat('subject: ', subject(i,1), ' side: ', side(i,1),...
-            ' condition: ', condition(i,1));
+        fig_titles(id_cond,1) = strcat('subject: ', subject(id_cond,1), ' side: ', side(id_cond,1),...
+            ' condition: ', condition(id_cond,1));
         
     end
     
@@ -93,11 +99,13 @@ if path_aux
     signal.xs = xs;
     signal.data = data;
     signal.trigger = trigger;
+    signal.filename = file_names;
     
+    n_muscles = size(data{1,1}, 2);
+
     output_reader.signal = signal;
-    
     output_reader.path = path_aux;
-    output_reader.filename = file_names;
+%     output_reader.filename = file_names;
     output_reader.subject = subject;
     output_reader.side = side;
     output_reader.condition = condition;
@@ -109,6 +117,8 @@ if path_aux
     output_reader.n_side = n_side;
     output_reader.n_instants = n_instants;
     output_reader.n_frames = n_frames;
+    output_reader.n_muscles = n_muscles;
+    output_reader.muscle = muscle;
     
     open_id = 1;
 else

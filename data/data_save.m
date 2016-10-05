@@ -10,8 +10,8 @@ switch handles.data_id
     case 'mepanalysis'
         save_mepanalysis(handles)
         
-    case 'otbio'
-        save_multi(handles.reader)
+    case 'multi channels'
+        filt_id = save_multi(handles.reader, handles.processed)
         
 end
 
@@ -35,7 +35,6 @@ elseif process_id == 3
     filename = [sub_name '_' leg '_MVC2min.mat'];
 end
 
-% loading output template
 [output_file, ouput_path, filt_id] = uiputfile({'*.mat','MATLAB File (*.mat)'},...
     'Save processed data', filename);
 
@@ -45,9 +44,17 @@ end
 
 end
 
-function filt_id = save_multi(reader)
+function filt_id = save_multi(reader, processed)
 
-filt_id = 1 + 2;
+subject = reader.subject;
+filename_aux = [subject{1,1} 'data'];
+
+[filename, pathname, filt_id] = uiputfile({'*.mat','MATLAB File (*.mat)'},...
+    'Save processed data', filename_aux);
+
+if filt_id
+    save([pathname filename], 'reader', 'processed');
+end
 
 end
 

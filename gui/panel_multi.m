@@ -139,11 +139,13 @@ if isfield(handles, 'panel_graph')
     handles = rmfield(handles, 'haxes');
 end
 
-[map_template, map_shape] = dialog_create_new;
-handles.map_template = map_template;
-handles.map_shape = map_shape;
+% [map_template, map_shape] = dialog_create_new;
+% handles.map_template = map_template;
+% handles.map_shape = map_shape;
 
 [handles.reader, open_id] = reader_multi;
+
+handles.id_cond = 1;
 
 if open_id
     msg = 'Succesfully read data.';
@@ -151,6 +153,7 @@ if open_id
     
     handles.processed = process_multi(handles.reader);
     handles = graphs_multi(handles);
+    set(handles.hsubdata, 'Enable', 'on');
     
 else
     msg = 'Open canceled.';
@@ -183,7 +186,12 @@ handles.hsubdata = vars.hsubdata;
 set(handles.edit_idcond, 'String', '1');
 set(handles.hsubdata, 'Enable', 'off');
 
-delete(vars.panel_graph);
+
+if isfield(vars, 'panel_graph')
+    if ishandle(vars.panel_graph)
+        delete(vars.panel_graph);
+    end
+end
 
 % message to progress log
 msg = 'Signal Hunter for multi processing restarted.';

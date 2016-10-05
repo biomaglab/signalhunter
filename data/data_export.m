@@ -10,8 +10,8 @@ switch handles.data_id
     case 'mepanalysis'
         filt_id = export_mepanalysis(handles.reader);
         
-    case 'otbio'
-        filt_id = export_multi(handles.reader);
+    case 'multi channels'
+        filt_id = export_multi(handles.reader, handles.processed);
         
 end
 
@@ -20,9 +20,12 @@ end
 
 
 function filt_id = export_mepanalysis(reader)
+%EXPORT_MULTI Function to standardize the output for single MEP processing
+%   This function exports to Excel and ASCII file with data written in rows
+%   and variables in columns
+
 
 tic
-previous_data = [];
 
 amp = reader.mep_amp;
 lat = reader.mep_lat;
@@ -39,19 +42,19 @@ headers = [{'states'} {'frames'} {'amplitude (mV)'} {'latency (s)'} {'duration (
 
 switch filterindex
     case 1
-        try
+        if  exist([pathname filename], 'file')
             [~, ~, previous_data] = xlsread([pathname filename]);
-        end
-        if isempty(previous_data)
-            xlswrite([pathname filename], [headers; export_data])
-        else
             xlswrite([pathname filename], [previous_data; export_data])
+        else
+            xlswrite([pathname filename], [headers; export_data])
         end
-        
+                
     case 2
         fid = fopen([pathname filename]);
         try
             previous_data = fgets(fid);
+        catch
+            error('File could not be read.');
         end
         the_format = '\n%d %s %d %d %d';
         if isempty(previous_data)
@@ -70,16 +73,90 @@ filt_id = toc;
 end
 
 
-function filt_id = export_multi(reader)
+function filt_id = export_multi(reader, processed)
+%EXPORT_MULTI Function to standardize the output for multiple files processing
+%   This function exports to Excel and ASCII file with data written in rows
+%   and variables in columns
 
-%Export for Multiple processing
-filt_id = reader;
+subject = reader.subject;
+side = reader.side;
+condition = reader.condition;
+instant = reader.instant;
+muscle = reader.muscle;
+
+n_muscles = reader.n_muscles;
+n_instants = reader.n_instants;
+n_frames = reader.n_frames;
+
+n_data = n_muscles*n_instants*n_frames;
+
+ppamp_av = processed.ppamp_av;
+latency_av = processed.latency_av;
+ppamp_aux = cell(n_frames, n_instants, n_muscles);
+latency_aux = cell(n_frames, n_instants, n_muscles);
+
+subject = reshape(permute(repmat(subject, [1,1,3]), [3,2,1]), [n_data,1]);
+side = reshape(permute(repmat(side, [1,1,3]), [3,2,1]), [n_data,1]);
+condition = reshape(permute(repmat(condition, [1,1,3]), [3,2,1]), [n_data,1]);
+instant = reshape(permute(repmat(instant, [1,1,3]), [3,2,1]), [n_data,1]);
+muscle = reshape(permute(muscle, [3,2,1]), [n_data,1]);
+
+for id_cond = 1:n_frames
+    for ci = 1:n_instants
+        for ri = 1:n_muscles 
+            ppamp_aux{id_cond,ci,ri} = ppamp_av{id_cond,ci}(:,:,ri);
+            latency_aux{id_cond,ci,ri} = latency_av{id_cond,ci}(2,:,ri);
+        
+        end
+    end
+end
+
+ppamp_aux = reshape(permute(ppamp_aux, [3,2,1]), [n_data,1]);
+latency_aux = reshape(permute(latency_aux, [3,2,1]), [n_data,1]);
+
+export_data = [subject side condition instant muscle ppamp_aux latency_aux];
+
+headers = [{'subject'} {'hemisphere'} {'condition'} {'instant'} {'muscle'} {'amplitude (uV)'} {'latency (ms)'}];
+
+[filename, pathname, filt_id] = uiputfile({'*.xls;*.xlsx','MS Excel Files (*.xls,*.xlsx)';...
+    '*.txt', 'ASCII format (*.txt)'}, 'Export data', 'processed_data.xlsx');
+
+switch filt_id
+    case 1
+        if  exist([pathname filename], 'file')
+            [~, ~, previous_data] = xlsread([pathname filename]);
+            xlswrite([pathname filename], [previous_data; export_data])
+        else
+            xlswrite([pathname filename], [headers; export_data])
+        end
+        
+    case 2
+        fid = fopen([pathname filename]);
+        try
+            previous_data = fgets(fid);
+        catch
+            error('File could not be read.');
+        end
+        the_format = '\n%s %s %s %s %s %.4f %.4f';
+        if isempty(previous_data)
+            fid = fopen([pathname filename], 'w');
+            fprintf(fid, '%s %s %s %s %s %s %s', headers{1,:});
+            for id_cond = 1:n_data
+                fprintf(fid, the_format, export_data{id_cond,:});
+            end
+            fclose(fid);
+        else
+            fid = fopen([pathname filename], 'a');
+            fprintf(fid, the_format, export_data{1,:});
+            fclose(fid);
+        end
+end
 
 end
 
 
 function filt_id = export_tms_vc(reader, processed)
-%OUTPUT_TMS_VC Function to standardize the output for TMS + VC processing
+%EXPORT_TMS_VC Function to standardize the output for TMS + VC processing
 %   This function uses an Excel template file to wrie the output variables
 
 sub_name = reader.sub_name;
