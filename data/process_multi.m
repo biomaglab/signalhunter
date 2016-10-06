@@ -1,11 +1,11 @@
-function output = process_multi(input_reader)
+function processed = process_multi(reader)
 %PROCESS_MULTI Summary of this function goes here
 %   Detailed explanation goes here
 
-signal = input_reader.signal;
-n_instants = input_reader.n_instants;
-n_frames = input_reader.n_frames;
-fs = input_reader.fs;
+signal = reader.signal;
+n_instants = reader.n_instants;
+n_frames = reader.n_frames;
+fs = reader.fs;
 
 xs = signal.xs;
 data = signal.data;
@@ -45,6 +45,9 @@ pmax_av = cell(n_frames, n_instants);
 
 globalmin = zeros(n_frames, n_instants);
 globalmax = zeros(n_frames, n_instants);
+
+npot = zeros(n_frames, n_instants);
+nmusc = zeros(n_frames, n_instants);
 
 % Waitbar to show frames progess
 % Used this instead of built-in figure progess bar to avoid need of handles
@@ -87,43 +90,53 @@ for id_cond = 1:n_frames
             latency_av{id_cond,ci}(2,:,ri) = xs_norm{id_cond,ci}(latency_av{id_cond,ci}(1,:,ri));
             
         end
-        
+
         globalmin(id_cond,ci) = min(min(min(pmin{id_cond,ci})));
         globalmax(id_cond,ci) = max(max(max(pmax{id_cond,ci})));
+
+        npot(id_cond,ci) = size(ppamp{id_cond,ci},2);
+        nmusc(id_cond,ci) = size(ppamp{id_cond,ci},3);
+        
     end
     
     % Report current estimate in the waitbar's message field
     waitbar(id_cond/n_frames,hbar,sprintf('Frame %d',id_cond))
 end
 
+n_muscles = max(max(nmusc));
+n_pots = max(max(npot));
+
 delete(hbar)
 
 toc
 
-output.split_pots = split_pots;
-output.split_baseline = split_baseline;
-output.split_xs = split_xs;
-output.xs_norm = xs_norm;
+processed.split_pots = split_pots;
+processed.split_baseline = split_baseline;
+processed.split_xs = split_xs;
+processed.xs_norm = xs_norm;
 
-output.latency = latency;
-output.latency_I = latency_I;
-output.ppamp = ppamp;
-output.pmin = pmin;
-output.pmax = pmax;
+processed.latency = latency;
+processed.latency_I = latency_I;
+processed.ppamp = ppamp;
+processed.pmin = pmin;
+processed.pmax = pmax;
 
-output.average_pots = average_pots;
-output.latency_av = latency_av;
-output.ppamp_av = ppamp_av;
-output.pmin_av = pmin_av;
-output.pmax_av = pmax_av;
+processed.average_pots = average_pots;
+processed.latency_av = latency_av;
+processed.ppamp_av = ppamp_av;
+processed.pmin_av = pmin_av;
+processed.pmax_av = pmax_av;
 
 % output.latency_I_av_bkp = latency_I_av;
-output.latency_av_bkp = latency_av;
-output.ppamp_av_bkp = ppamp_av;
-output.pmin_av_bkp = pmin_av;
-output.pmax_av_bkp = pmax_av;
+processed.latency_av_bkp = latency_av;
+processed.ppamp_av_bkp = ppamp_av;
+processed.pmin_av_bkp = pmin_av;
+processed.pmax_av_bkp = pmax_av;
 
-output.globalmin = globalmin;
-output.globalmax = globalmax;
+processed.globalmin = globalmin;
+processed.globalmax = globalmax;
+
+processed.n_muscles = n_muscles;
+processed.n_pots = n_pots;
 
 end

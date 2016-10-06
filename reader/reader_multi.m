@@ -1,4 +1,4 @@
-function [output_reader, open_id] = reader_multi
+function [reader, open_id] = reader_multi
 %OUTPUT_READER Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -98,30 +98,26 @@ if path_aux
     save([path_aux 'tmp_signal.mat'], '-struct', 'signal');
     
     delete(hbar)
-    
-    n_muscles = size(data{1,1}, 2);
-    
-    output_reader.tmp_signal = [path_aux 'tmp_signal.mat'];
-    output_reader.signal = signal;
-    output_reader.path = path_aux;
-    output_reader.subject = subject;
-    output_reader.side = side;
-    output_reader.condition = condition;
-    output_reader.instant = instant;
-    output_reader.fig_titles = fig_titles;
-    output_reader.fs = fs;
-    output_reader.n_files = n_files;
-    output_reader.n_conditions = n_conditions;
-    output_reader.n_side = n_side;
-    output_reader.n_instants = n_instants;
-    output_reader.n_frames = n_frames;
-    output_reader.n_muscles = n_muscles;
-    output_reader.muscle = muscle;
-    
+       
+    reader.tmp_signal = [path_aux 'tmp_signal.mat'];
+    reader.signal = signal;
+    reader.path = path_aux;
+    reader.subject = subject;
+    reader.side = side;
+    reader.condition = condition;
+    reader.instant = instant;
+    reader.fig_titles = fig_titles;
+    reader.fs = fs;
+    reader.n_files = n_files;
+    reader.n_conditions = n_conditions;
+    reader.n_side = n_side;
+    reader.n_instants = n_instants;
+    reader.n_frames = n_frames;
+        
     open_id = 1;
 else
     
-    output_reader = 0;
+    reader = 0;
     open_id = 0;
     
 end

@@ -96,6 +96,7 @@ handles.fig = hObject;
 handles.hsubtools = hsubtools;
 handles.hsubdata = hsubdata;
 handles.hmenufile = hmenufile;
+handles.hmenutools = hmenutools;
 handles.hsubopen = hsubopen;
 
 % create logos panel

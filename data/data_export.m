@@ -78,48 +78,57 @@ function filt_id = export_multi(reader, processed)
 %   This function exports to Excel and ASCII file with data written in rows
 %   and variables in columns
 
-subject = reader.subject;
-side = reader.side;
-condition = reader.condition;
-instant = reader.instant;
-muscle = reader.muscle;
+sub = reader.subject;
+sid = reader.side;
+cond = reader.condition;
+inst = reader.instant;
+musc = reader.muscle;
 
-n_muscles = reader.n_muscles;
-n_instants = reader.n_instants;
-n_frames = reader.n_frames;
-
-n_data = n_muscles*n_instants*n_frames;
+n_muscles = processed.n_muscles;
+n_pots = processed.n_pots;
 
 ppamp_av = processed.ppamp_av;
 latency_av = processed.latency_av;
-ppamp_aux = cell(n_frames, n_instants, n_muscles);
-latency_aux = cell(n_frames, n_instants, n_muscles);
 
-subject = reshape(permute(repmat(subject, [1,1,3]), [3,2,1]), [n_data,1]);
-side = reshape(permute(repmat(side, [1,1,3]), [3,2,1]), [n_data,1]);
-condition = reshape(permute(repmat(condition, [1,1,3]), [3,2,1]), [n_data,1]);
-instant = reshape(permute(repmat(instant, [1,1,3]), [3,2,1]), [n_data,1]);
-muscle = reshape(permute(muscle, [3,2,1]), [n_data,1]);
+[ppamp_av_arr, idlabel_av] = arrange_table(ppamp_av);
+[latency_av_arr, ~] = arrange_table(latency_av);
 
-for id_cond = 1:n_frames
-    for ci = 1:n_instants
-        for ri = 1:n_muscles 
-            ppamp_aux{id_cond,ci,ri} = ppamp_av{id_cond,ci}(:,:,ri);
-            latency_aux{id_cond,ci,ri} = latency_av{id_cond,ci}(2,:,ri);
-        
-        end
-    end
-end
+ppamp = processed.ppamp;
+latency = processed.latency;
 
-ppamp_aux = reshape(permute(ppamp_aux, [3,2,1]), [n_data,1]);
-latency_aux = reshape(permute(latency_aux, [3,2,1]), [n_data,1]);
+[ppamp_arr, idlabel] = arrange_table(ppamp);
+[latency_arr, ~] = arrange_table(latency);
 
-export_data = [subject side condition instant muscle ppamp_aux latency_aux];
+ntot_av = length(ppamp_av_arr);
+ntot = length(ppamp_arr);
 
-headers = [{'subject'} {'hemisphere'} {'condition'} {'instant'} {'muscle'} {'amplitude (uV)'} {'latency (ms)'}];
+nrep = [1,1,n_muscles,n_pots];
+reorder = [4,3,2,1];
+
+nrep_av = [1,1,n_muscles];
+reorder_av = [3,2,1];
+
+subject = reshape(permute(repmat(sub, nrep), reorder), [ntot,1]);
+side = reshape(permute(repmat(sid, nrep), reorder), [ntot,1]);
+condition = reshape(permute(repmat(cond, nrep), reorder), [ntot,1]);
+instant = reshape(permute(repmat(inst, nrep), reorder), [ntot,1]);
+muscle = reshape(permute(repmat(musc, [1,1,1,n_pots]), reorder), [ntot,1]);
+
+subject_av = reshape(permute(repmat(sub, nrep_av), reorder_av), [ntot_av,1]);
+side_av = reshape(permute(repmat(sid, nrep_av), reorder_av), [ntot_av,1]);
+condition_av = reshape(permute(repmat(cond, nrep_av), reorder_av), [ntot_av,1]);
+instant_av = reshape(permute(repmat(inst, nrep_av), reorder_av), [ntot_av,1]);
+muscle_av = reshape(permute(musc, reorder_av), [ntot_av,1]);
+
+export_data_av = [subject_av side_av condition_av instant_av muscle_av idlabel_av ppamp_av_arr latency_av_arr];
+export_data = [subject side condition instant muscle idlabel ppamp_arr latency_arr];
+headers = [{'subject'} {'hemisphere'} {'condition'} {'instant'} {'muscle'} {'label'} {'amplitude (uV)'} {'latency (ms)'}];
 
 [filename, pathname, filt_id] = uiputfile({'*.xls;*.xlsx','MS Excel Files (*.xls,*.xlsx)';...
     '*.txt', 'ASCII format (*.txt)'}, 'Export data', 'processed_data.xlsx');
+
+[filename_av, pathname_av, ~] = uiputfile({'*.xls;*.xlsx','MS Excel Files (*.xls,*.xlsx)';...
+    '*.txt', 'ASCII format (*.txt)'}, 'Export data averaged', 'processed_data_av.xlsx');
 
 switch filt_id
     case 1
@@ -129,26 +138,54 @@ switch filt_id
         else
             xlswrite([pathname filename], [headers; export_data])
         end
+
+        if  exist([pathname_av filename_av], 'file')
+            [~, ~, previous_data_av] = xlsread([pathname_av filename_av]);
+            xlswrite([pathname_av filename_av], [previous_data_av; export_data_av])
+        else
+            xlswrite([pathname_av filename_av], [headers; export_data_av])
+        end
         
     case 2
         fid = fopen([pathname filename]);
+        the_format = '\n%s %s %s %s %s %s %.4f %.4f';
         try
             previous_data = fgets(fid);
         catch
             error('File could not be read.');
         end
-        the_format = '\n%s %s %s %s %s %.4f %.4f';
+        
         if isempty(previous_data)
             fid = fopen([pathname filename], 'w');
-            fprintf(fid, '%s %s %s %s %s %s %s', headers{1,:});
-            for id_cond = 1:n_data
-                fprintf(fid, the_format, export_data{id_cond,:});
+            fprintf(fid, '%s %s %s %s %s %s %s %s', headers{1,:});
+            for ri = 1:ntot
+                fprintf(fid, the_format, export_data{ri,:});
             end
             fclose(fid);
         else
             fid = fopen([pathname filename], 'a');
             fprintf(fid, the_format, export_data{1,:});
             fclose(fid);
+        end
+
+        fid_av = fopen([pathname_av filename_av]);
+        try
+            previous_data_av = fgets(fid_av);
+        catch
+            error('File could not be read.');
+        end
+        
+        if isempty(previous_data_av)
+            fid_av = fopen([pathname_av filename_av], 'w');
+            fprintf(fid_av, '%s %s %s %s %s %s %s %s', headers{1,:});
+            for ri = 1:ntot_av
+                fprintf(fid_av, the_format, export_data_av{ri,:});
+            end
+            fclose(fid_av);
+        else
+            fid_av = fopen([pathname_av filename_av], 'a');
+            fprintf(fid_av, the_format, export_data_av{1,:});
+            fclose(fid_av);
         end
 end
 

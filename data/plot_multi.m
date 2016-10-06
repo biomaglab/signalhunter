@@ -10,7 +10,7 @@ split_pots = processed.split_pots{id_cond,ci}(:,:,ri);
 average_pots = processed.average_pots{id_cond,ci}(:,:,ri);
 
 % xs starting from trigger
-n_signals = size(split_pots,2);
+n_pots = size(split_pots, 2);
 xs_norm = processed.xs_norm{id_cond,ci};
 
 latency_av = processed.latency_av{id_cond,ci}(1,:,ri);
@@ -25,7 +25,7 @@ hold on
 
 % signal
 hsig = plot(xs_norm, split_pots, xs_norm(:,1), average_pots);
-for n = 1:n_signals
+for n = 1:n_pots
     hsig(n).Color = [153 153 153]/255;
 end
 hsig(end).Color = 'k';

@@ -174,17 +174,17 @@ function pushbutton_reset_Callback(hObject, ~)
 vars = guidata(hObject);
 
 handles.fig = vars.fig;
-handles.menufile = vars.menufile;
-handles.subopen = vars.subopen;
-handles.menutools = vars.menutools;
-handles.subtools = vars.subtools;
+handles.hmenufile = vars.hmenufile;
+handles.hsubopen = vars.hsubopen;
+handles.hsubdata = vars.hsubdata;
+handles.hmenutools = vars.hmenutools;
+handles.hsubtools = vars.hsubtools;
 handles.panel_files = vars.panel_files;
 handles.progress_bar = vars.progress_bar;
 handles.panel_tools = vars.panel_tools;
 handles.edit_idcond = vars.edit_idcond;
 handles.panel_txtlog = vars.panel_txtlog;
 handles.edit_log = vars.edit_log;
-handles.hsubdata = vars.hsubdata;
 
 try
     delete(vars.reader.tmp_signal);

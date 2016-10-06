@@ -38,7 +38,6 @@ nc = 4;
 
 % handles.id_mod = [1, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5];
 % handles.id_mod = 1;
-processed = handles.processed;
 handles.conditions = (1:handles.reader.n_frames);
 model = [nr nc];
 
@@ -67,7 +66,7 @@ for k = 1:handles.conditions(end)
     for ri = 1:nr
         for ci = 1:nc
             id_axes = [k, ci, ri];
-            [~, ~, ~] = plot_multi(handles.haxes(k, ci, ri), processed, id_axes);
+            [~, ~, ~] = plot_multi(handles.haxes(k, ci, ri), handles.processed, id_axes);
         end
     end
     
