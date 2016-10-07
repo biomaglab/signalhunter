@@ -113,6 +113,7 @@ if path_aux
     reader.n_side = n_side;
     reader.n_instants = n_instants;
     reader.n_frames = n_frames;
+    reader.muscle = muscle;
         
     open_id = 1;
 else
