@@ -6,8 +6,7 @@ function [reader, open_id] = reader_multi
 % [filename, pathname] = uigetfile({'*.mat','MAT-files (*.mat)'},...
 %     'Select the signal file');
 
-% signal = load([pathname filename]);
-% path_aux = '.\tests\ACA\';
+% path_aux = '.\tests\mapa\';
 path_aux = uigetdir;
 path_aux = [path_aux '\'];
 
@@ -16,15 +15,43 @@ file_aux = file_list(1,3:end);
 sort(file_aux);
 
 n_files = size(file_aux, 2);
-n_instants = 4;
-n_side = 2;
 muscle_id = {'M1', 'M2', 'M3'};
 
 if n_files == 40
+    process_id = 1;
+    % condition is parameter of electrical stimulation
     n_conditions = 5;
+    % instant is time of tms stimulation
+    n_instants = 4;
+    % side is stimulated brain hemisphere
+    n_side = 2;
     
 elseif n_files == 24
+    process_id = 1;
+    % condition is hotpost of target muscle
     n_conditions = 3;
+    % instant is arm position
+    n_instants = 4;
+    % side is stimulated brain hemisphere
+    n_side = 2;
+    
+elseif n_files == 18
+    process_id = 2;
+    % condition is hotpost of target muscle
+    n_conditions = 3;
+    % instant is arm position
+    n_instants = 3;
+    % side is stimulated brain hemisphere
+    n_side = 2;
+    
+elseif n_files == 12
+    process_id = 3;
+    % conditions is MRI or MNI
+    n_conditions = 2;
+    % instant is 110% or 120% of motor threshold
+    n_instants = 3;
+    % side is hotspot of target muscle
+    n_side = 2;
     
 else
     path_aux = 0;
@@ -114,6 +141,7 @@ if path_aux
     reader.n_instants = n_instants;
     reader.n_frames = n_frames;
     reader.muscle = muscle;
+    reader.process_id = process_id;
         
     open_id = 1;
 else

@@ -26,9 +26,17 @@ end
 % temporary just to test
 % nr = handles.map_shape(1);
 % nc = handles.map_shape(2);
-
-nr = 3;
-nc = 4;
+process_id = handles.reader.process_id;
+if process_id == 1
+    nr = 3;
+    nc = 4;
+elseif process_id == 2
+    nr = 3;
+    nc = 3;
+elseif process_id == 3
+    nr = 3;
+    nc = 3;
+end
 
 % axes_h = axes_pos(4)/nr;
 % axes_w = axes_pos(3)/nc;
@@ -178,7 +186,7 @@ if ishandle(ax)
     cla(ax);
 end
 
-[hsig, hpeaks, hlat] = plot_multi(ax, handles.processed, id_axes);
+[~, ~, ~] = plot_multi(ax, handles.processed, id_axes);
 
 % After refreshing axes, set the ButtonDownFcn callback function
 set(ax, 'ButtonDownFcn', @axes_ButtonDownFcn);
