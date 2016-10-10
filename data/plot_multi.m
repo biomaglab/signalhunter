@@ -45,20 +45,6 @@ hpeaks(2).MarkerSize = 9;
 
 % potential latency
 hlat = plot([xs_norm(latency_av,1) xs_norm(latency_av,1)], [lim(3)  lim(4)], 'g');
-% hlat2 = plot([latency_av latency_av], [lim(3)  lim(4)], '--k');
 
 hold off
-
-
-
-% hplot = zeros(3,4,10);
-% xlabel('Time (s)')
-% ylabel('EMG (mV)')
-% set(ax, 'YLimMode', 'manual', 'YLim', [-1 1]);
-% for i=1:size(data,2)
-% hplot(id_axes(1),id_axes(2)) = plot(xs{i}(:,1), data{i}(:, id_axes(1)*id_axes(2)));
-% hplot(i, j, k) = plot(split_xs, split_pots);
-% plot(latency_I, processed.split_pots{k,j}(latency_I,1,i), 'r');
-% processed.split_pots{k,j}(latency_I,id,i)
-% end
 
