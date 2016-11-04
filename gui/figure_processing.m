@@ -1,4 +1,4 @@
-function figure_processing
+function figure_processing(config_dir)
 % Main figure of signalhunter to open and process all data
 % Figure is divided into panels and menus. Each panel may be filled
 % according to the application of interest. Modular programming must be
@@ -14,11 +14,11 @@ function figure_processing
 %     handles.map_template = (1:handles.map_shape(1)*handles.map_shape(2));
 % end
 
-map_figure_creation;
+map_figure_creation(config_dir);
 
 
 % --- Executes just before map_figure is made visible.
-function map_figure_creation
+function map_figure_creation(config_dir)
 
 set(0,'units','pixels');
 scnsize = get(0,'screensize');
@@ -98,6 +98,7 @@ handles.hsubdata = hsubdata;
 handles.hmenufile = hmenufile;
 handles.hmenutools = hmenutools;
 handles.hsubopen = hsubopen;
+handles.config_dir = config_dir;
 
 % create logos panel
 panel_logo_biomag(hObject);
@@ -172,7 +173,7 @@ switch handles.data_id
 %         handles.map_template = map_template;
 %         handles.map_shape = map_shape;
         
-        [reader, open_id] = reader_multi;
+        [reader, open_id] = reader_multi(handles.config_dir);
                 
         if open_id
             msg = 'Succesfully read data.';
@@ -388,22 +389,11 @@ function close_signalhunter(hObject,~)
 selection = questdlg('Close Signal Hunter?', 'Close', 'Yes', 'No', 'Yes');
 switch selection
     case 'Yes'
-        
+        % remove temporary files and config files before closing figure
         handles = guidata(hObject);
-        if isfield(handles, 'data_id')
-            switch handles.data_id
-                
-                case 'multi channels'
-                    delete(handles.reader.tmp_signal);
-                    delete(get(0,'CurrentFigure'))
-                    
-                otherwise
-                    delete(get(0,'CurrentFigure'))
-            end
-        else
-            delete(get(0,'CurrentFigure'))
-        end
-        
+        rmdir(handles.config_dir, 's')
+        delete(get(0,'CurrentFigure'))
+
     case 'No'
         return
 end

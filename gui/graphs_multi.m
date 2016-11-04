@@ -1,4 +1,4 @@
-% Creates GUI panel and controls for OT Bioelettronica Processing
+% Creates GUI panel and controls for Multi Channels processing
 % This module create all panels and its axes that will be used to plot the
 % signals
 function handles = graphs_multi(handles)
@@ -38,14 +38,9 @@ elseif process_id == 3
     nc = 3;
 end
 
-% axes_h = axes_pos(4)/nr;
-% axes_w = axes_pos(3)/nc;
-
 % all_models represents the axes distribution in the panel
 % format: [n rows, mcols in row 1, pcols in row 2, qcols in row n]
 
-% handles.id_mod = [1, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5];
-% handles.id_mod = 1;
 handles.conditions = (1:handles.reader.n_frames);
 model = [nr nc];
 
@@ -146,8 +141,8 @@ for ri=1:nr
         
         % Add labels to first graph at each column and row
         if ri == 1
-            outertxt = [outer_pos(1) + (axes_w - 0.05)/2,...
-                outer_pos(2) + axes_h, 0.07, 0.02];
+            outertxt = [outer_pos(1) + (axes_w - 0.055)/2,...
+                outer_pos(2) + axes_h, 0.07, 0.03];
             uicontrol('Parent', panel_graph(id_cond),...
                 'Style','text',...
                 'String', sprintf('Instant %d', rj),...
@@ -160,7 +155,7 @@ for ri=1:nr
         
         if rj == 1
             outertxt = [outer_pos(1)-0.015,...
-                outer_pos(2) + (axes_h)/2, 0.015, 0.02];
+                outer_pos(2) + (axes_h)/2, 0.015, 0.03];
             uicontrol('Parent', panel_graph(id_cond),...
                 'Style','text',...
                 'String', ['M' sprintf('%d', ri)],...

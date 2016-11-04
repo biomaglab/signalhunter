@@ -1,12 +1,25 @@
-function [reader, open_id] = reader_multi
-%OUTPUT_READER Summary of this function goes here
-%   Detailed explanation goes here
+function [reader, open_id] = reader_multi(config_dir)
+%READER_MULTI Read CSV files from EMGSystem
+%   Read CSV files recorded and exported by EMGSystem.
+%   Each file contains one time series organized in colmuns. First column
+%   is time. Second, third and fourth are time series of EMG recording from
+%   three different muscles. Last column is trigger signal to localize TMS
+%   motor evoked potentials.
+% 
+% INPUT:
+% 
+% config_dir: path for configuration directory created on signalhunter.m
+% 
+% OUTPUT:
+%
+% reader: structure with variables created through reader
+% open_id: flag to inform if loading was succesful
+% 
 
-% loading signal data
-% [filename, pathname] = uigetfile({'*.mat','MAT-files (*.mat)'},...
-%     'Select the signal file');
 
-% path_aux = '.\tests\mapa\';
+hwarn = warndlg('Select folder must contain only the signal files to be processed','Atention!');
+uiwait(hwarn);
+
 path_aux = uigetdir;
 path_aux = [path_aux '\'];
 
@@ -122,11 +135,11 @@ if path_aux
     signal.trigger = trigger;
     signal.filename = file_names;
     signal.file_prop = file_prop;
-    save([path_aux 'tmp_signal.mat'], '-struct', 'signal');
+    save([config_dir '\tmp_signal.mat'], '-struct', 'signal');
     
     delete(hbar)
        
-    reader.tmp_signal = [path_aux 'tmp_signal.mat'];
+    reader.tmp_signal = [config_dir '\tmp_signal.mat'];
     reader.signal = signal;
     reader.path = path_aux;
     reader.subject = subject;

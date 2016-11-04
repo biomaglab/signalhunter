@@ -1,4 +1,5 @@
-% --- Creates GUI panel and controls for TMS and Voluntary Contraction Processing
+% --- Creates GUI panel and controls for Multi Channels EMG processing of
+% TMS motor evoked potentials.
 function handles = panel_multi(handles)
 
 % create the panel and controls, and return the handles
@@ -16,16 +17,10 @@ handles.panel_tools = uipanel(hObject, 'BackgroundColor', 'w', ...
     'Units', 'normalized');
 set(handles.panel_tools, 'Position', paneltools_pos);
 
-% % edit for conditions value
-% cond_names = 'Conditions: 1 - 0, 2 - 45, 3 - 90';
-% edit_cond_pos = [0.1, 0.68, 0.8, 0.3];
-% handles.edit_cond = uicontrol(handles.panel_tools, 'String', cond_names,'Units', 'normalized');
-% set(handles.edit_cond, 'Style', 'edit', 'Position', edit_cond_pos, 'BackgroundColor', 'w');
-
 n_cols = [2;3]; n_rows = 2;
 mar_x = 0.02; mar_y = 0.02;
-% w = 1./n_cols-(n_cols+1)*mar_x; h = (1/n_rows-(n_rows+1)*mar_y);
-w = (1./n_cols-((n_cols+1)*mar_x)); h = (1/n_rows-(n_rows+1)*mar_y);
+w = (1./n_cols-((n_cols+1)*mar_x));
+h = (1/n_rows-(n_rows+1)*mar_y);
 pos_x = nan(n_rows, max(n_cols));
 pos_y = nan(n_rows,1);
 
@@ -143,11 +138,7 @@ end
 % handles.map_template = map_template;
 % handles.map_shape = map_shape;
 
-if isfield(handles, 'reader')
-    delete(handles.reader.tmp_signal);
-end
-
-[handles.reader, open_id] = reader_multi;
+[handles.reader, open_id] = reader_multi(handles.config_dir);
 
 handles.id_cond = 1;
 
@@ -185,16 +176,10 @@ handles.panel_tools = vars.panel_tools;
 handles.edit_idcond = vars.edit_idcond;
 handles.panel_txtlog = vars.panel_txtlog;
 handles.edit_log = vars.edit_log;
-
-try
-    delete(vars.reader.tmp_signal);
-catch
-    warning('Temporary file not found or renamed. Delete manually');
-end
+handles.config_dir = vars.config_dir;
 
 set(handles.edit_idcond, 'String', '1');
 set(handles.hsubdata, 'Enable', 'off');
-
 
 if isfield(vars, 'panel_graph')
     if ishandle(vars.panel_graph)

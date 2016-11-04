@@ -1,6 +1,16 @@
 function processed = process_multi(reader)
-%PROCESS_MULTI Summary of this function goes here
-%   Detailed explanation goes here
+%PROCESS_MULTI Process and calculate MEP amplitude and latency
+%   Split potentials, calculate amplitude and latency of MEP organized in
+%   column-wise arrays.
+% 
+% INPUT:
+% 
+% reader: structure with read variables
+% 
+% OUTPUT:
+%
+% processed: structure with data processed
+% 
 
 signal = reader.signal;
 n_instants = reader.n_instants;
