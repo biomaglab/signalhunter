@@ -3,11 +3,12 @@ function [varargout] = dialog_create_new
 %   Detailed explanation goes here
 
 hObject = dialog_creation;
-[varargout{1}, varargout{2}, varargout{3}] = output_dialog(hObject);
-a = 2;
+% [varargout{1}, varargout{2}, varargout{3}] = output_dialog(hObject);
+[varargout{1}, varargout{2}] = output_dialog(hObject);
 
 
-function [data_id, map_template, map_shape] = output_dialog(hObject)
+% function [data_id, map_template, map_shape] = output_dialog(hObject)
+function [map_template, map_shape] = output_dialog(hObject)
 % Output function for dialog_detect
 
 uiwait(hObject);
@@ -33,11 +34,12 @@ end
 
 v = get (handles.popup1, 'Value');
 s = get (handles.popup1, 'String');
-data_id = s{v};
+% data_id = s{v};
 map_template = pos;
 map_shape = size(data_mat);
 
 delete(hObject);
+
 
 % Get default command line output from handles structure
 % varargout{1} = data_id;
@@ -202,7 +204,7 @@ guidata(hObject, handles);
 
 
 % --- Executes on button press in pushbutton_ok.
-function pb_ok_Callback(~, ~)
+function pb_ok_Callback(hObject, ~)
 
 % Callback - button to resume window
 
@@ -210,7 +212,9 @@ function pb_ok_Callback(~, ~)
 % figure_processing(data_id, map_template, map_shape);
 
 % close(handles.dialog_new)
-uiresume;
+handles = guidata(hObject);
+uiresume(handles.dialog_new);
+
 
 
 % --- Executes on button press in pushbutton_OpenTemplate.

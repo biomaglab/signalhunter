@@ -24,8 +24,8 @@ for i = 1:n_rows
    pos_y(i) = i*mar_y + (i-1)*h;
 end
 
-pb_load_pos = [pos_x, pos_y(3), w, h];
-pb_export_pos = [pos_x, pos_y(2), w, h];
+pb_export_pos = [pos_x, pos_y(3), w, h];
+pb_load_pos = [pos_x, pos_y(2), w, h];
 pb_save_pos = [pos_x, pos_y(1), w, h];
 
 fontsize = 0.5;
@@ -33,19 +33,21 @@ fontsize = 0.5;
 % push button load
 pushbutton_load = uicontrol(handles.panel_files, 'FontWeight', 'bold',...
     'String', 'Load', 'Units', 'normalized', 'FontUnits', 'normalized', ...
-    'Callback', @pushbutton_load_Callback);
+    'Callback', @(obj, eventdata)callback_data(obj, 'load'));
 set(pushbutton_load, 'Position', pb_load_pos, 'FontSize', fontsize);
 
 % push button export
 pushbutton_export = uicontrol(handles.panel_files, 'FontWeight', 'bold',...
     'String', 'Export', 'Units', 'normalized', 'FontUnits', 'normalized',...
-    'Callback', @pushbutton_export_Callback);
+    'Callback', @(obj, eventdata)callback_data(obj, 'export'));
 set(pushbutton_export, 'Position', pb_export_pos, 'FontSize', fontsize);
 
 % push button export
 pushbutton_save = uicontrol(handles.panel_files, 'FontWeight', 'bold',...
     'String', 'Save', 'Units', 'normalized', 'FontUnits', 'normalized',...
-    'Callback', @pushbutton_save_Callback);
+    'Callback', @(obj, eventdata)callback_data(obj, 'save'));
+%     'Callback', @pushbutton_save_Callback);
+    
 set(pushbutton_save, 'Position', pb_save_pos, 'FontSize', fontsize);
 
 switch lower(handles.data_id)
@@ -58,96 +60,34 @@ switch lower(handles.data_id)
 end
 
 
-function pushbutton_load_Callback(hObject, eventdata)
-% Callback - Button Load data in MAT file
+function callback_data(hObject, menu_id)
+%CALLBACK_DATA Summary of this function goes here
+%   Detailed explanation goes here
+
 handles = guidata(hObject);
-
-switch lower(handles.data_id)
-    case 'tms + vc'
-        try
-            [handles.reader, handles.processed] = load_tms_vc(handles.reader);
-            delete(handles.panel_graph);
-            handles = graphs_tms_vc(handles);
-            % message to progress log
-            msg = 'Processed data loaded.';
-            handles = panel_textlog(handles, msg);          
-        catch
-            % message to progress log
-            msg = 'Loading canceled.';
-            handles = panel_textlog(handles, msg);            
-        end
-        
-    case 'mep analysis'
-        % message to progress log
-        msg = 'Not available yet.';
-        handles = panel_textlog(handles, msg);
-        
-end
-
-
-% Update handles structure
-guidata(hObject, handles);
-
-function pushbutton_export_Callback(hObject, eventdata)
-% Callback - Button Export in XLS file
-handles = guidata(hObject);
+menu_id_up = [upper(menu_id(1)) menu_id(2:end)];
 
 % message to progress log
-msg = 'Exporting data to EXCEL file...';
+msg = [menu_id_up ' data in progress...'];
 handles = panel_textlog(handles, msg);
 
 value = 1/2;
 progbar_update(handles.progress_bar, value)
 
-switch lower(handles.data_id)
-    case 'tms + vc'
-        % message to progress log
-        filt_id = output_tms_vc(handles.reader, handles.processed);
-        if filt_id
-            msg = 'Processed data exported to EXCEL File.';
-            handles = panel_textlog(handles, msg);
-        else
-            msg = 'Exporting canceled.';
-            handles = panel_textlog(handles, msg);
-        end
-        
-    case 'mep analysis'
-        % message to progress log
-        tf = output_mepanalysis(handles.reader);
-        msg = ['Processed data exported in ' num2str(tf, '%.2f') ' seconds.'];
-        handles = panel_textlog(handles, msg);
-end
-
-value = 1;
-progbar_update(handles.progress_bar, value)
-
-% Update handles structure
-guidata(hObject, handles);
-
-function pushbutton_save_Callback(hObject, eventdata)
-% Callback - Button Save in MAT File
-handles = guidata(hObject);
-
-% message to progress log
-msg = 'Saving data to MATLAB File...';
-handles = panel_textlog(handles, msg);
-
-value = 1/2;
-progbar_update(handles.progress_bar, value)
-
-filt_id = save_tms_vc(handles.reader, handles.processed);
+% call function to save, load or export
+input = '(handles)';
+[handles, filt_id] = eval(['data_' menu_id input]);
 
 value = 1;
 progbar_update(handles.progress_bar, value)
 
 % message to progress log
 if filt_id
-    msg = 'Processed data saved to MATLAB File.';
+    msg = [menu_id_up ' data finished.'];
     handles = panel_textlog(handles, msg);
 else
-    msg = 'Saving canceled.';
+    msg = [menu_id_up ' canceled.'];
     handles = panel_textlog(handles, msg);
 end
 
-% Update handles structure
-guidata(hObject, handles);
+guidata(hObject, handles)

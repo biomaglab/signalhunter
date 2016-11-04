@@ -1,0 +1,9 @@
+data/*.asv
+reader/*.asv
+gui/*.asv
+tests/*.DAT
+tests/*.WDQ
+tests/*.csv
+
+tests
+*.asv

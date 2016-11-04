@@ -7,6 +7,12 @@ data_aux = load([pathname filename]);
 var_name = fieldnames(data_aux);
 eval(['data = data_aux.' var_name{1} ';']);
 
+% Potential window start after trigger onset (miliseconds)
+t0 = 10;
+% Potential window duration after t0 (miliseconds)
+t1 = 60;
+
+
 % load header information
 output_reader.xunits = data.xunits;
 output_reader.start = data.start;
@@ -35,9 +41,12 @@ for i = 1:output_reader.n_meps
     fig_titles{i,1} = data.frameinfo(i).label;
     states{i,1} = data.frameinfo(i).state;
     frame_start{i,1} = data.frameinfo(i).start;
-    [mep_amp(i), mep_pmin(i,:), mep_pmax(i,:)] = peak2peak_amplitude(output_reader.xs,...
-        output_reader.signal(:,i), output_reader.fs);
+    [mep_amp(i), mep_pmin(i,:), mep_pmax(i,:)] = p2p_amplitude(output_reader.signal(:,i),...
+        output_reader.fs, [t0 t1]);
 end
+
+mep_pmin(:,1) = mep_pmin(:,1)/output_reader.fs;
+mep_pmax(:,1) = mep_pmax(:,1)/output_reader.fs;
 
 output_reader.fig_titles = fig_titles;
 output_reader.states = states;

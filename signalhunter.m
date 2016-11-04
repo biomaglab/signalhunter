@@ -4,9 +4,15 @@ sighunter_path = pwd;
 sh_ls_path = genpath(sighunter_path);
 path(path, sh_ls_path);
 
+pth_aux = userpath;
+del = find(pth_aux == '\');
+pth = pth_aux(1:del(end-1));
+config_dir = [pth '.signalhunter'];
+[~,~,~] = mkdir(config_dir);
+
 % create the figure, uicontrols and return the handles
 signalhunter_logo;
-figure_processing;
+figure_processing(config_dir);
 
 
 function signalhunter_logo
