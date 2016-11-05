@@ -1,37 +1,40 @@
-function output_reader = reader_tms_vc
+function [reader, open_id] = reader_tms_vc(~)
 
 % loading signal and configuration data
 [filename, pathname] = uigetfile({'*.mat','MAT-files (*.mat)'},...
     'Select the signal file');
 
-% signal = load(filename);
+% Waitbar to show frames progess
+% Used this instead of built-in figure progess bar to avoid need of handles
+hbar = waitbar(0.5, 'Reading signals...', 'Name','Progress');
+
 signal = load([pathname filename]);
 
 % find subject name
 if isunix
-    temp = find(pathname=='/');
+    dir_del = find(pathname=='/');
 elseif ismac
-    temp = find(pathname=='/');
+    dir_del = find(pathname=='/');
 else
-    temp = find(pathname=='\');
+    dir_del = find(pathname=='\');
 end
 
-temp2 = find(pathname=='_');
-sub_name = pathname(temp(end-1)+1:temp2(end)-1);
+file_del = find(pathname=='_');
+sub_name = pathname(dir_del(end-1)+1:file_del(end)-1);
 
 % find dominant or non dominant leg
-if temp(end) - temp2(end) == 2
+if dir_del(end) - file_del(end) == 2
     leg = 'D';
 else
     leg = 'ND';
 end
 
-clearvars temp temp2
+
 
 % Load threshold values
 % the filename must be 'threshold.xls'
 % [num_T, txt_T, tab_T] = xlsread('thresholds.xls');
-file_thresh = 'thresholds.xls';
+file_thresh = [pathname(1:dir_del(end-2)) 'thresholds.xls'];
 if exist(file_thresh, 'file') == 0
     [filename_xls, pathname_xls] = uigetfile({'*.xls','Excel Files (*.xls)'},...
         'Select the threshold file', file_thresh);
@@ -51,8 +54,7 @@ line_to_read = line_to_read + series_nb - 1;
 
 % Load sequence TMS neurostim
 % the filename must be 'SeqTMSandENS.xlsx'
-% [num_S, txt_S, ~] = xlsread('SeqTMSandENS.xlsx');
-file_seq = 'SeqTMSandENS.xlsx';
+file_seq = [pathname(1:dir_del(end-2)) 'SeqTMSandENS.xlsx'];
 if exist(file_seq, 'file') == 0
     [filename_xlsx, pathname_xlsx] = uigetfile({'*.xlsx','Excel Files (*.xlsx)'},...
         'Select the TMS sequence file', file_seq);
@@ -60,6 +62,9 @@ if exist(file_seq, 'file') == 0
 else
     [num_S, txt_S, ~] = xlsread(file_seq);
 end
+
+path_aux = pathname(1:dir_del(end-3));
+clearvars dir_del file_del
 
 find_name = strfind(txt_S,sub_name);
 emptyIndex = cellfun(@isempty,find_name);  %# Find indices of empty cells
@@ -95,14 +100,20 @@ else
     process_id = 4;   
 end
 
-output_reader.filename = filename;
-output_reader.process_id = process_id;
-output_reader.pathname = pathname;
-output_reader.sub_name = sub_name;
-output_reader.leg = leg;
-output_reader.num_T = num_T;
-output_reader.line_to_read = line_to_read;
-output_reader.series_nb = series_nb;
-output_reader.order_TMS = order_TMS;
-output_reader.signal = signal;
-output_reader.fig_titles = fig_titles;
+waitbar(1.0,hbar, 'Processing signals...')
+delete(hbar)
+
+open_id = 1;
+
+reader.filename = filename;
+reader.process_id = process_id;
+reader.pathname = pathname;
+reader.sub_name = sub_name;
+reader.leg = leg;
+reader.num_T = num_T;
+reader.line_to_read = line_to_read;
+reader.series_nb = series_nb;
+reader.order_TMS = order_TMS;
+reader.signal = signal;
+reader.fig_titles = fig_titles;
+reader.path = path_aux;

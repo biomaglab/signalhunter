@@ -21,7 +21,6 @@ panel_pos = get(handles.panel_tools, 'Position');
 % haxes: vector of handles of all axes
 % cond_names: name of all conditions
 
-
 if ~isfield(handles, 'id_cond')
    handles.id_cond = 1; 
 end

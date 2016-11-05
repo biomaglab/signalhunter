@@ -1,4 +1,4 @@
-function output = process_tms_vc(input_reader)
+function processed = process_tms_vc(reader)
 
 % channel 1 = force
 % channel 2 = EMG
@@ -11,22 +11,18 @@ function output = process_tms_vc(input_reader)
 % channel 9 = RMS
 % channel 10 = TMS stim
 
-filename = input_reader.filename;
-process_id = input_reader.process_id;
-pathname = input_reader.pathname;
-sub_name = input_reader.sub_name;
-num_T = input_reader.num_T;
-line_to_read = input_reader.line_to_read;
-series_nb = input_reader.series_nb;
-order_TMS = input_reader.order_TMS;
-signal = input_reader.signal;
+filename = reader.filename;
+process_id = reader.process_id;
+pathname = reader.pathname;
+sub_name = reader.sub_name;
+num_T = reader.num_T;
+line_to_read = reader.line_to_read;
+series_nb = reader.series_nb;
+order_TMS = reader.order_TMS;
+signal = reader.signal;
 
 data = signal.data;
 isi = signal.isi;
-% isi_units = signal.isi_units;
-% labels = signal.labels;
-% start_sample = signal.start_sample;
-% units = signal.units;
 
 Time = 1:1:length(data); Time = Time' * isi*10^-3;
 signal.time = Time;
@@ -104,14 +100,15 @@ if process_id == 1
     clearvars remove stim_channel_9 stim_channel_10
     
     if length(contrac_start) < 7
-        figure(1)
+        figure('Name', 'Contraction visualization');
         plot(data(:,1))
         x=axis;
         hold on
         plot([x(1) x(2)],[baseline_threshold baseline_threshold],'k')
         legend('force','threshold')
         
-        txt = ['only ' num2str(length(contrac_start)) ' contractions found, please ajust thresholds to increase precision for detection'];
+        txt = ['only ' num2str(length(contrac_start)) ' contractions found, please adjust thresholds to increase precision for detection'];
+        msgbox(['Only ' num2str(length(contrac_start)) ' contractions found, please adjust thresholds to increase precision for detection.'])
         error(txt)
     end
     clearvars txt
@@ -143,7 +140,8 @@ if process_id == 1
         work_zone_end(i) = vol_contrac_end(i)-work_zone(i)/2;
         if isempty(find(data(round(work_zone_start(i)):round(work_zone_end(i)),1)<C_mean(i),1))
             stim(i) = work_zone_start(i);
-            msgbox('please find the superimposed by hand, MATLAB is too confused')
+            msgbox('Please, find the superimposed by hand, MATLAB is too confused.')
+            break
         else
             stim(i) = find(data(round(work_zone_start(i)):round(work_zone_end(i)),1)<C_mean(i),1);
             stim(i) = stim(i) + work_zone_start(i);
@@ -554,6 +552,7 @@ if process_id == 1
                 end
                 M_wave_MEP_start_I(i,k) = M_wave_MEP_max_I(i,k) - j;
                 M_wave_MEP_start(i,k) = data(M_wave_MEP_start_I(i,k),k);
+                
             else
                 j=1; diff_dat=1;
                 while diff_dat>=0
@@ -595,16 +594,28 @@ if process_id == 1
             pre_stim_EMG_std = std(data(TMS_stim(i)-round(win_pre_stim*10^-3*1/(isi*10^-3)):TMS_stim(i),k));
             if strcmp(pathname(end-9:end-1),'Jerome_ND') == 1 && series_nb == 3
                 EMG_recov_point_t = find(abs((data(M_wave_MEP_end_I(i,k)+(1/(isi*10^-3))/100*5:M_wave_MEP_end_I(i,k)+ 1/(isi*10^-3),k)))>pre_stim_EMG_std-pre_stim_EMG_std/10,1);
-            elseif strcmp(pathname(end-8:end-1),'Jerome_D') == 1 && series_nb == 7
-                EMG_recov_point_t = M_wave_MEP_end_I(i,k)+ 1/(isi*10^-3);
-            elseif strcmp(pathname(end-8:end-1),'Jerome_D') == 1 && series_nb == 8
-                EMG_recov_point_t = M_wave_MEP_end_I(i,k)+ 1/(isi*10^-3);
+%             elseif strcmp(pathname(end-8:end-1),'Jerome_D') == 1 && series_nb == 7
+%                 EMG_recov_point_t = M_wave_MEP_end_I(i,k)+ 1/(isi*10^-3);
+%             elseif strcmp(pathname(end-8:end-1),'Jerome_D') == 1 && series_nb == 8
+%                 EMG_recov_point_t = M_wave_MEP_end_I(i,k)+ 1/(isi*10^-3);
             elseif strcmp(pathname(end-8:end-1),'Jerome_D') == 1 && series_nb == 4
                 EMG_recov_point_t = find(abs((data(M_wave_MEP_end_I(i,k)+(1/(isi*10^-3))/100*5:M_wave_MEP_end_I(i,k)+ 1/(isi*10^-3),k)))>pre_stim_EMG_std-pre_stim_EMG_std/1.1,1);
             else
                 EMG_recov_point_t = find(abs((data(M_wave_MEP_end_I(i,k)+(1/(isi*10^-3))/100*5:M_wave_MEP_end_I(i,k)+ 1/(isi*10^-3),k)))>pre_stim_EMG_std,1);
             end
-            EMG_recov_point(i,k) = EMG_recov_point_t + M_wave_MEP_end_I(i,k)+(1/(isi*10^-3))/100*5;
+            
+            if strcmp(pathname(end-8:end-1),'Jerome_D') == 1 && series_nb == 6
+                EMG_recov_point_t = M_wave_MEP_end_I(i,k);
+                EMG_recov_point(i,k) = EMG_recov_point_t;
+            elseif strcmp(pathname(end-8:end-1),'Jerome_D') == 1 && series_nb == 7
+                EMG_recov_point_t = M_wave_MEP_end_I(i,k);
+                EMG_recov_point(i,k) = EMG_recov_point_t;
+            elseif strcmp(pathname(end-8:end-1),'Jerome_D') == 1 && series_nb == 8
+                EMG_recov_point_t = M_wave_MEP_end_I(i,k);
+                EMG_recov_point(i,k) = EMG_recov_point_t;
+            else
+                EMG_recov_point(i,k) = EMG_recov_point_t + M_wave_MEP_end_I(i,k)+(1/(isi*10^-3))/100*5;
+            end
         end
     end
     clearvars EMG_recov_point_t
@@ -627,64 +638,64 @@ if process_id == 1
     
     % variables used in model 1 - whole set of contractions with voluntary
     % contraction
-    output.vol_contrac_start = vol_contrac_start;
-    output.vol_contrac_end = vol_contrac_end;
-    output.stim = stim;
-    output.superimposed_window = superimposed_window;
-    output.superimposed_F = superimposed_F;
-    output.superimposed_F_I = zeros(size(superimposed_F,1), size(superimposed_F,2));
-    output.superimposed_B = superimposed_B;
-    output.superimposed_B_I = zeros(size(superimposed_B,1), size(superimposed_B,2));
-    output.max_C = max_C;
-    output.max_C_I = max_C_I;
-    output.max_B = max_B;
-    output.max_B_I = zeros(size(max_B,1), size(max_B,2));
-    output.baseline_duration_contrac = baseline_duration_contrac;
-    output.contrac_neurostim = contrac_neurostim;
-    output.win_neuro = win_neuro;
-    output.contrac_neurostim_min = contrac_neurostim_min;
-    output.contrac_neurostim_min_I = zeros(size(contrac_neurostim_min,1), size(contrac_neurostim_min,2));
-    output.contrac_neurostim_max = contrac_neurostim_max;
-    output.contrac_neurostim_max_I = zeros(size(contrac_neurostim_max,1), size(contrac_neurostim_max,2));
-    output.signal = signal;
+    processed.vol_contrac_start = vol_contrac_start;
+    processed.vol_contrac_end = vol_contrac_end;
+    processed.stim = stim;
+    processed.superimposed_window = superimposed_window;
+    processed.superimposed_F = superimposed_F;
+    processed.superimposed_F_I = zeros(size(superimposed_F,1), size(superimposed_F,2));
+    processed.superimposed_B = superimposed_B;
+    processed.superimposed_B_I = zeros(size(superimposed_B,1), size(superimposed_B,2));
+    processed.max_C = max_C;
+    processed.max_C_I = max_C_I;
+    processed.max_B = max_B;
+    processed.max_B_I = zeros(size(max_B,1), size(max_B,2));
+    processed.baseline_duration_contrac = baseline_duration_contrac;
+    processed.contrac_neurostim = contrac_neurostim;
+    processed.win_neuro = win_neuro;
+    processed.contrac_neurostim_min = contrac_neurostim_min;
+    processed.contrac_neurostim_min_I = zeros(size(contrac_neurostim_min,1), size(contrac_neurostim_min,2));
+    processed.contrac_neurostim_max = contrac_neurostim_max;
+    processed.contrac_neurostim_max_I = zeros(size(contrac_neurostim_max,1), size(contrac_neurostim_max,2));
+    processed.signal = signal;
     
     % variables used in model 2 - whole set of contractions with
     % neurostimulation
-    output.stim_contrac_start_p = stim_contrac_start_p;
-    output.stim_contrac_end = stim_contrac_end;
-    output.stim_contrac_start = stim_contrac_start;
-    output.neurostim_max = neurostim_max;
-    output.B_before_neurostim = B_before_neurostim;
-    output.neurostim_B = neurostim_B;
-    output.neurostim_max_I = neurostim_max_I;
-    output.HRT_abs = HRT_abs;
+    processed.stim_contrac_start_p = stim_contrac_start_p;
+    processed.stim_contrac_end = stim_contrac_end;
+    processed.stim_contrac_start = stim_contrac_start;
+    processed.neurostim_max = neurostim_max;
+    processed.B_before_neurostim = B_before_neurostim;
+    processed.neurostim_B = neurostim_B;
+    processed.neurostim_max_I = neurostim_max_I;
+    processed.HRT_abs = HRT_abs;
     
     % variables used in model 3 - neurostimulation at rest
-    output.M_wave_start_I = M_wave_start_I;
-    output.M_wave_end_I = M_wave_end_I;
-    output.max_M_wave_I = max_M_wave_I;
-    output.min_M_wave_I = min_M_wave_I;
+    processed.M_wave_start_I = M_wave_start_I;
+    processed.M_wave_end_I = M_wave_end_I;
+    processed.max_M_wave_I = max_M_wave_I;
+    processed.min_M_wave_I = min_M_wave_I;
     
     % variables used in model 4 - neurostimulation at exercise
-    output.M_wave_ex_max_I = M_wave_ex_max_I;
-    output.M_wave_ex_min_I = M_wave_ex_min_I;
-    output.M_wave_ex_start_I = M_wave_ex_start_I;
-    output.M_wave_ex_end_I = M_wave_ex_end_I;
+    processed.M_wave_ex_max_I = M_wave_ex_max_I;
+    processed.M_wave_ex_min_I = M_wave_ex_min_I;
+    processed.M_wave_ex_start_I = M_wave_ex_start_I;
+    processed.M_wave_ex_end_I = M_wave_ex_end_I;
     
     % variables used in model 5 - TMS and MEP
-    output.TMS_stim = TMS_stim;
-    output.win_pre_stim = win_pre_stim;
-    output.EMG_recov_point = EMG_recov_point;
-    output.M_wave_MEP_max_I = M_wave_MEP_max_I;
-    output.M_wave_MEP_min_I = M_wave_MEP_min_I;
-    output.M_wave_MEP_start_I = M_wave_MEP_start_I;
-    output.M_wave_MEP_end_I = M_wave_MEP_end_I;
+    processed.TMS_stim = TMS_stim;
+    processed.win_pre_stim = win_pre_stim;
+    processed.EMG_recov_point = EMG_recov_point;
+    processed.M_wave_MEP_max_I = M_wave_MEP_max_I;
+    processed.M_wave_MEP_min_I = M_wave_MEP_min_I;
+    processed.M_wave_MEP_start_I = M_wave_MEP_start_I;
+    processed.M_wave_MEP_end_I = M_wave_MEP_end_I;
     
     % variables used only in output function
-    output.M_wave_MEP_max = M_wave_MEP_max;
-    output.M_wave_MEP_min = M_wave_MEP_min;
-    output.RMS = RMS;
-    output.serie_num = serie_num;
+    processed.M_wave_MEP_max = M_wave_MEP_max;
+    processed.M_wave_MEP_min = M_wave_MEP_min;
+    processed.RMS = RMS;
+    processed.serie_num = serie_num;
 
 elseif process_id == 2
     
@@ -843,47 +854,36 @@ elseif process_id == 2
     M_wave_duration = abs(M_wave_ex_min_I-M_wave_ex_max_I);
     M_wave_area = NaN(3,1);
     M_wave_area_2 = NaN(3,1);
-    descriptors = NaN(12,1);
     for k=1:1:3
         M_wave_area(k) = trapz_perso(abs(data(M_wave_ex_max_I(k+1):M_wave_ex_min_I(k+1),k+1)), fs);
         M_wave_area_2(k) = trapz_perso(abs(data(M_wave_ex_start_I(k+1):M_wave_ex_end_I(k+1),k+1)), fs);
     end
     
-%     descriptors(1:4,1) = [M_wave_amp(2);M_wave_duration(2);M_wave_area(1);M_wave_area_2(1)];
-%     descriptors(5:8,1) = [M_wave_amp(3);M_wave_duration(3);M_wave_area(2);M_wave_area_2(2)];
-%     descriptors(9:12,1) = [M_wave_amp(4);M_wave_duration(4);M_wave_area(3);M_wave_area_2(3)];
-    
-    
     clearvars work_zone temp contrac_neurostim_I potent real_contrac_I
     clearvars M_wave_ex_max M_wave_ex_min diff
     
-    %force = force';
+    processed.serie_num = serie_num;
+    processed.signal = signal;
     
-    % variables used in model 2
-%     output.force = force;
-%     output.descriptors = descriptors;
-    output.serie_num = serie_num;
-    output.signal = signal;
-    
-    output.contrac_start = contrac_start;
-    output.contrac_end = contrac_end;
-    output.contrac_max_I = contrac_max_I;
-    output.contrac_max = contrac_max;
-    output.Twitch_x = Twitch_x;
-    output.Twitch_y = Twitch_y;
-    output.HRT = HRT;
-    output.baseline = baseline;
-    output.contrac_neurostim = contrac_neurostim;
-    output.M_wave_ex_min_I = M_wave_ex_min_I;
-    output.M_wave_ex_max_I = M_wave_ex_max_I;
-    output.M_wave_ex_start_I = M_wave_ex_start_I;
-    output.M_wave_ex_end_I = M_wave_ex_end_I;
-    output.M_wave_max = M_wave_max;
-    output.M_wave_min = M_wave_min;
-    output.M_wave_area = M_wave_area;
-    output.M_wave_area_2 = M_wave_area_2;
-    output.M_wave_amp = M_wave_amp;
-    output.M_wave_duration = M_wave_duration;
+    processed.contrac_start = contrac_start;
+    processed.contrac_end = contrac_end;
+    processed.contrac_max_I = contrac_max_I;
+    processed.contrac_max = contrac_max;
+    processed.Twitch_x = Twitch_x;
+    processed.Twitch_y = Twitch_y;
+    processed.HRT = HRT;
+    processed.baseline = baseline;
+    processed.contrac_neurostim = contrac_neurostim;
+    processed.M_wave_ex_min_I = M_wave_ex_min_I;
+    processed.M_wave_ex_max_I = M_wave_ex_max_I;
+    processed.M_wave_ex_start_I = M_wave_ex_start_I;
+    processed.M_wave_ex_end_I = M_wave_ex_end_I;
+    processed.M_wave_max = M_wave_max;
+    processed.M_wave_min = M_wave_min;
+    processed.M_wave_area = M_wave_area;
+    processed.M_wave_area_2 = M_wave_area_2;
+    processed.M_wave_amp = M_wave_amp;
+    processed.M_wave_duration = M_wave_duration;
     
     
 elseif process_id == 3
@@ -945,16 +945,16 @@ elseif process_id == 3
     end
     
     signal.data = data;
-    output.force_mean = force_mean;
-    output.RMS_mean = RMS_mean;
-    output.serie_num = serie_num;
-    output.signal = signal;
+    processed.force_mean = force_mean;
+    processed.RMS_mean = RMS_mean;
+    processed.serie_num = serie_num;
+    processed.signal = signal;
     
-    output.max_force = max_force;
-    output.max_force_I = max_force_I;
-    output.win_start = win_start;
-    output.ten_percent = ten_percent;
-    output.force_start = force_start;
-    output.force_end = force_end;    
+    processed.max_force = max_force;
+    processed.max_force_I = max_force_I;
+    processed.win_start = win_start;
+    processed.ten_percent = ten_percent;
+    processed.force_start = force_start;
+    processed.force_end = force_end;    
     
 end

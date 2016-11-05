@@ -133,25 +133,34 @@ switch handles.data_id
         if strcmp(get(handles.hsubtools(1), 'Checked'),'off')
             handles = callback_tms_vc(handles.fig);
         end
-        handles = panel_tms_vc(handles);
-        handles.reader = reader_tms_vc;
         
-        msg = ['Data opened: "', handles.reader.sub_name,...
-            '"; leg: "',  handles.reader.leg,...
-            '"; series number: "', num2str(handles.reader.series_nb),...
-            '"; TMS order: "', num2str(handles.reader.order_TMS),...
-            '"; file name: "', handles.reader.filename, '".'];
-        handles = panel_textlog(handles, msg);
-        msg = 'Processing TMS + VC data...';
-        handles = panel_textlog(handles, msg);
+        try
+            [reader, open_id] = reader_tms_vc(handles.config_dir);
+        catch
+            open_id = 0;
+        end
         
-        handles.processed = process_tms_vc(handles.reader);
         
-        msg = 'Data processed.';
-        handles = panel_textlog(handles, msg);
-        
-        handles = graphs_tms_vc(handles);
-        open_id = 1;
+        if open_id
+            msg = ['Data opened: "', reader.sub_name,...
+                '"; leg: "',  reader.leg,...
+                '"; series number: "', num2str(reader.series_nb),...
+                '"; TMS order: "', num2str(reader.order_TMS),...
+                '"; file name: "', reader.filename, '".'];
+            handles = panel_textlog(handles, msg);
+            
+            processed = process_tms_vc(reader);
+            
+            handles.reader = reader;
+            handles.processed = processed;
+            handles = panel_tms_vc(handles);
+            handles = graphs_tms_vc(handles);
+            
+        else
+            msg = 'Open canceled.';
+           handles = panel_textlog(handles, msg);
+            
+        end
     
     % MEP analysis Signal Processing - Abrahao Baptista application
     case 'mep analysis'

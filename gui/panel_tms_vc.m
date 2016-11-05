@@ -188,27 +188,35 @@ function pushbutton_reset_Callback(hObject, eventdata)
 % Callback - Button Reset
 vars = guidata(hObject);
 
-handles.data_id = vars.data_id;
+% general variables of signalhunter
 handles.fig = vars.fig;
-handles.menufile = vars.menufile;
-handles.subopen = vars.subopen;
-handles.menutools = vars.menutools;
-handles.subtools = vars.subtools;
+handles.hmenufile = vars.hmenufile;
+handles.hsubopen = vars.hsubopen;
+handles.hsubdata = vars.hsubdata;
+handles.hmenutools = vars.hmenutools;
+handles.hsubtools = vars.hsubtools;
 handles.panel_files = vars.panel_files;
 handles.progress_bar = vars.progress_bar;
 handles.panel_tools = vars.panel_tools;
 handles.edit_idcond = vars.edit_idcond;
-handles.panel_txtlog = vars.edit_idcond;
+handles.panel_txtlog = vars.panel_txtlog;
 handles.edit_log = vars.edit_log;
-handles.hsubdata = vars.hsubdata;
+handles.config_dir = vars.config_dir;
+
+% specific variables for tms_vc app
+handles.data_id = vars.data_id;
 
 set(handles.edit_idcond, 'String', '1');
 set(handles.hsubdata, 'Enable', 'off');
 
-delete(vars.panel_graph);
+if isfield(vars, 'panel_graph')
+    if ishandle(vars.panel_graph)
+        delete(vars.panel_graph);
+    end
+end
 
 % message to progress log
-msg = 'Signal Hunter restarted.';
+msg = 'Signal Hunter for TMS + VC restarted.';
 handles = panel_textlog(handles, msg);
 
 % Update handles structure

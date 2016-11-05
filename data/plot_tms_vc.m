@@ -45,7 +45,7 @@ data = signal.data;
 Time = signal.time;
 isi = signal.isi;
 
-del = round(1*1/(isi*10^-3));
+del = round(0.5*1/(isi*10^-3));
 
 axes(ax(1, id_cond));
 plot(Time,data(:,1));
@@ -312,16 +312,32 @@ end
 for i=8:9
     j=(i-5)*2-1;
     axes(ax(j-1, id_cond));
-    area(Time(M_wave_start_I(i-6,k):M_wave_end_I(i-6,k)),...
-        data(M_wave_start_I(i-6,k):M_wave_end_I(i-6,k),k));
+    
+    if M_wave_start_I(i-6,k) < M_wave_end_I(i-6,k)
+        t1 = M_wave_start_I(i-6,k);
+        t2 = M_wave_end_I(i-6,k);
+    else
+        t1 = M_wave_end_I(i-6,k);
+        t2 = M_wave_start_I(i-6,k);
+    end
+    
+    area(Time(t1:t2), data(t1:t2,k));
     to_plot = ['zoom on neurostim M-wave while @ rest #' num2str(i-6)];
     xlabel('Time (s)')
     ylabel('EMG (V)')
     title(to_plot);
     
     axes(ax(j, id_cond));
-    area(Time(max_M_wave_I(i-6,k):min_M_wave_I(i-6,k)),...
-        data(max_M_wave_I(i-6,k):min_M_wave_I(i-6,k),k));
+    
+    if max_M_wave_I(i-6,k) < min_M_wave_I(i-6,k)
+        t1 = max_M_wave_I(i-6,k);
+        t2 = min_M_wave_I(i-6,k);
+    else
+        t1 = min_M_wave_I(i-6,k);
+        t2 = max_M_wave_I(i-6,k);
+    end
+    
+    area(Time(t1:t2), data(t1:t2,k));
     to_plot = ['zoom on neurostim M-wave while @ rest #' num2str(i-6)];
     title(to_plot);
     xlabel('Time (s)')
@@ -458,16 +474,32 @@ end
 for i=8:10
     j=(i-5)*2-1;
     axes(ax(j, id_cond));
-    area(Time(M_wave_MEP_start_I(i-7,k):M_wave_MEP_end_I(i-7,k)),...
-        data(M_wave_MEP_start_I(i-7,k):M_wave_MEP_end_I(i-7,k),k));
+    
+    if M_wave_MEP_start_I(i-7,k) < M_wave_MEP_end_I(i-7,k)
+        t1 = M_wave_MEP_start_I(i-7,k);
+        t2 = M_wave_MEP_end_I(i-7,k);
+    else
+        t1 = M_wave_MEP_end_I(i-7,k);
+        t2 = M_wave_MEP_start_I(i-7,k);
+    end
+    
+    area(Time(t1:t2), data(t1:t2,k));
     to_plot = ['TMS during exercise #' num2str(i-7)];
     title(to_plot);
     xlabel('Time (s)')
     ylabel('EMG (V)')
     
     axes(ax(j+1, id_cond));
-    area(Time(M_wave_MEP_max_I(i-7,k):M_wave_MEP_min_I(i-7,k)),...
-        data(M_wave_MEP_max_I(i-7,k):M_wave_MEP_min_I(i-7,k),k));
+    
+    if M_wave_MEP_max_I(i-7,k) < M_wave_MEP_min_I(i-7,k)
+        t1 = M_wave_MEP_max_I(i-7,k);
+        t2 = M_wave_MEP_min_I(i-7,k);
+    else
+        t1 = M_wave_MEP_min_I(i-7,k);
+        t2 = M_wave_MEP_max_I(i-7,k);
+    end
+    
+    area(Time(t1:t2), data(t1:t2,k));
     to_plot = ['TMS during exercise #' num2str(i-7)];
     title(to_plot);
     xlabel('Time (s)')
@@ -538,9 +570,23 @@ for k=1:1:3
     plot([Time(M_wave_ex_min_I(k+1)) Time(M_wave_ex_min_I(k+1))],[x(3) x(4)],'y')
     plot([Time(M_wave_ex_start_I(k+1)) Time(M_wave_ex_start_I(k+1))],[x(3) x(4)],'k')
     plot([Time(M_wave_ex_end_I(k+1)) Time(M_wave_ex_end_I(k+1))],[x(3) x(4)],'k')
+    
+    tMEP_ex_start = zeros(size(M_wave_ex_start_I));
+    tMEP_ex_end = zeros(size(M_wave_ex_start_I));
+    for m = 2:4
+        for n = 2:4
+            if M_wave_ex_start_I(m,n) < M_wave_ex_end_I(m,n)
+                tMEP_ex_start(m,n) = M_wave_ex_start_I(m,n);
+                tMEP_ex_end(m,n) = M_wave_ex_end_I(m,n);
+            else
+                tMEP_ex_start(m,n) = M_wave_ex_end_I(m,n);
+                tMEP_ex_end(m,n) = M_wave_ex_start_I(m,n);
+            end
+        end
+    end
 
     axes(ax(k+3, id_cond));
-    area(Time(M_wave_ex_start_I(k+1):M_wave_ex_end_I(k+1)),data(M_wave_ex_start_I(k+1):M_wave_ex_end_I(k+1),k+1))
+    area(Time(tMEP_ex_start(k+1):tMEP_ex_end(k+1)),data(tMEP_ex_start(k+1):tMEP_ex_end(k+1),k+1))
 end
 
 function plot_fcn8(ax, processed, id_cond)
