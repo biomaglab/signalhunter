@@ -21,7 +21,14 @@ hwarn = warndlg('Select folder must contain only the signal files to be processe
 uiwait(hwarn);
 
 path_aux = uigetdir;
-path_aux = [path_aux '\'];
+
+if isunix
+    path_aux = [path_aux '/'];
+elseif ismac
+    path_aux = [path_aux '/'];
+else
+    path_aux = [path_aux '\'];
+end
 
 file_list = struct2cell(dir(path_aux));
 file_aux = file_list(1,3:end);
@@ -135,11 +142,12 @@ if path_aux
     signal.trigger = trigger;
     signal.filename = file_names;
     signal.file_prop = file_prop;
-    save([config_dir '\tmp_signal.mat'], '-struct', 'signal');
+    
+    save([config_dir 'tmp_signal.mat'], '-struct', 'signal');
     
     delete(hbar)
        
-    reader.tmp_signal = [config_dir '\tmp_signal.mat'];
+    reader.tmp_signal = [config_dir 'tmp_signal.mat'];
     reader.signal = signal;
     reader.path = path_aux;
     reader.subject = subject;

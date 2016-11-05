@@ -116,6 +116,12 @@ function callback_open(hObject, ~)
 handles = guidata(hObject);
 open_id = 0;
 
+if isfield(handles, 'panel_graph')
+    if ishandle(handles.panel_graph)
+        delete(handles.panel_graph);
+    end
+end
+
 handles.data_id = lower(get(hObject,'Label'));
 set(handles.hsubdata, 'Enable', 'on');
 

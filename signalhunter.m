@@ -5,9 +5,25 @@ sh_ls_path = genpath(sighunter_path);
 path(path, sh_ls_path);
 
 pth_aux = userpath;
-del = find(pth_aux == '\');
+
+if isunix
+    del = find(pth_aux == '/');
+elseif ismac
+    del = find(pth_aux == '/');
+else
+    del = find(pth_aux == '\');
+end
+
 pth = pth_aux(1:del(end-1));
-config_dir = [pth '.signalhunter'];
+
+if isunix
+    config_dir = [pth '.signalhunter/'];
+elseif ismac
+    config_dir = [pth '.signalhunter/'];
+else
+    config_dir = [pth '.signalhunter\'];
+end
+
 [~,~,~] = mkdir(config_dir);
 
 % create the figure, uicontrols and return the handles
