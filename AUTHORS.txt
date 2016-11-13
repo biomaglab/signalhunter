@@ -1,0 +1,25 @@
+Signal Hunter was formerly created in 2013 at Laboratory of Biomagnetism in
+the University of Sao Paulo in the city of Ribeirao Preto, Brazil.
+
+Signal Hunter was conceived and is mainly developed by:
+
+- Victor Hugo Souza (victorhos@hotmail.com)
+- André Peres (peres.asc@gmail.com)
+- Leonardo Zacharias (leorakasuaks@gmail.com)
+
+Any further question contact us by e-mail.
+
+Others contributors should be listed and acknowledge for letting their codes
+available for everyone:
+
+- Oswaldo Baffa Filho (Supervisor)
+- Nicolas Bourdillon (TMS and Voluntary Contractions full processing scripts)
+- Marco Antonio Garcia (Supervisor)
+    
+Finally, the Signal Hunter has been developed as part of our research program
+and were fully supported/funded by:
+
+- University of São Paulo
+- Conselho Nacional de Desenvolvimento Científico e Tecnológico (CNPq)
+- Coordenação de Aperfeiçoamento de Pessoal de Nível Superior (CAPES)
+- Fundação de Amparo à Pesquisa do Estado de São Paulo(FAPESP)
