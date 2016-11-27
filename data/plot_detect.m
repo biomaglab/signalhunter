@@ -63,16 +63,32 @@ data = signal.data;
 Time = signal.time;
 isi = signal.isi;
 
-del = round(1*1/(isi*10^-3));
+del = round(1/(isi*10^-3));
 
-plot(axesdetect, Time(vol_contrac_start(id_axes)-del:vol_contrac_end(id_axes)+del),...
-    data(vol_contrac_start(id_axes)-del:vol_contrac_end(id_axes)+del));
+% This block check if del does point to indice out of data and time
+% limits, if so, vector is set to first indice or end
+try
+    aux_time = Time(vol_contrac_start(id_axes)-del:vol_contrac_end(id_axes)+del);
+    aux_data = data(vol_contrac_start(id_axes)-del:vol_contrac_end(id_axes)+del, 1);
+catch
+    if id_axes == 1
+        aux_time = Time(1:vol_contrac_end(id_axes)+del);
+        aux_data = data(1:vol_contrac_end(id_axes)+del, 1);
+    elseif id_axes == 4
+        aux_time = Time(vol_contrac_start(id_axes)-del:end);
+        aux_data = data(vol_contrac_start(id_axes)-del:end, 1);
+    end
+end
+% end of block
+
+% plot(axesdetect, Time(vol_contrac_start(id_axes)-del:vol_contrac_end(id_axes)+del),...
+%     data(vol_contrac_start(id_axes)-del:vol_contrac_end(id_axes)+del));
+plot(axesdetect, aux_time, aux_data)
 
 yl = get(axesdetect, 'YLim');
-
 hold on
+axis(axesdetect, [aux_time(1) aux_time(end) yl(1) yl(2)]);
 
-axis(axesdetect, [(vol_contrac_start(id_axes)-del)* isi*10^-3 (vol_contrac_end(id_axes)+del)*isi*10^-3 yl(1) yl(2)]);
 % plot of voluntary contraction start and end
 handles.hcontrac_start = plot(axesdetect, [vol_contrac_start(id_axes)*isi*10^-3 vol_contrac_start(id_axes)*isi*10^-3],...
     [yl(1) yl(2)],'r');
@@ -143,8 +159,25 @@ isi = signal.isi;
 
 del = round(0.3*1/(isi*10^-3));
 
-plot(axesdetect, Time(stim_contrac_start_p(id_axes)-del:stim_contrac_end(id_axes)+del),...
-    data(stim_contrac_start_p(id_axes)-del:stim_contrac_end(id_axes)+del,1))
+% This block check if del does point to indice out of data and time
+% limits, if so, vector is set to first indice or end
+try
+    aux_time = Time(stim_contrac_start_p(id_axes)-del:stim_contrac_end(id_axes)+del);
+    aux_data = data(stim_contrac_start_p(id_axes)-del:stim_contrac_end(id_axes)+del,1);
+catch
+    if id_axes == 1
+        aux_time = Time(1:stim_contrac_end(id_axes)+del);
+        aux_data = data(1:stim_contrac_end(id_axes)+del,1);
+    elseif id_axes == 3
+        aux_time = Time(stim_contrac_start_p(id_axes)-del:end);
+        aux_data = data(stim_contrac_start_p(id_axes)-del:end,1);
+    end
+end
+% end of block
+
+% plot(axesdetect, Time(stim_contrac_start_p(id_axes)-del:stim_contrac_end(id_axes)+del),...
+%     data(stim_contrac_start_p(id_axes)-del:stim_contrac_end(id_axes)+del,1))
+plot(axesdetect, aux_time, aux_data)
 
 yl = get(axesdetect, 'YLim');
 
@@ -197,8 +230,25 @@ isi = signal.isi;
 
 del = [300, 1000];
 
-plot(axesdetect, Time(max_M_wave_I(id_axes,k)-del(1):max_M_wave_I(id_axes,k)+del(2)), ...
-    data(max_M_wave_I(id_axes,k)-del(1):max_M_wave_I(id_axes,k)+del(2),k))
+% This block check if del does point to indice out of data and time
+% limits, if so, vector is set to first indice or end
+try
+    aux_time = Time(max_M_wave_I(id_axes,k)-del(1):max_M_wave_I(id_axes,k)+del(2));
+    aux_data = data(max_M_wave_I(id_axes,k)-del(1):max_M_wave_I(id_axes,k)+del(2),k);
+catch
+    if id_axes == 2
+        aux_time = Time(1:max_M_wave_I(id_axes,k)+del(2));
+        aux_data = data(1:max_M_wave_I(id_axes,k)+del(2),k);
+    elseif id_axes == 3
+        aux_time = Time(max_M_wave_I(id_axes,k)-del(1):end);
+        aux_data = data(max_M_wave_I(id_axes,k)-del(1):end,k);
+    end
+end
+% end of block
+
+% plot(axesdetect, Time(max_M_wave_I(id_axes,k)-del(1):max_M_wave_I(id_axes,k)+del(2)), ...
+%     data(max_M_wave_I(id_axes,k)-del(1):max_M_wave_I(id_axes,k)+del(2),k))
+plot(axesdetect, aux_time, aux_data)
 
 yl = get(axesdetect, 'YLim');
 
@@ -240,8 +290,25 @@ data = signal.data;
 Time = signal.time;
 isi = signal.isi;
 
-plot(axesdetect, Time(M_wave_ex_max_I(id_axes,k)-del(1):M_wave_ex_max_I(id_axes,k)+del(2)),...
-    data(M_wave_ex_max_I(id_axes,k)-del(1):M_wave_ex_max_I(id_axes,k)+del(2),k))
+% This block check if del does point to indice out of data and time
+% limits, if so, vector is set to first indice or end
+try
+    aux_time = Time(M_wave_ex_max_I(id_axes,k)-del(1):M_wave_ex_max_I(id_axes,k)+del(2));
+    aux_data = data(M_wave_ex_max_I(id_axes,k)-del(1):M_wave_ex_max_I(id_axes,k)+del(2),k);
+catch
+    if id_axes == 2
+        aux_time = Time(1:M_wave_ex_max_I(id_axes,k)+del(2));
+        aux_data = data(1:M_wave_ex_max_I(id_axes,k)+del(2),k);
+    elseif id_axes == 4
+        aux_time = Time(M_wave_ex_max_I(id_axes,k)-del(1):end);
+        aux_data = data(M_wave_ex_max_I(id_axes,k)-del(1):end,k);
+    end
+end
+% end of block
+
+% plot(axesdetect, Time(M_wave_ex_max_I(id_axes,k)-del(1):M_wave_ex_max_I(id_axes,k)+del(2)),...
+%     data(M_wave_ex_max_I(id_axes,k)-del(1):M_wave_ex_max_I(id_axes,k)+del(2),k))
+plot(axesdetect, aux_time, aux_data)
 
 yl = get(axesdetect, 'YLim');
 
@@ -287,8 +354,25 @@ isi = signal.isi;
 
 del = [0, 5000];
 
-plot(axesdetect, Time(TMS_stim(id_axes)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):EMG_recov_point(id_axes,k)+del(2)),...
-    data(TMS_stim(id_axes)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):EMG_recov_point(id_axes,k)+del(2),k))
+% This block check if del does point to indice out of data and time
+% limits, if so, vector is set to first indice or end
+try
+    aux_time = Time(TMS_stim(id_axes)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):EMG_recov_point(id_axes,k)+del(2));
+    aux_data = data(TMS_stim(id_axes)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):EMG_recov_point(id_axes,k)+del(2),k);
+catch
+    if id_axes == 1
+        aux_time = Time(1:EMG_recov_point(id_axes,k)+del(2));
+        aux_data = data(1:EMG_recov_point(id_axes,k)+del(2),k);
+    elseif id_axes == 4
+        aux_time = Time(TMS_stim(id_axes)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):end);
+        aux_data = data(TMS_stim(id_axes)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):end,k);
+    end
+end
+% end of block
+
+% plot(axesdetect, Time(TMS_stim(id_axes)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):EMG_recov_point(id_axes,k)+del(2)),...
+%     data(TMS_stim(id_axes)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):EMG_recov_point(id_axes,k)+del(2),k))
+plot(axesdetect, aux_time, aux_data)
 
 yl = get(axesdetect, 'YLim');
 

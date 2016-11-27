@@ -65,14 +65,14 @@ switch id_pb
             'String', ['Select the minimum ' pb_name ' and click ENTER']);
         [x(1), y(1)] = getpts(axesdetect);
         set(hstr(1,1), 'String', num2str(x(1),'%.2f'));
-        handles.hcontract_start = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)],'r');
+        handles.hcontrac_start = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)],'r');
         
         % ---- Contraction end
         set(info_text, 'BackgroundColor', [1 1 0.5], ...
             'String', ['Select the maximum ' pb_name ' and click ENTER']);
         [x(2), y(2)] = getpts(axesdetect);
         set(hstr(1,2), 'String', num2str(x(2),'%.2f'));
-        handles.hcontract_end = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)],'g');
+        handles.hcontrac_end = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)],'g');
         
         hold off
         % ----

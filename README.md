@@ -6,7 +6,7 @@ electromyography (EMG) recordings. Therefore, Signal Hunter was created to
 provide a general graphical environment with basic tools that allow users  
 to easily develop their functions and interfaces.
 
-Main features consist of:
+Main features are:
 
 - signals visualization;  
 - amplitude and latency automatic calculation;  
@@ -21,6 +21,7 @@ For more information visit our Wiki at <https://github.com/biomaglab/signalhunte
 
 Signal Hunter for electrophysiological signal analysis  
 Copyright (C) 2016 University of Sao Paulo  
+
 This program is free software: you can redistribute it and/or modify it  
 under the terms of the GNU General Public License as published by the Free  
 Software Foundation, either version 3 of the License, or any later version.  

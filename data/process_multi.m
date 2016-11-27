@@ -91,8 +91,6 @@ nmusc = zeros(n_frames, n_instants);
 % Used this instead of built-in figure progess bar to avoid need of handles
 hbar = waitbar(0,'Frame 1','Name','Processing signals...');
 
-tic
-
 for id_cond = 1:n_frames
     for ci = 1:n_instants
                
@@ -145,8 +143,6 @@ n_muscles = max(max(nmusc));
 n_pots = max(max(npot));
 
 delete(hbar)
-
-toc
 
 processed.split_pots = split_pots;
 processed.split_baseline = split_baseline;

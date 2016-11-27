@@ -70,7 +70,7 @@ data = signal.data;
 Time = signal.time;
 isi = signal.isi;
 
-del = round(0.5*1/(isi*10^-3));
+del = round(1/(isi*10^-3));
 
 axes(ax(1, id_cond));
 plot(Time,data(:,1));
@@ -89,11 +89,27 @@ hold off
 % loop for second row of graphs
 for j=1:4
     axes(ax(j+1, id_cond));
-    plot(Time(vol_contrac_start(j)-del:vol_contrac_end(j)+del),...
-        data(vol_contrac_start(j)-del:vol_contrac_end(j)+del,1))
+    
+    % This block check if del does point to indice out of data and time
+    % limits, if so, vector is set to first indice or end
+    try
+        aux_time = Time(vol_contrac_start(j)-del:vol_contrac_end(j)+del);
+        aux_data = data(vol_contrac_start(j)-del:vol_contrac_end(j)+del, 1);
+    catch
+        if j == 1
+            aux_time = Time(1:vol_contrac_end(j)+del);
+            aux_data = data(1:vol_contrac_end(j)+del, 1);
+        elseif j == 4
+            aux_time = Time(vol_contrac_start(j)-del:end);
+            aux_data = data(vol_contrac_start(j)-del:end, 1);
+        end
+    end
+    % end of block
+    
+    plot(aux_time, aux_data)
     hold on
     x=axis;
-    axis([(vol_contrac_start(j)-del)* isi*10^-3 (vol_contrac_end(j)+del)* isi*10^-3 x(3) x(4)]);
+    axis([aux_time(1) aux_time(end) x(3) x(4)]);
     plot([vol_contrac_start(j)*isi*10^-3 vol_contrac_start(j)*isi*10^-3],...
         [x(3) x(4)],'r');
     plot([vol_contrac_end(j)*isi*10^-3 vol_contrac_end(j)*isi*10^-3],...
@@ -249,9 +265,32 @@ hold off
 for j=4:1:6
     i=j-3;
     axes(ax(j-2, id_cond));
+    
+    % This block check if del does point to indice out of data and time
+    % limits, if so, vector is set to first indice or end
+    
+    try
+        aux_time = Time(stim_contrac_start_p(i)-del:stim_contrac_end(i)+del);
+        aux_data = data(stim_contrac_start_p(i)-del:stim_contrac_end(i)+del,1);
+    catch
+        if i == 1
+            aux_time = Time(1:stim_contrac_end(i)+del);
+            aux_data = data(1:stim_contrac_end(i)+del,1);
+        elseif i == 3
+            aux_time = Time(stim_contrac_start_p(i)-del:end);
+            aux_data = data(stim_contrac_start_p(i)-del:end,1);
+        end
+    end
+    % end of block
+    
+    
+    plot(aux_time, aux_data)
+    hold on
+    x=axis;
+    axis([aux_time(1) aux_time(end) x(3) x(4)]);
+    
+    
     % here I started to substitute the B_before_neurostim pelo del
-    plot(Time(stim_contrac_start_p(i)-del:stim_contrac_end(i)+del),...
-        data(stim_contrac_start_p(i)-del:stim_contrac_end(i)+del,1))
     hold on
     x=axis;
     plot([stim_contrac_start_p(i)* isi*10^-3 stim_contrac_start_p(i)* isi*10^-3],...
@@ -311,11 +350,32 @@ hold off
 % loop for second row of graphs
 for i=6:7
     axes(ax(i-4, id_cond));
-    plot(Time(max_M_wave_I(i-4,k)-del(1):max_M_wave_I(i-4,k)+del(2)), ...
-        data(max_M_wave_I(i-4,k)-del(1):max_M_wave_I(i-4,k)+del(2),k))
+    
+    % This block check if del does point to indice out of data and time
+    % limits, if so, vector is set to first indice or end
+    try
+        aux_time = Time(max_M_wave_I(i-4,k)-del(1):max_M_wave_I(i-4,k)+del(2));
+        aux_data = data(max_M_wave_I(i-4,k)-del(1):max_M_wave_I(i-4,k)+del(2),k);
+    catch
+        if i == 6
+            aux_time = Time(1:max_M_wave_I(i-4,k)+del(2));
+            aux_data = data(1:max_M_wave_I(i-4,k)+del(2),k);
+        elseif i == 7
+            aux_time = Time(max_M_wave_I(i-4,k)-del(1):end);
+            aux_data = data(max_M_wave_I(i-4,k)-del(1):end,k);
+        end
+    end
+    % end of block
+    
+    %     plot(Time(max_M_wave_I(i-4,k)-del(1):max_M_wave_I(i-4,k)+del(2)), ...
+    %         data(max_M_wave_I(i-4,k)-del(1):max_M_wave_I(i-4,k)+del(2),k))
+    
+    plot(aux_time, aux_data)
     hold on
     x=axis;
-        % plot of M wave start and end
+    axis([aux_time(1) aux_time(end) x(3) x(4)]);
+
+    % plot of M wave start and end
     plot([M_wave_start_I(i-4,k)* isi*10^-3 M_wave_start_I(i-4,k)* isi*10^-3],...
         [x(3) x(4)],'r')
     plot([M_wave_end_I(i-4,k)* isi*10^-3 M_wave_end_I(i-4,k)* isi*10^-3],...
@@ -401,10 +461,30 @@ hold off
 % loop for second row of graphs
 for l=2:4
     axes(ax(l, id_cond));
-    plot(Time(M_wave_ex_max_I(l,k)-del(1):M_wave_ex_max_I(l,k)+del(2)),...
-        data(M_wave_ex_max_I(l,k)-del(1):M_wave_ex_max_I(l,k)+del(2),k))
-    x=axis;
+    
+    % This block check if del does point to indice out of data and time
+    % limits, if so, vector is set to first indice or end
+    try
+        aux_time = Time(M_wave_ex_max_I(l,k)-del(1):M_wave_ex_max_I(l,k)+del(2));
+        aux_data = data(M_wave_ex_max_I(l,k)-del(1):M_wave_ex_max_I(l,k)+del(2),k);
+    catch
+        if l == 2
+            aux_time = Time(1:M_wave_ex_max_I(l,k)+del(2));
+            aux_data = data(1:M_wave_ex_max_I(l,k)+del(2),k);
+        elseif l == 4
+            aux_time = Time(M_wave_ex_max_I(l,k)-del(1):end);
+            aux_data = data(M_wave_ex_max_I(l,k)-del(1):end,k);
+        end
+    end
+    % end of block
+    
+%     plot(Time(M_wave_ex_max_I(l,k)-del(1):M_wave_ex_max_I(l,k)+del(2)),...
+%         data(M_wave_ex_max_I(l,k)-del(1):M_wave_ex_max_I(l,k)+del(2),k))  
+    plot(aux_time, aux_data)
     hold on
+    x=axis;
+    axis([aux_time(1) aux_time(end) x(3) x(4)]);
+    
     % plot of M wave start and end at exercise
     plot([M_wave_ex_start_I(l,k)* isi*10^-3 M_wave_ex_start_I(l,k)* isi*10^-3],...
         [x(3) x(4)],'r')
@@ -468,10 +548,31 @@ hold off
 l=1;
 for i=7:2:12
     axes(ax(l+1, id_cond));
-    plot(Time(TMS_stim(l)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):EMG_recov_point(l,k)+del(2)),...
-        data(TMS_stim(l)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):EMG_recov_point(l,k)+del(2),k))
+    
+    % This block check if del does point to indice out of data and time
+    % limits, if so, vector is set to first indice or end
+    try
+        aux_time = Time(TMS_stim(l)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):EMG_recov_point(l,k)+del(2));
+        aux_data = data(TMS_stim(l)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):EMG_recov_point(l,k)+del(2),k);
+    catch
+        if l == 1
+            aux_time = Time(1:EMG_recov_point(l,k)+del(2));
+            aux_data = data(1:EMG_recov_point(l,k)+del(2),k);
+        elseif l == 4
+            aux_time = Time(TMS_stim(l)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):end);
+            aux_data = data(TMS_stim(l)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):end,k);
+        end
+    end
+    % end of block
+    
+%     plot(Time(TMS_stim(l)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):EMG_recov_point(l,k)+del(2)),...
+%         data(TMS_stim(l)-round(win_pre_stim*10^-3*1/(isi*10^-3))-del(1):EMG_recov_point(l,k)+del(2),k))
+
+    plot(aux_time, aux_data)
     hold on
     x=axis;
+    axis([aux_time(1) aux_time(end) x(3) x(4)]);
+    
     % plot of MEP start and end after TMS
     plot([M_wave_MEP_start_I(l,k)* isi*10^-3 M_wave_MEP_start_I(l,k)* isi*10^-3],...
         [x(3) x(4)],'r')

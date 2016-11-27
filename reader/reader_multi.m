@@ -139,10 +139,15 @@ if path_aux
             file_prop{id_cond,ci} = strsplit(file_names{id_cond,ci}, {'_', '.'});
             instant(id_cond,ci) = strcat('T', file_prop{id_cond,ci}(4));
             
-            xs{id_cond,ci} = data_aux{id_cond,ci}.data(:,1);
-            data{id_cond,ci} = data_aux{id_cond,ci}.data(:,2:end-1);
-            trigger{id_cond,ci} = data_aux{id_cond,ci}.data(:,end);
-            
+            if size(data_aux{id_cond,ci}.data, 2) == 5
+                xs{id_cond,ci} = data_aux{id_cond,ci}.data(:,1);
+                data{id_cond,ci} = data_aux{id_cond,ci}.data(:,2:end-1);
+                trigger{id_cond,ci} = data_aux{id_cond,ci}.data(:,end);
+            else
+                xs{id_cond,ci} = (0:size(data_aux{id_cond,ci}.data(:,1)))'/699,30;
+                data{id_cond,ci} = data_aux{id_cond,ci}.data(:,1:end-1);
+                trigger{id_cond,ci} = data_aux{id_cond,ci}.data(:,end);
+            end
             
             fs{id_cond,ci} =  1/(xs{id_cond,ci}(3,1)-xs{id_cond,ci}(2,1));
             subject(id_cond,ci) = strcat('S', file_prop{id_cond,1}(1));
