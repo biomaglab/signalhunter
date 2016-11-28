@@ -111,6 +111,10 @@ for i = 1:length(handles.conditions)
     msg = ['Plots of ', '" ', handles.cond_names{i}, ' " done.'];
     handles = panel_textlog(handles, msg);
     
+    % added pause on processing beacuse progress bar was not updating
+    tp = 0.001;
+    pause(tp)
+    
 end
 toc
 
@@ -119,19 +123,28 @@ set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
 guidata(handles.fig, handles);
 
 
-function axes_ButtonDownFcn(hObject, eventdata)
+function axes_ButtonDownFcn(hObject, ~)
 % Callback for Button Down in each axes
 handles = guidata(hObject);
 
 handles.id_axes = find(gca == handles.haxes(:,:));
 handles = dialog_detect_tms_vc(handles);
-hwbar = waitbar(0.5, 'Updating graphics...');
+
+value = 1/2;
+progbar_update(handles.progress_bar, value)
+
+% added pause on processing beacuse progress bar was not updating
+tp = 0.001;
+pause(tp)
+
 handles.haxes = refresh_axes(handles);
 
 msg = ['Data and plots for ', '" ', handles.cond_names{handles.id_cond}, ' " updated.'];
 handles = panel_textlog(handles, msg);
-waitbar(1.0, hwbar)
-close(hwbar)
+
+% progress bar update
+value = 1.0;
+progbar_update(handles.progress_bar, value)
 % Update handles structure
 guidata(hObject, handles);
 

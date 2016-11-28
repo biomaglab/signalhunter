@@ -166,8 +166,11 @@ if process_id == 1
         work_zone_end(i) = vol_contrac_end(i)-work_zone(i)/2;
         if isempty(find(data(round(work_zone_start(i)):round(work_zone_end(i)),1)<C_mean(i),1))
             stim(i) = work_zone_start(i);
-            msgbox('Please, find the superimposed by hand, MATLAB is too confused.')
-            break
+            % Removed the break and warning message to guarantee that all
+            % variables receive a non-NAN value - thus user can manually
+            % select values in signalhunter if they are wrong
+%             msgbox('Please, find the superimposed by hand, MATLAB is too confused.')
+%             break
         else
             stim(i) = find(data(round(work_zone_start(i)):round(work_zone_end(i)),1)<C_mean(i),1);
             stim(i) = stim(i) + work_zone_start(i);
@@ -658,7 +661,13 @@ if process_id == 1
     RMS = NaN(4,4);
     for k=2:1:4
         for i=1:1:4
-            RMS(i,k) = mean(data(round(work_zone(i,1)):round(work_zone(i,2)),k+4));
+            % Added try catch to guarantee that RMS would always have a
+            % value and not cause future error of indices missing
+            try
+                RMS(i,k) = mean(data(round(work_zone(i,1)):round(work_zone(i,2)),k+4));
+            catch
+                RMS(i,k) = 0;
+            end
         end
     end
     
