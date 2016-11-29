@@ -81,7 +81,7 @@ if process_id == 1
     baseline = mean(data(1:baseline_duration * 1/(isi*10^-3),1));
     baseline_std = std(data(1:1000,1));
     baseline_threshold = baseline + baseline_std*vert_sensitiv;
-    
+     
     %detect contractions (red vertical lines on figure "whole set of...")
     contrac = data(:,1) - baseline_threshold;
     contrac = find(contrac > 0);
@@ -126,16 +126,30 @@ if process_id == 1
     clearvars remove stim_channel_9 stim_channel_10
     
     if length(contrac_start) < 7
-        figure('Name', 'Contraction visualization');
-        plot(data(:,1))
-        x=axis;
-        hold on
-        plot([x(1) x(2)],[baseline_threshold baseline_threshold],'k')
-        legend('force','threshold')
+        % This was replaced by a temporary solution. When the right number
+        % of contractions is not found it split the entire data into the
+        % appropriate number of intervals just to allow user to manipulate
+        % manually in signalhunter. So when this condition is used,
+        % contractions will appear in periods without any physiological
+        % meaning. (Victor Hugo Souza 29/11/2016)
+%         figure('Name', 'Contraction visualization');
+%         plot(data(:,1))
+%         x=axis;
+%         hold on
+%         plot([x(1) x(2)],[baseline_threshold baseline_threshold],'k')
+%         legend('force','threshold')
+%         
+%         txt = ['only ' num2str(length(contrac_start)) ' contractions found, please adjust thresholds to increase precision for detection'];
+%         msgbox(['Only ' num2str(length(contrac_start)) ' contractions found, please adjust thresholds to increase precision for detection.'])
+%         error(txt)
+
+        siz_data = length(data(:,1));
+        delt = floor(siz_data/7);
+        for indi = 1:7
+            contrac_start(indi,1) = indi*delt - 10000;
+            contrac_end(indi,1) = contrac_start(indi) + 5000;
+        end
         
-        txt = ['only ' num2str(length(contrac_start)) ' contractions found, please adjust thresholds to increase precision for detection'];
-        msgbox(['Only ' num2str(length(contrac_start)) ' contractions found, please adjust thresholds to increase precision for detection.'])
-        error(txt)
     end
     clearvars txt
     
@@ -270,6 +284,14 @@ if process_id == 1
                 stim_contrac_start_p(i) = stim_contrac_start(i) - B_before_neurostim(2)*1/(isi*10^-3) + search_contrac_start_p(i,temp);
             end
         end
+        
+        % Adding this condition all contractions will be in wrong place so
+        % operator can change manually - this to overcome issue when
+        % Nicolas' script can't find automatically the contractions.
+        if isnan(stim_contrac_start_p(i))
+            stim_contrac_start_p(i) = stim_contrac_end(i) - 1000;
+        end
+        
         contrac_time(i) = (neurostim_max_I(i) - stim_contrac_start_p(i)) * 1/(isi*10^-3);
         HRT(i) = find(data(neurostim_max_I(i):stim_contrac_end(i) + 1/(isi*10^-3),1) < (neurostim_max(i)-neurostim_B(i))/2 + neurostim_B(i),1);
         HRT_abs(i) = HRT(i) + neurostim_max_I(i);
@@ -293,13 +315,19 @@ if process_id == 1
                 potent_max = find(data(stim_contrac_start(i)-1/(isi*10^-3):stim_contrac_end(i),k) > 2*10^-3);
             elseif strcmp(pathname(end-10:end-1),'Thibault_D') == 1 && series_nb == 8
                 potent_max = find(data(stim_contrac_start(i)-1/(isi*10^-3):stim_contrac_end(i),k) > 0.5);
+            elseif strcmp(pathname(end-8:end-1),'Sarah_ND') == 1 && series_nb == 8
+                potent_max = find(data(stim_contrac_start(i)-1/(isi*10^-3):stim_contrac_end(i),k) > 0.05);
             else
                 potent_max = find(data(stim_contrac_start(i)-1/(isi*10^-3):stim_contrac_end(i),k) > 1); 
             end
             potent_max_diff = diff(potent_max);
             break_point = find(potent_max_diff ~= 1);
             if isempty(break_point)
-                [max_M_wavet, max_M_wave_It] = max(data(stim_contrac_start(i)-1/(isi*10^-3) : stim_contrac_start(i)-1/(isi*10^-3) + potent_max(end),k));
+                if isempty(potent_max)
+                    [max_M_wavet, max_M_wave_It] = max(data(stim_contrac_start(i)-1/(isi*10^-3) : stim_contrac_start(i)-1/(isi*10^-3) + 1000,k));
+                else
+                    [max_M_wavet, max_M_wave_It] = max(data(stim_contrac_start(i)-1/(isi*10^-3) : stim_contrac_start(i)-1/(isi*10^-3) + potent_max(end),k));
+                end
                 max_M_wave(i,k) = max_M_wavet;
                 max_M_wave_I(i,k) = max_M_wave_It + stim_contrac_start(i)-1/(isi*10^-3);
             else
@@ -314,13 +342,19 @@ if process_id == 1
                 potent_min = find(data(stim_contrac_start(i)-1/(isi*10^-3):stim_contrac_end(i),k) < 0.05);
             elseif strcmp(pathname(end-10:end-1),'Thibault_D') == 1 && series_nb == 8
                 potent_min = find(data(stim_contrac_start(i)-1/(isi*10^-3):stim_contrac_end(i),k) < -0.5);
+            elseif strcmp(pathname(end-8:end-1),'Sarah_ND') == 1 && series_nb == 8
+                potent_min = find(data(stim_contrac_start(i)-1/(isi*10^-3):stim_contrac_end(i),k) < -0.05);
             else
                 potent_min = find(data(stim_contrac_start(i)-1/(isi*10^-3):stim_contrac_end(i),k) < -1);
             end
             potent_min_diff = diff(potent_min);
             break_point = find(potent_min_diff ~= 1);
             if isempty(break_point)
-                [min_M_wavet, min_M_wave_It] = min(data(stim_contrac_start(i)-1/(isi*10^-3) : stim_contrac_start(i)-1/(isi*10^-3) + potent_min(end),k));
+                if isempty(potent_min)
+                    [min_M_wavet, min_M_wave_It] = min(data(stim_contrac_start(i)-1/(isi*10^-3) : stim_contrac_start(i)-1/(isi*10^-3) + 1000,k));
+                else
+                    [min_M_wavet, min_M_wave_It] = min(data(stim_contrac_start(i)-1/(isi*10^-3) : stim_contrac_start(i)-1/(isi*10^-3) + potent_min(end),k));
+                end
                 min_M_wave(i,k) = min_M_wavet;
                 min_M_wave_I(i,k) = min_M_wave_It + stim_contrac_start(i)-1/(isi*10^-3);
             else
@@ -442,6 +476,14 @@ if process_id == 1
                     end
                 end
             end
+                       
+            if sum(sum(isnan(contrac_neurostim)))
+                cnan = find(sum(isnan(contrac_neurostim),1)>0);
+                cnum = find(sum(isnan(contrac_neurostim),1)==0);
+                for ci = 1:length(cnan)
+                    contrac_neurostim(:,cnan(ci)) = contrac_neurostim(:,cnum(1));
+                end
+            end
             
             % Make sure artefact has been picked-up, not the M-wave
             for i=1:1:4
@@ -494,9 +536,17 @@ if process_id == 1
             
             % find M-wave end for neurostim during exercise
             j=1;
-            while data(M_wave_ex_min_I(i,k) + j,k)<= 0.001 %0.05
+            dataaux = data;
+            while dataaux(M_wave_ex_min_I(i,k) + j,k)<= 0.001 %0.05
                 j = j+1;
+                try
+                    dataaux(M_wave_ex_min_I(i,k) + j,k);
+                catch
+                    dataaux(M_wave_ex_min_I(i,k) + j,k) = 0.05;
+                    j = 11;
+                end                    
             end
+            
             if j > 10 && j < win_after
                 M_wave_ex_end_I(i,k) = M_wave_ex_min_I(i,k)+j;
                 M_wave_ex_end(i,k) = data(M_wave_ex_min_I(i,k),k);
@@ -511,11 +561,8 @@ if process_id == 1
     
     
     clearvars work_zone temp contrac_neurostim_I potent real_contrac_I
-    clearvars M_wave_ex_max M_wave_ex_min diff_dat
-    
-    
-    
-    
+    clearvars M_wave_ex_max M_wave_ex_min diff_dat dataaux
+       
     
     %% WORK ON FORCE CHANNEL TO FIND SUPERIMPOSED FORCE @ NEUROSTIM
     
@@ -535,10 +582,7 @@ if process_id == 1
     end
     clearvars contrac_neurostim_maxt contrac_neurostim_max_It
     clearvars contrac_neurostim_mint contrac_neurostim_min_It
-    
-    
-    
-    
+        
     
     %% MEP & SILENT PERIOD ON CHANNELS 2, 3 and 4, AFTER TMS
     
@@ -610,8 +654,7 @@ if process_id == 1
     end
     clearvars M_wave_MEP_maxt M_wave_MEP_max_It M_wave_MEP_mint M_wave_MEP_min_It
     clearvars M_wave_endt M_wave_end_It
-    
-    
+
     
     % Work on silent period
     
