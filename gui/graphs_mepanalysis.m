@@ -103,13 +103,27 @@ handles = guidata(hObject);
 id = handles.id_cond;
 
 handles.id_axes = find(gca == handles.haxes(1,:));
-handles = dialog_detect_mepanalysis(handles);
-handles.haxes(1, id) = refresh_axes(handles.haxes(1, id), handles.reader.signal(:, id),...
-    handles.reader.xs, handles.reader.mep_pmin(id,:), handles.reader.mep_pmax(id,:),...
-    [handles.reader.mep_lat(id), handles.reader.mep_end(id)]);
+dialogdata = dialog_detect_mepanalysis(handles);
 
-msg = [num2str(id) ' Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " updated.'];
-handles = panel_textlog(handles, msg);
+if ~isempty(dialogdata)
+    
+    handles = dialogdata;
+    % added pause on processing beacuse progress bar was not updating
+    tp = 0.001;
+    pause(tp)
+    
+    handles.haxes(1, id) = refresh_axes(handles.haxes(1, id), handles.reader.signal(:, id),...
+        handles.reader.xs, handles.reader.mep_pmin(id,:), handles.reader.mep_pmax(id,:),...
+        [handles.reader.mep_lat(id), handles.reader.mep_end(id)]);
+    
+    msg = [num2str(id) ' Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " updated.'];
+    handles = panel_textlog(handles, msg);
+    
+else
+    msg = [num2str(id) ' Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " canceled.'];
+    handles = panel_textlog(handles, msg);
+    
+end
 
 % Update handles structure
 guidata(hObject, handles);

@@ -55,7 +55,7 @@ figh = floor(scnsize(4)*0.8);
 % hObject is the handle to the figure
 hObject = figure('Name', 'Parameters Detection', 'Color', [255 255 255]/255, ...
     'MenuBar', 'none', 'ToolBar', 'figure', 'CloseRequestFcn', @close_signalhunter,...
-    'DockControls', 'off', 'NumberTitle','off');
+    'DockControls', 'off', 'NumberTitle','off', 'Visible', 'off');
 
 set(hObject, 'Units', 'Pixels', 'Position', [0 0 figw figh]);
 % center the figure window on the screen
@@ -131,6 +131,8 @@ panel_logo_biomag(hObject);
 
 % start processing log
 handles = panel_textlog(handles, []);
+
+set(hObject, 'Visible', 'on');
 
 % Update handles structure
 guidata(hObject, handles);

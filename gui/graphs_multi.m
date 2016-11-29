@@ -108,6 +108,10 @@ for k = 1:handles.conditions(end)
     msg = ['Plots of ', int2str(k), ' done.'];
     handles = panel_textlog(handles, msg);
     
+    % added pause on processing beacuse progress bar was not updating
+    tp = 0.001;
+    pause(tp)
+    
 end
 toc
 
@@ -122,14 +126,27 @@ handles = guidata(hObject);
 
 [ci, ri] = find(gca == squeeze(handles.haxes(handles.id_cond,:,:)));
 handles.id_axes = [handles.id_cond, ci, ri];
-handles = dialog_detect_multi(handles);
+dialogdata = dialog_detect_multi(handles);
 
 progbar_update(handles.progress_bar, 0.5);
 
-handles.haxes(handles.id_cond, ci, ri) = refresh_axes(handles);
-
-msg = ['Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " updated.'];
-handles = panel_textlog(handles, msg);
+if ~isempty(dialogdata)
+    
+    handles = dialogdata;
+    % added pause on processing beacuse progress bar was not updating
+    tp = 0.001;
+    pause(tp)
+    
+    handles.haxes(handles.id_cond, ci, ri) = refresh_axes(handles);
+    
+    msg = ['Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " updated.'];
+    handles = panel_textlog(handles, msg);
+    
+else
+    msg = ['Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " canceled.'];
+    handles = panel_textlog(handles, msg);
+    
+end
 
 progbar_update(handles.progress_bar, 1.0);
 

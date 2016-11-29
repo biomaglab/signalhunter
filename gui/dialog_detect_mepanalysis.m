@@ -40,8 +40,13 @@ function varargout = output_dialog_detect(hObject)
 % Output function for dialog_detect
 
 uiwait(hObject);
-handles = guidata(hObject);
-delete(hObject);
+
+if ishandle(hObject)
+    handles = guidata(hObject);
+    delete(hObject);
+else
+    handles = [];
+end
 
 % Get default command line output from handles structure
 varargout{1} = handles;
@@ -62,7 +67,7 @@ fig_pos = [0 0 figw1 figh1];
 hObject = figure('Name', 'Parameters Detection', 'Color', 'w', ...
     'Units', 'pixels', 'Position', fig_pos, 'ToolBar', 'figure', ...
     'MenuBar', 'none', 'NumberTitle','off', 'DockControls', 'off', ...
-    'KeyPressFcn', @key_press_callback);
+    'KeyPressFcn', @key_press_callback, 'CloseRequestFcn', @close_dialogdetect);
 
 % center the figure window on the screen
 movegui(hObject, 'center');
@@ -258,4 +263,12 @@ function pushbutton_close_Callback(~, ~)
 % Callback - button to resume window
 uiresume;
 
+function close_dialogdetect(hObject, ~)
 
+selection = questdlg('All alterations of this dialog will be lost. Press FINISHED to apply changes. Do you wanto to close?', 'Close', 'Yes', 'No', 'Yes');
+switch selection
+    case 'Yes'
+        delete(get(0,'CurrentFigure'))
+    case 'No'
+        return
+end

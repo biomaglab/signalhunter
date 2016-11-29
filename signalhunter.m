@@ -26,7 +26,7 @@
 function signalhunter
 % SIGNALHUNTER Startup function of Signal Hunter sofware
 
-disp('SIGNAL HUNTER (X)');
+disp('SIGNAL HUNTER');
 disp('This software is a package for electrophysiological signal analysis.');
 disp('It is a collection of functions developed in Biomag Lab at the');
 disp('University of Sao Paulo, and is available to the scientific community');
@@ -35,10 +35,12 @@ fprintf('\n');
 
 sighunter_path = pwd;
 sh_ls_path = genpath(sighunter_path);
-path(path, sh_ls_path);
+path(sh_ls_path, path);
 
 pth_aux = userpath;
 
+% TODO: MATLAB has built-in functions to choose delimiter according to OS,
+% for future improvement use this functions instead of this if's.
 if isunix
     del = find(pth_aux == '/');
 elseif ismac
@@ -69,7 +71,7 @@ function signalhunter_logo
 fig_pos = [520, 383, 550, 417];
 hfiglogo = figure('Name', '', 'Color', 'w', 'Resize', 'off', 'DockControls', 'off',...
     'Units', 'pixels', 'Position', fig_pos, 'ToolBar', 'none', 'WindowStyle', 'moda', ...
-    'MenuBar', 'none', 'NumberTitle','off', 'DockControls', 'off');
+    'MenuBar', 'none', 'NumberTitle','off', 'DockControls', 'off', 'Visible', 'off');
 
 movegui(hfiglogo, 'center')
 
@@ -83,6 +85,10 @@ axis fill;
 axis off;
 axis image;
 set(hax, 'Position', [0 0 1 1]);
+
+pause(0.05)
+
+set(hfiglogo, 'Visible', 'on')
 
 pause(1)
 close(hfiglogo)

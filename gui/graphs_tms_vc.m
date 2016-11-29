@@ -128,23 +128,30 @@ function axes_ButtonDownFcn(hObject, ~)
 handles = guidata(hObject);
 
 handles.id_axes = find(gca == handles.haxes(:,:));
-handles = dialog_detect_tms_vc(handles);
+dialogdata = dialog_detect_tms_vc(handles);
 
 value = 1/2;
 progbar_update(handles.progress_bar, value)
 
-% added pause on processing beacuse progress bar was not updating
-tp = 0.001;
-pause(tp)
-
-handles.haxes = refresh_axes(handles);
-
-msg = ['Data and plots for ', '" ', handles.cond_names{handles.id_cond}, ' " updated.'];
-handles = panel_textlog(handles, msg);
-
+if ~isempty(dialogdata)
+    
+    handles = dialogdata;
+    % added pause on processing beacuse progress bar was not updating
+    tp = 0.001;
+    pause(tp)
+    handles.haxes = refresh_axes(handles);
+    msg = ['Data and plots for ', '" ', handles.cond_names{handles.id_cond}, ' " updated.'];
+    handles = panel_textlog(handles, msg);
+    
+else
+    msg = ['Data and plots for ', '" ', handles.cond_names{handles.id_cond}, ' " canceled.'];
+    handles = panel_textlog(handles, msg);
+    
+end
 % progress bar update
 value = 1.0;
 progbar_update(handles.progress_bar, value)
+
 % Update handles structure
 guidata(hObject, handles);
 
