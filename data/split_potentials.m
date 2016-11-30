@@ -63,6 +63,16 @@ samples_before_trigger = ceil((tbase(2)/1000)*fs);
 
 samples_baseline = ([triggeron_aux-samples_up_offset ones(numel(triggeron_aux),1)]*[ones(1,samples_before_trigger);-samples_before_trigger:-1])';
 
+% Because of samples to offset can occur that one trigger was given and the
+% signal is cut before the mep window. This condition zero pad the data
+% array to avoid error.
+if samples_triggeron(end, end) > length(data)
+    [rid, cid] = find(samples_triggeron > length(data));
+    for i = samples_triggeron(rid, cid):samples_triggeron(end, end)
+        data(i,1) = 0;
+    end
+end
+
 pots = data(samples_triggeron(:),:);
 split_pots = reshape(pots,size(samples_triggeron,1),size(samples_triggeron,2),size(pots,2));
 

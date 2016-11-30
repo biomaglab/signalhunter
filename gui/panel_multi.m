@@ -205,6 +205,7 @@ handles.edit_idcond = vars.edit_idcond;
 handles.panel_txtlog = vars.panel_txtlog;
 handles.edit_log = vars.edit_log;
 handles.config_dir = vars.config_dir;
+handles.data_id = vars.data_id;
 
 set(handles.edit_idcond, 'String', '1');
 set(handles.hsubdata, 'Enable', 'off');

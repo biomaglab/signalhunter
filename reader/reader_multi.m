@@ -76,9 +76,9 @@ if n_files == 40
     
 elseif n_files == 24
     process_id = 1;
-    % condition is hotpost of target muscle
+    % condition is parameter of electrical stimulation
     n_conditions = 3;
-    % instant is arm position
+    % instant is time of tms stimulation
     n_instants = 4;
     % side is stimulated brain hemisphere
     n_side = 2;
@@ -96,6 +96,15 @@ elseif n_files == 12
     process_id = 3;
     % conditions is MRI or MNI
     n_conditions = 2;
+    % instant is 110% or 120% of motor threshold
+    n_instants = 3;
+    % side is hotspot of target muscle
+    n_side = 2;
+    
+elseif n_files == 6
+    process_id = 3;
+    % conditions is MRI or MNI
+    n_conditions = 1;
     % instant is 110% or 120% of motor threshold
     n_instants = 3;
     % side is hotspot of target muscle
@@ -120,7 +129,6 @@ if path_aux
     
     signal = struct;
     
-    data_aux = cell(n_frames,n_instants);
     data = cell(n_frames,n_instants);
     xs = cell(n_frames,n_instants);
     trigger = cell(n_frames,n_instants);
@@ -135,21 +143,35 @@ if path_aux
     for id_cond = 1:n_frames
         for ci = 1:n_instants
             
-            data_aux{id_cond,ci} = importdata([path_aux file_names{id_cond,ci}]);
+            data_aux = importdata([path_aux file_names{id_cond,ci}]);
             file_prop{id_cond,ci} = strsplit(file_names{id_cond,ci}, {'_', '.'});
             instant(id_cond,ci) = strcat('T', file_prop{id_cond,ci}(4));
-            
-            if size(data_aux{id_cond,ci}.data, 2) == 5
-                xs{id_cond,ci} = data_aux{id_cond,ci}.data(:,1);
-                data{id_cond,ci} = data_aux{id_cond,ci}.data(:,2:end-1);
-                trigger{id_cond,ci} = data_aux{id_cond,ci}.data(:,end);
+                      
+            % TODO: Find a way to know the sampling frequency when no time
+            % vector is exported in file
+            if isstruct(data_aux)
+                if size(data_aux.data, 2) == 5
+                    xs{id_cond,ci} = data_aux.data(:,1);
+                    data{id_cond,ci} = data_aux.data(:,2:end-1);
+                    trigger{id_cond,ci} = data_aux.data(:,end);
+                else
+                    xs{id_cond,ci} = (0:size(data_aux.data(:,1)))'/2000;
+                    data{id_cond,ci} = data_aux.data(:,1:end-1);
+                    trigger{id_cond,ci} = data_aux.data(:,end);
+                end
             else
-                xs{id_cond,ci} = (0:size(data_aux{id_cond,ci}.data(:,1)))'/699,30;
-                data{id_cond,ci} = data_aux{id_cond,ci}.data(:,1:end-1);
-                trigger{id_cond,ci} = data_aux{id_cond,ci}.data(:,end);
+                if size(data_aux, 2) == 5
+                    xs{id_cond,ci} = data_aux(:,1);
+                    data{id_cond,ci} = data_aux(:,2:end-1);
+                    trigger{id_cond,ci} = data_aux(:,end);
+                else
+                    xs{id_cond,ci} = (0:size(data_aux(:,1)))'/2000;
+                    data{id_cond,ci} = data_aux(:,1:end-1);
+                    trigger{id_cond,ci} = data_aux(:,end);
+                end
             end
             
-            fs{id_cond,ci} =  1/(xs{id_cond,ci}(3,1)-xs{id_cond,ci}(2,1));
+            fs{id_cond,ci} = 1/(xs{id_cond,ci}(3,1)-xs{id_cond,ci}(2,1));
             subject(id_cond,ci) = strcat('S', file_prop{id_cond,1}(1));
             side(id_cond,ci) = file_prop{id_cond,1}(2);
             condition(id_cond,ci) = strcat('C', file_prop{id_cond,1}(3));
@@ -167,9 +189,7 @@ if path_aux
             ' condition: ', condition(id_cond,1));
         
     end
-    
-    clear data_aux
-    
+
     signal.xs = xs;
     signal.data = data;
     signal.trigger = trigger;
