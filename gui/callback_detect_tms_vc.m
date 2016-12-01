@@ -769,7 +769,7 @@ switch id_pb
         % Update contraction start and end
         contrac_start(1) = round(x(1)*1/(isi*10^-3));
         contrac_end(1) = round(x(2)*1/(isi*10^-3));
-                
+        
         [Twitch_y, Twitch_x] = max(data(contrac_start(1):contrac_end(1)));
         Twitch_x = Twitch_x + contrac_start(1);
         HRT = find(data(Twitch_x:contrac_end(1)) < (Twitch_y-baseline)/2+baseline ,1);
@@ -917,7 +917,7 @@ switch id_pb
         % Update contraction start and end
         M_wave_ex_start_I(k+1) = round(x(1)*1/(isi*10^-3));
         M_wave_ex_end_I(k+1) = round(x(2)*1/(isi*10^-3));
-           
+        
         M_wave_amp = M_wave_max-M_wave_min;
         M_wave_duration = abs(M_wave_ex_min_I-M_wave_ex_max_I);
         
@@ -973,7 +973,7 @@ switch id_pb
         
         M_wave_amp = M_wave_max-M_wave_min;
         M_wave_duration = abs(M_wave_ex_min_I-M_wave_ex_max_I);
-                
+        
         M_wave_area(k) = trapz_perso(abs(data(M_wave_ex_max_I(k+1):M_wave_ex_min_I(k+1),k+1)), fs);
         
         handles.processed.M_wave_ex_min_I = M_wave_ex_min_I;
@@ -1306,46 +1306,58 @@ contrac_neurostim(id_pb,i) = round(x(1)*1/(isi*10^-3));
 
 % Update the neurostim instant and M_wave properties of three correspondent
 % muscles only related to the modified neurostim.
-for k=2:1:4
-    [~, M_wave_ex_max] = max(data(contrac_neurostim(id_pb,k)+20 : contrac_neurostim(id_pb,k)+2000,k));
-    M_wave_ex_max_I(id_pb,k) = M_wave_ex_max + contrac_neurostim(id_pb,k)+20;
-    [~, M_wave_ex_min] = min(data(contrac_neurostim(id_pb,k)+20 : contrac_neurostim(id_pb,k)+2000,k));
-    M_wave_ex_min_I(id_pb,k) = M_wave_ex_min + contrac_neurostim(id_pb,k)+20;
-    
-    % find M_wave start for neurostim during exercise
-    if M_wave_ex_max_I(id_pb,k) < M_wave_ex_min_I(id_pb,k)
-        j=1; diff_dat=1;
-        while diff_dat>=0
-            diff_dat = data(M_wave_ex_max_I(id_pb,k)-j,k) - data(M_wave_ex_max_I(id_pb,k)-j-1,k);
-            j=j+1;
-        end
-        M_wave_ex_start_I(id_pb,k) = M_wave_ex_max_I(id_pb,k) - j;
-        M_wave_ex_start(id_pb,k) = data(M_wave_ex_start_I(id_pb,k),k);
-    else
-        j=1; diff_dat=1;
-        while diff_dat>=0
-            diff_dat = data(M_wave_ex_min_I(id_pb,k)-j,k) - data(M_wave_ex_min_I(id_pb,k)-j-1,k);
-            j=j+1;
-        end
-        M_wave_ex_start_I(id_pb,k) = M_wave_ex_min_I(id_pb,k) - j;
-        M_wave_ex_start(id_pb,k) = data(M_wave_ex_start_I(id_pb,k),k);
+
+k = i;
+[~, M_wave_ex_max] = max(data(contrac_neurostim(id_pb,k)+20 : contrac_neurostim(id_pb,k)+2000,k));
+M_wave_ex_max_I(id_pb,k) = M_wave_ex_max + contrac_neurostim(id_pb,k)+20;
+[~, M_wave_ex_min] = min(data(contrac_neurostim(id_pb,k)+20 : contrac_neurostim(id_pb,k)+2000,k));
+M_wave_ex_min_I(id_pb,k) = M_wave_ex_min + contrac_neurostim(id_pb,k)+20;
+
+% find M_wave start for neurostim during exercise
+if M_wave_ex_max_I(id_pb,k) < M_wave_ex_min_I(id_pb,k)
+    j=1; diff_dat=1;
+    while diff_dat>=0
+        diff_dat = data(M_wave_ex_max_I(id_pb,k)-j,k) - data(M_wave_ex_max_I(id_pb,k)-j-1,k);
+        j=j+1;
     end
-    clearvars diff_dat
-    
-    % find M-wave end for neurostim during exercise
-    j=1;
-    while data(M_wave_ex_min_I(id_pb,k) + j,k)<= 0.001 %0.05
-        j = j+1;
+    M_wave_ex_start_I(id_pb,k) = M_wave_ex_max_I(id_pb,k) - j;
+    M_wave_ex_start(id_pb,k) = data(M_wave_ex_start_I(id_pb,k),k);
+else
+    j=1; diff_dat=1;
+    while diff_dat>=0
+        diff_dat = data(M_wave_ex_min_I(id_pb,k)-j,k) - data(M_wave_ex_min_I(id_pb,k)-j-1,k);
+        j=j+1;
     end
-    win_after = 1000;
-    if j > 10 && j < win_after
-        M_wave_ex_end_I(id_pb,k) = M_wave_ex_min_I(id_pb,k)+j;
-        M_wave_ex_end(id_pb,k) = data(M_wave_ex_min_I(id_pb,k),k);
-    else
-        [M_wave_endt, M_wave_end_It] = max(data(M_wave_ex_min_I(id_pb,k)+1:M_wave_ex_min_I(id_pb,k) + win_after,k));
-        M_wave_ex_end(id_pb,k) = M_wave_endt;
-        M_wave_ex_end_I(id_pb,k) = M_wave_end_It + M_wave_ex_min_I(id_pb,k) + 1;
+    M_wave_ex_start_I(id_pb,k) = M_wave_ex_min_I(id_pb,k) - j;
+    M_wave_ex_start(id_pb,k) = data(M_wave_ex_start_I(id_pb,k),k);
+end
+clearvars diff_dat
+
+% find M-wave end for neurostim during exercise
+% This while statement can raise index out of bounds if
+% M_wave_ex_min_I is too close to the end of signal. So, I
+% added a solution to give a specific constant if it does not
+% converge. Victor Hugo Souza - 01.12.2016
+j=1;
+dataaux = data;
+while dataaux(M_wave_ex_min_I(id_pb,k) + j,k)<= 0.001 % 0.05
+    j = j+1;
+    try
+        dataaux(M_wave_ex_min_I(i,k) + j,k);
+    catch
+        dataaux(M_wave_ex_min_I(i,k) + j,k) = 0.05;
+        j = 11;
     end
+end
+
+win_after = 1000;
+if j > 10 && j < win_after
+    M_wave_ex_end_I(id_pb,k) = M_wave_ex_min_I(id_pb,k)+j;
+    M_wave_ex_end(id_pb,k) = data(M_wave_ex_min_I(id_pb,k),k);
+else
+    [M_wave_endt, M_wave_end_It] = max(data(M_wave_ex_min_I(id_pb,k)+1:M_wave_ex_min_I(id_pb,k) + win_after,k));
+    M_wave_ex_end(id_pb,k) = M_wave_endt;
+    M_wave_ex_end_I(id_pb,k) = M_wave_end_It + M_wave_ex_min_I(id_pb,k) + 1;
 end
 
 handles.processed.contrac_neurostim = contrac_neurostim;

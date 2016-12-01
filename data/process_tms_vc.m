@@ -535,6 +535,10 @@ if process_id == 1
             clearvars diff_dat
             
             % find M-wave end for neurostim during exercise
+            % This while statement can raise index out of bounds if
+            % M_wave_ex_min_I is too close to the end of signal. So, I
+            % added a solution to give a specific constant if it does not
+            % converge. Victor Hugo Souza - 01.12.2016
             j=1;
             dataaux = data;
             while dataaux(M_wave_ex_min_I(i,k) + j,k)<= 0.001 %0.05
