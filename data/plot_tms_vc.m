@@ -699,16 +699,13 @@ for k=1:1:3
     
     tMEP_ex_start = zeros(size(M_wave_ex_start_I));
     tMEP_ex_end = zeros(size(M_wave_ex_start_I));
-    for m = 2:4
-        for n = 2:4
-            if M_wave_ex_start_I(m,n) < M_wave_ex_end_I(m,n)
-                tMEP_ex_start(m,n) = M_wave_ex_start_I(m,n);
-                tMEP_ex_end(m,n) = M_wave_ex_end_I(m,n);
-            else
-                tMEP_ex_start(m,n) = M_wave_ex_end_I(m,n);
-                tMEP_ex_end(m,n) = M_wave_ex_start_I(m,n);
-            end
-        end
+    
+    if M_wave_ex_start_I(k+1) < M_wave_ex_end_I(k+1)
+        tMEP_ex_start(k+1) = M_wave_ex_start_I(k+1);
+        tMEP_ex_end(k+1) = M_wave_ex_end_I(k+1);
+    else
+        tMEP_ex_start(k+1) = M_wave_ex_end_I(k+1);
+        tMEP_ex_end(k+1) = M_wave_ex_start_I(k+1);
     end
 
     axes(ax(k+3, id_cond));
