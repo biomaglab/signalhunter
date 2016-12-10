@@ -209,7 +209,7 @@ handles.pb_names = pb_names;
     handles.processed, handles.id_axes);
 
 for i = 1:length(handles.hsig)-1
-    handles.hsig(i).Visible = 'off';
+   set(handles.hsig(i), 'Visible', 'off');
 end
 
 guidata(hObject, handles);
