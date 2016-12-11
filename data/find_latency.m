@@ -71,9 +71,13 @@ diff_fpotential = diff([fpotential(1,:); fpotential], [], 1);
 stddiff = std(diff_fpotential, 0, 1);
 
 for i = 1:n_signals
-    lat(1,i) = find(abs(diff_fpotential(:,i)) > threshood_std*stddiff(:,i), 1)-mn;
-    if lat(1,i) <= 0
+    lat_aux = find(abs(diff_fpotential(:,i)) > threshood_std*stddiff(:,i), 1)-mn;
+    if lat_aux <= 0
         lat(1,i) = 1;
+    elseif isempty(lat_aux)
+        lat(1,i) = 1;
+    else
+        lat(1,i) = lat_aux;
     end    
 end
 
