@@ -70,22 +70,12 @@ pushbutton_export = uicontrol(handles.panel_files, 'FontWeight', 'bold',...
     'Callback', @(obj, eventdata)callback_data(obj, 'export'));
 set(pushbutton_export, 'Position', pb_export_pos, 'FontSize', fontsize);
 
-% push button export
+% push button save
 pushbutton_save = uicontrol(handles.panel_files, 'FontWeight', 'bold',...
     'String', 'Save', 'Units', 'normalized', 'FontUnits', 'normalized',...
     'Callback', @(obj, eventdata)callback_data(obj, 'save'));
-%     'Callback', @pushbutton_save_Callback);
     
 set(pushbutton_save, 'Position', pb_save_pos, 'FontSize', fontsize);
-
-switch lower(handles.data_id)
-    case 'tms + vc'
-        align([pushbutton_load, pushbutton_export, pushbutton_save], 'None', 'Distribute');
-    case 'mep analysis'
-        set(pushbutton_load, 'Visible', 'off')
-        set(pushbutton_save, 'Visible', 'off')
-        align([pushbutton_load, pushbutton_export, pushbutton_save], 'None', 'Distribute');
-end
 
 
 function callback_data(hObject, menu_id)

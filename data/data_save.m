@@ -35,12 +35,26 @@ switch handles.data_id
     case 'tms + vc'
         filt_id = save_tms_vc(handles.reader, handles.processed);
         
-    case 'mepanalysis'
-        save_mepanalysis(handles)
+    case 'mep analysis'
+        filt_id = save_mepanalysis(handles.reader);
         
     case 'multi channels'
         filt_id = save_multi(handles.reader, handles.processed);
         
+end
+
+end
+
+
+function filt_id = save_mepanalysis(reader)
+
+filename_aux = 'subject_data';
+
+[filename, pathname, filt_id] = uiputfile({'*.mat','MATLAB File (*.mat)'},...
+    'Save processed data', filename_aux);
+
+if filt_id
+    save([pathname filename], 'reader');
 end
 
 end

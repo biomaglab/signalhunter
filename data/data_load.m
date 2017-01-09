@@ -42,8 +42,24 @@ switch handles.data_id
             filt_id = 0;
         end
         
-    case 'mepanalysis'
+    case 'mep analysis'
+        try
         handles.reader = load_mepanalysis(handles.reader);
+        
+        if isfield(handles, 'panel_graph')
+            delete(handles.panel_graph);
+            handles = rmfield(handles, 'panel_graph');
+            handles = rmfield(handles, 'haxes');
+        end
+        
+        handles = graphs_mepanalysis(handles);
+        
+        filt_id = 1;
+        
+        catch
+            filt_id = 0;
+        
+        end
         
     case 'multi channels'
         try
@@ -65,6 +81,20 @@ switch handles.data_id
         end
 end
 
+function reader = load_mepanalysis(reader)
+%LOAD_MULTI Summary of this function goes here
+%   Detailed explanation goes here
+
+filename_aux = 'subject_data.mat';
+
+[filename, pathname, filt_id] = uigetfile({'*.mat','MATLAB File (*.mat)'},...
+    'Select the saved processed file', filename_aux);
+
+if filt_id
+    data_load = load([pathname filename]);
+    reader = data_load.reader;
+    
+end
 
 function [reader, processed] = load_tms_vc(reader)
 %LOAD_TMS_VC Summary of this function goes here

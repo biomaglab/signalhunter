@@ -62,7 +62,7 @@ frames = reader.fig_titles;
 
 export_data = [states frames num2cell(amp) num2cell(lat) num2cell(dur)];
 
-headers = [{'states'} {'frames'} {'amplitude (mV)'} {'latency (s)'} {'duration (s)'}];
+headers = [{'states'} {'frames'} {'amplitude'} {'latency (s)'} {'duration (s)'}];
 
 switch filt_id
     case 1
