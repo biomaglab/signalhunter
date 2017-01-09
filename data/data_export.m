@@ -34,7 +34,7 @@ switch handles.data_id
     case 'tms + vc'
         filt_id = export_tms_vc(handles.reader, handles.processed);
         
-    case 'mepanalysis'
+    case 'mep analysis'
         filt_id = export_mepanalysis(handles.reader);
         
     case 'multi channels'
@@ -51,23 +51,20 @@ function filt_id = export_mepanalysis(reader)
 %   This function exports to Excel and ASCII file with data written in rows
 %   and variables in columns
 
-
-tic
-
 amp = reader.mep_amp;
 lat = reader.mep_lat;
 dur = reader.mep_dur;
 states = reader.states;
 frames = reader.fig_titles;
 
-[filename, pathname, filterindex] = uiputfile({'*.xls;*.xlsx','MS Excel Files (*.xls,*.xlsx)'},...
+[filename, pathname, filt_id] = uiputfile({'*.xls;*.xlsx','MS Excel Files (*.xls,*.xlsx)'},...
     'Export data', 'processed_data.xlsx');
 
 export_data = [states frames num2cell(amp) num2cell(lat) num2cell(dur)];
 
 headers = [{'states'} {'frames'} {'amplitude (mV)'} {'latency (s)'} {'duration (s)'}];
 
-switch filterindex
+switch filt_id
     case 1
         if  exist([pathname filename], 'file')
             [~, ~, previous_data] = xlsread([pathname filename]);
@@ -95,7 +92,6 @@ switch filterindex
             fclose(fid);
         end
 end
-filt_id = toc;
 
 end
 

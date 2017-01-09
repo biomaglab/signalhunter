@@ -204,24 +204,29 @@ function pushbutton_reset_Callback(hObject, eventdata)
 % Callback - Button Clean - Not working fot this panel
 vars = guidata(hObject);
 
-handles.data_id = vars.data_id;
-handles.map_template = vars.map_template;
-handles.map_shape = vars.map_shape;
 handles.fig = vars.fig;
-handles.menufile = vars.menufile;
-handles.subopen = vars.subopen;
-handles.menutools = vars.menutools;
-handles.subtools = vars.subtools;
+handles.hmenufile = vars.hmenufile;
+handles.hsubopen = vars.hsubopen;
+handles.hsubdata = vars.hsubdata;
+handles.hmenutools = vars.hmenutools;
+handles.hsubtools = vars.hsubtools;
 handles.panel_files = vars.panel_files;
 handles.progress_bar = vars.progress_bar;
 handles.panel_tools = vars.panel_tools;
 handles.edit_idcond = vars.edit_idcond;
-handles.panel_txtlog = vars.edit_idcond;
+handles.panel_txtlog = vars.panel_txtlog;
 handles.edit_log = vars.edit_log;
+handles.config_dir = vars.config_dir;
+handles.data_id = vars.data_id;
 
 set(handles.edit_idcond, 'String', '1');
+set(handles.hsubdata, 'Enable', 'off');
 
-delete(vars.panel_graph);
+if isfield(vars, 'panel_graph')
+    if ishandle(vars.panel_graph)
+        delete(vars.panel_graph);
+    end
+end
 
 % message to progress log
 msg = 'Signal Hunter for MEP Analysis restarted.';
