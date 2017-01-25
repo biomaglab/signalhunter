@@ -24,7 +24,7 @@
 % 
 
 
-% --- Creates GUI panel and controls for TMS and Voluntary Contraction Processing
+% --- Creates GUI panel and controls for EMF Analysis
 function handles = panel_emf(handles)
 
 % create the panel and controls, and return the handles
@@ -34,7 +34,7 @@ function handles = panel_creation(handles)
 
 hObject = handles.fig;
 
-% creates the panel for tms and voluntary contraction processing
+% creates the panel for EMF Analysis
 % paneltools_pos = [0.005, 0.008, 0.15, 0.195];
 paneltools_pos = [0.005, 0.008, 0.15, 0.16];
 handles.panel_tools = uipanel(hObject, 'BackgroundColor', 'w', ...
@@ -42,11 +42,6 @@ handles.panel_tools = uipanel(hObject, 'BackgroundColor', 'w', ...
     'Units', 'normalized');
 set(handles.panel_tools, 'Position', paneltools_pos);
 
-% % edit for conditions value
-% cond_names = 'Conditions: 1 - 0, 2 - 45, 3 - 90';
-% edit_cond_pos = [0.1, 0.68, 0.8, 0.3];
-% handles.edit_cond = uicontrol(handles.panel_tools, 'String', cond_names,'Units', 'normalized');
-% set(handles.edit_cond, 'Style', 'edit', 'Position', edit_cond_pos, 'BackgroundColor', 'w');
 
 n_cols = [3;3]; n_rows = 2;
 mar_x = 0.02; mar_y = 0.02;

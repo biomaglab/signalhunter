@@ -24,54 +24,57 @@
 % 
 
 
-function output_reader = reader_emf
+function reader = reader_emf
 
 % loading signal and configuration data
 [filename, pathname] = uigetfile({'*.mat','MAT-files (*.mat)'},...
     'Select the signal file');
-    
+ 
+% Waitbar to show frames progess
+% Used this instead of built-in figure progess bar to avoid need of handles
+hbar = waitbar(0.5, 'Reading signals...', 'Name','Progress');
+
 data = load([pathname filename]);
-%data = data_aux.teste;
 var_name = fieldnames(data);
 %eval(['data = data_aux.' var_name{1} ';']);
 
 % load header information
-output_reader.equipaments = data.equipament;
-output_reader.mode = data.mode;
-output_reader.freq = data.frequency;
+reader.equipaments = data.equipament;
+reader.mode = data.mode;
+reader.freq = data.frequency;
 
-output_reader.tstart = data.tstart;
-output_reader.tstart_bkp = output_reader.tstart;
+reader.tstart = data.tstart;
+reader.tstart_bkp = output_reader.tstart;
 
-output_reader.tonset = data.tonset;
-output_reader.tonset_bkp = output_reader.tonset;
+reader.tonset = data.tonset;
+reader.tonset_bkp = output_reader.tonset;
 
-output_reader.onset = (data.tonset - data.tstart)*10^6;
+reader.onset = (data.tonset - data.tstart)*10^6;
 
-output_reader.tduration = data.tduration;
-output_reader.tduration_bkp = output_reader.tduration;
+reader.tduration = data.tduration;
+reader.tduration_bkp = output_reader.tduration;
 
-output_reader.duration = (data.tduration - data.tstart)*10^6;
+reader.duration = (data.tduration - data.tstart)*10^6;
 
-output_reader.pzero = data.pzero;
-output_reader.pzero_bkp = output_reader.pzero;
+reader.pzero = data.pzero;
+reader.pzero_bkp = output_reader.pzero;
 
-output_reader.pmax = data.pmax;
-output_reader.pmax_bkp = output_reader.pmax;
+reader.pmax = data.pmax;
+reader.pmax_bkp = output_reader.pmax;
 
-output_reader.signal = data.signal;
-output_reader.xs = data.xs;
-output_reader.fs = data.fs;
-output_reader.id = data.id;
-
-
+reader.signal = data.signal;
+reader.xs = data.xs;
+reader.fs = data.fs;
+reader.id = data.id;
 
 
 
 
 
 
-output_reader.n_pulses = length(data.id);
+
+
+reader.n_pulses = length(data.id);
 
 
 % figure titles with states
