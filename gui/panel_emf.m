@@ -162,28 +162,6 @@ set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
 % Update handles structure
 guidata(hObject, handles);
 
-function pushbutton_clean_Callback(hObject, eventdata)
-% Callback - Button Clean
-handles = guidata(hObject);
-
-for i = 1:size(handles.haxes,1)
-    for j = 1:size(handles.haxes,2)
-        if ishandle(handles.haxes(i,j))
-            cla(handles.haxes(i,j));
-        end
-    end
-end
-
-% progress bar update
-value = 1;
-progbar_update(handles.progress_bar, value)
-% cla(handles.haxes(1:end,1:end));
-
-'pushbutton clean callback'
-
-% Update handles structure
-guidata(hObject, handles);
-
 function pushbutton_open_Callback(hObject, eventdata)
 % Callback - Button Open
 handles = guidata(hObject);
@@ -194,8 +172,13 @@ handles = panel_textlog(handles, msg);
 
 handles.reader = reader_emf;
 
-msg = ['Data opened.', 'Number of frames: ',  num2str(handles.reader.n_pulses),];
+msg = ['Equipment: "', cellstr(handles.reader.equipment),...
+         '"; Mode: ', cellstr(handles.reader.mode),...
+         '"; Number of pulses: ',  num2str(handles.reader.n_pulses),'".'];
 handles = panel_textlog(handles, msg);
+
+handles.processed = process_emf(handles.reader);
+
 handles = graphs_emf(handles);
 
 % Update handles structure

@@ -59,7 +59,7 @@ switch id_pb
         % Show information text to guide user to press enter button.
         set(info_text, 'BackgroundColor', [1 1 0.5], ...
             'String', 'Select inicial window point and click ENTER');
-        [x(1), y(1)] = getpts(axesdetect);
+        [x(1),~] = getpts(axesdetect);
         
         [value index]  = min(abs(handles.time - x(1)));
  

@@ -26,20 +26,50 @@
 
 function reader = reader_emf
 
-% loading signal and configuration data
-[filename, pathname] = uigetfile({'*.mat','MAT-files (*.mat)'},...
-    'Select the signal file');
- 
+% % loading signal and configuration data
+%  [filename, pathname, format] = uigetfile({'*.mat;','Matlab files (*.mat)';...
+%      '*.bin;','Binary files'},'Select signal file');
 % Waitbar to show frames progess
 % Used this instead of built-in figure progess bar to avoid need of handles
 hbar = waitbar(0.5, 'Reading signals...', 'Name','Progress');
 
-data = load([pathname filename]);
-var_name = fieldnames(data);
-%eval(['data = data_aux.' var_name{1} ';']);
+% if (format==2)
+    filename = 'rTMS_100hz_100';
+    pathname = 'D:\Dados TMS\MagPro\rTMS\';
+    reader = import_emf(filename, pathname);
+% else
+%     data = load([pathname,filename]);
+    
+    % Check if *.mat file is already processed
+%     if (isfield(data,'equipment')==0)
+%         
+%         reader.raw = data;
+%         clear data
+%         
+%         prompt = {'Equipament';'Stimulation mode'; 'Stimulation frequency (1 for pTMS/ppTMS)'; 'Sampling Frequency (Hz)'};
+%         dlg_title = 'Equipament and Acquisition information';
+%         info = inputdlg(prompt,dlg_title,1);
+% 
+%         reader.equipment = info{1};
+%         reader.mode = info{2};
+%         reader.freq = info{3};
+%         reader.fs = info{4};
+%         clear info prompt dlg_title
+%         
+%         reader.filename = file;
+%         
+%         reader.time = 0:1/reader.fs:length(reader.data)/reader.fs;
+%         reader.time(1) = [];
+%         
+%         reader = process_emf(reader);
+%     
+%     else 
+%         reader = data;
+%     end
+% end
 
-% load header information
-reader.equipaments = data.equipament;
+% load reader information
+reader.equipment = data.equipment;
 reader.mode = data.mode;
 reader.freq = data.frequency;
 
@@ -49,56 +79,33 @@ reader.tstart_bkp = output_reader.tstart;
 reader.tonset = data.tonset;
 reader.tonset_bkp = output_reader.tonset;
 
-reader.onset = (data.tonset - data.tstart)*10^6;
+reader.tend = data.tend;
+reader.tend_bkp = reader.tend;
 
-reader.tduration = data.tduration;
-reader.tduration_bkp = output_reader.tduration;
-
-reader.duration = (data.tduration - data.tstart)*10^6;
+% pulse duration and onset values will be calculated further
 
 reader.pzero = data.pzero;
-reader.pzero_bkp = output_reader.pzero;
+reader.pzero_bkp = reader.pzero;
 
 reader.pmax = data.pmax;
-reader.pmax_bkp = output_reader.pmax;
+reader.pmax_bkp = reader.pmax;
+
 
 reader.signal = data.signal;
-reader.xs = data.xs;
-reader.fs = data.fs;
-reader.id = data.id;
-
-
-
-
-
-
-
-
-reader.n_pulses = length(data.id);
+reader.xs = data.xs; %time vector
+reader.fs = data.fs; %samplig frequency
+reader.id = data.id; %pulse id
+reader.n_pulses = length(data.id); %number of pulses
 
 
 % figure titles with states
-fig_titles = cell(output_reader.n_pulses,1);
+fig_titles = cell(reader.n_pulses,1);
 
-
-for i = 1:output_reader.n_pulses
-    fig_titles{i,1} = horzcat(data.equipament{i},' - ', data.mode{i,1}, ' - ', num2str(data.id(i)),'.');
-    %states{i,1} = data.frameinfo(i).state;
-    %tstart = data.tstart(i);
-    %[mep_amp(i), mep_pmin(i,:), mep_pmax(i,:)] = peak2peak_amplitude(output_reader.xs,...
-        %output_reader.signal(:,i), output_reader.fs);
+% creates figure titles with equipment, mode and pulse id
+for i = 1:reader.n_pulses 
+    fig_titles{i,1} = horzcat(data.equipment{i},' - ', data.mode{i,1}, ' - ',...
+        num2str(data.id(i)),'.');
 end
 
-output_reader.fig_titles = fig_titles;
-%output_reader.states = states;
-%output_reader.frame_start = frame_start;
-
-%output_reader.mep_amp = mep_amp;
-%output_reader.mep_pmin = mep_pmin;
-%output_reader.mep_pmax = mep_pmax;
-%output_reader.mep_lat = zeros(output_reader.n_meps,1);
-%output_reader.mep_end = zeros(output_reader.n_meps,1);
-%output_reader.mep_dur = zeros(output_reader.n_meps,1);
-
-
+reader.fig_titles = fig_titles;
 

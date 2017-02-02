@@ -27,10 +27,14 @@
 % --- Creates GUI panel and controls when axes Button Down Fcn is assessed
 % This GUI allows the user to change and manipulated the peak, time and
 % threshold selections in the signal plotted in one axes
-function varargout = processing_emf(handles)
+function varargout = process_emf(handles)
 
 % create the figure, uicontrols and return the handles
 hObject = figure_creation(handles);
+
+handles = rmfield(handles,'raw');
+handles = rmfield(handles,'time');
+
 varargout{1} = output_dialog_detect(hObject);
 
 
@@ -51,8 +55,8 @@ function hObject = figure_creation(handles)
 % relative to it
 set(0,'units','pixels');
 scnsize = get(0,'screensize');
-figw1 = ceil(scnsize(3)*(0.7));
-figh1 = floor(scnsize(4)*(0.7));
+figw1 = ceil(scnsize(3)*(0.8));
+figh1 = floor(scnsize(4)*(0.8));
 fig_pos = [0 0 figw1 figh1];
 
 % Figure creation
@@ -159,47 +163,80 @@ set(pb_close, 'Position', pb_close_pos, ...
 handles.axesdetect = axesdetect;
 handles.pb_names = pb_names;
 
-%time values are from bkp, keeping absolute values on graph (not plotting
-%from zero);
 plot(handles.time, handles.raw, '.')
 
+% if data is already processed, plot values
 hold on
- if isfield(handles,'max_pos')
-     if ishandle(handles.max_pos)
-     plot(max_pos, handles.raw(max_pos),'.','color','r')
+ if isfield(handles,'tstart')
+     if ishandle(handles.tstart)
+     plot(handles.tstart, handles.raw(handles.tstart),'o','color','r','MarkerFaceColor','r')
+     plot(handles.tonset, handles.raw(handles.tonset),'o','color','r','MarkerFaceColor','r')
+     plot(handles.tend, handles.raw(handles.tend),'o','color','r','MarkerFaceColor','r')
      end
- else
  end
  hold off
- 
-
  
 guidata(hObject, handles);
 
 
 function pb_detect_1_Callback(hObject, ~)
-% Callback - button for amplitude selection
+% Callback - button for signal window selection
 handles = guidata(hObject);
 
-handles = callback_processing_emf(handles, 1);
+hold on
+set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', 'Select inicial window point and press ENTER');
+[x,~] = ginput;
 
+[value index]  = min(abs(handles.time - x(end)));
+
+set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', 'Select final window point and press ENTER');
+[x2,~] = ginput;
+
+[value index2]  = min(abs(handles.time - x2(end)));
+hold off
+
+% Remove information text to guide user to press enter button.        
+set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
+
+% Update Pulse window
+handles.time = handles.time(index:index2);
+handles.raw = handles.raw(index:index2);
+
+plot(handles.time,handles.raw,'.')
+title('Raw data')
+ylabel('Amplitude (mV)')
+xlabel('Time (s)')
 % Update handles structure
 guidata(hObject, handles);
 
 function pb_detect_2_Callback(hObject, ~)
-% Callback - button for latency selection
+% Callback - button for data invert
 handles = guidata(hObject);
 
-handles = callback_processing_emf(handles, 2);
+handles.raw = handles.raw*(-1);
+
+plot(handles.time,handles.raw,'.')
+title('Raw data')
+ylabel('Amplitude (mV)')
+xlabel('Time (s)')
 
 % Update handles structure
 guidata(hObject, handles);
 
 function pb_detect_3_Callback(hObject, ~)
-% Callback - button for mep absence
+% Callback - button for peak, onset and duration detection by threshold
 handles = guidata(hObject);
 
-handles = callback_processing_emf(handles, 3);
+set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
+'String', 'Select amplitude threshold and press Enter.');
+[~, y] = ginput;
+
+[handles.tonset, handles.tstart, handles.tend] = peak_detect(handles.raw,y);
+
+handles.pzero = handles.raw(handles.tstart);
+handles.pmax = handles.raw(handles.tonset);
 
 % Update handles structure
 guidata(hObject, handles);
