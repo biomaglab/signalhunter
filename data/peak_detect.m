@@ -85,8 +85,11 @@ else
             else
                 if (amp_aux(u) >= mmax)
                     cont_aux = cont_aux + 1;
-                    if cont_aux >=5
+                    if cont_aux == 5
                         start_aux = u - 5;
+                        while (data((peak(j) - 300 + start_aux)) > mmax)
+                            start_aux = start_aux - 1;
+                        end
                     end
                 else
                     cont_aux = 0;
@@ -106,7 +109,7 @@ else
             else
             end
             
-            if (amp_aux(u) <= mmin)
+            if ((amp_aux(u) >= mmax) || (amp_aux(u) <= mmin))
                 cont_aux = cont_aux + 1;
                 if cont_aux >= 5
                     end_aux = u + 5;
@@ -138,10 +141,10 @@ else
        pulse_end(j) = (peak(j) - 300 + end_aux);
        
        
-       plot((peak(j)-300):(peak(j)+500),data(peak(j)-300):(peak(j)+500),'.')
+       plot((peak(j)-300):(peak(j)+500),data((peak(j)-300):(peak(j)+500)),'.')
        hold on
-       plot(start,data(start),'.','color','r')
-       plot(pulse_end,data(pulse_end),'.','color','r')
+       plot(start(j),data(start(j)),'.','color','r')
+       plot(pulse_end(j),data(pulse_end(j)),'.','color','r')
        
        
       waitforbuttonpress
