@@ -147,8 +147,9 @@ else
        plot(pulse_end(j),data(pulse_end(j)),'.','color','r')
        
        
-      waitforbuttonpress
+%       waitforbuttonpress
       hold off
+      close
     end
     
     

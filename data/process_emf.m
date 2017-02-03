@@ -245,9 +245,62 @@ function pb_detect_4_Callback(hObject, ~)
 % Callback - button for mep absence
 handles = guidata(hObject);
 
-handles = callback_processing_emf(handles, 4);
+[filename, pathname] = uigetfile('.mat','Select pulse shape for convolution');
+caux = importdata(horzcat(pathname, filename));
+convol = conv(handles.raw,caux);
+
+set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', 'Select convolution threshold');
+
+plot(convol,'color','r')
+[~,y] = ginput;
+
+
+pulse_position  = find(convol > y(end));
+pulse_position = pulse_position  - length(caux);
+
+j = 1;
+i = 1;
+for k = 1:(length(pulse_position)-1)
+    
+    aux(i) = pulse_position(k+1) - pulse_position(k);
+    
+    % find pulse groups with distances higher than 4000 points
+    % (experimental values, test for other data)
+    
+    if aux(i) < 4000
+        pulse(i,j) = handles.raw(pulse_position(k));
+        pulse_indice(i,j) = k;
+        % keep adding a new point to actual pulse group
+        i = i + 1;
+    else
+        % create a new pulse group j
+        j = j + 1;
+        i = 1;
+        pulse(i,j) = handles.raw(pulse_position(k));
+        pulse_indice(i,j) = k;
+        i = i + 1;
+        
+        
+    end
+end
+
+clear aux j i
+
+for j = 1:length(pulse(1,:))
+    [~, max_aux] = max(diff(pulse(:,j)));
+    pulse2(:,j) = handles.raw((pulse_position(pulse_indice(max_aux,j))-400):...
+        (pulse_position(pulse_indice(max_aux,j))+600));
+    threshold = max(pulse2(:,j)) - (max(pulse2(:,j)) - min(pulse2(:,j)))/4;
+    [peak(j), start(j), pulse_end(j)] = peak_detect(pulse2(:,j),threshold);
+end
 
 % Update handles structure
+plot(handles.time,handles.raw,'.')
+title('Raw data')
+ylabel('Amplitude (mV)')
+xlabel('Time (s)')
+
 guidata(hObject, handles);
 
 function pb_detect_5_Callback(hObject, ~)
