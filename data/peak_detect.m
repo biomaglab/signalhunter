@@ -43,26 +43,33 @@ else
     
     clear aux j i 
     
-    figure
+%     figure
 %     plot(data,'.')
 %     hold on
     for j = 1:length(pulse(1,:))
         
         % calculates local maxima and process for high-frequency TMS noise
         % ignore
-        [~, aux] = max(abs(pulse(:,j)));
+        [~, aux] = max((pulse(:,j)));
         
         % smooth signal around max value and find closest real value
-        smooth_amp = smooth(data((pulse_position(pulse_indice(aux,j))-4):...
-            (pulse_position(pulse_indice(aux,j))+4)));
-        abs_aux = abs(data((pulse_position(pulse_indice(aux,j))-4):...
-            (pulse_position(pulse_indice(aux,j))+4)) - max(smooth_amp));
+%         smooth_amp = smooth(data((pulse_position(pulse_indice(aux,j))-4):...
+%             (pulse_position(pulse_indice(aux,j))+4)));
+%         abs_aux = abs(data((pulse_position(pulse_indice(aux,j))-4):...
+%             (pulse_position(pulse_indice(aux,j))+4)) - max(smooth_amp));
+%         [~,min_aux] = min(abs_aux);
+        
+        smooth_amp = medfilt1(pulse(:,j));
+        abs_aux = abs(pulse(:,j)-max(smooth_amp));
+        
         [~,min_aux] = min(abs_aux);
         
-%         smooth_max = dsearchn(data((pulse_position(pulse_indice(aux))-4)...
-%             :pulse_position((pulse_indice(aux)+4)))...
-%             ,max(smooth_amp));
-        smooth_max = (pulse_position(pulse_indice(aux,j))-4 + min_aux - 1);
+%         smooth_max = (pulse_position(pulse_indice(aux,j))-4 + min_aux - 1);
+%         pmax(j) = data(smooth_max); 
+%         peak(j) = smooth_max;
+        
+        
+        smooth_max = (pulse_position(pulse_indice(min_aux,j)))
         pmax(j) = data(smooth_max); 
         peak(j) = smooth_max;
         
@@ -141,15 +148,16 @@ else
        pulse_end(j) = (peak(j) - 300 + end_aux);
        
        
-       plot((peak(j)-300):(peak(j)+500),data((peak(j)-300):(peak(j)+500)),'.')
-       hold on
-       plot(start(j),data(start(j)),'.','color','r')
-       plot(pulse_end(j),data(pulse_end(j)),'.','color','r')
-       
-       
+%        plot((peak(j)-300):(peak(j)+500),data((peak(j)-300):(peak(j)+500)),'.')
+%        hold on
+%        plot(start(j),data(start(j)),'.','color','r')
+%        plot(pulse_end(j),data(pulse_end(j)),'.','color','r')
+%        plot(peak(j),pmax(j),'.','color','r')
+%        
+%        
 %       waitforbuttonpress
-      hold off
-      close
+%       hold off
+%       close
     end
     
     

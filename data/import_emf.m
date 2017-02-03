@@ -74,6 +74,8 @@ reader.raw = reader.raw*signal_gain + signal_offset;
 reader.time = 0:(1/reader.fs):length(reader.raw)/(reader.fs);
 reader.time(1) = [];
 
+reader.raw_bkp = reader.raw;
+reader.time_bkp = reader.time;
 reader = process_emf(reader);
 
 

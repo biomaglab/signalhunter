@@ -164,18 +164,10 @@ handles.axesdetect = axesdetect;
 handles.pb_names = pb_names;
 
 plot(handles.time, handles.raw, '.')
+title('Raw data')
+ylabel('Amplitude (mV)')
+xlabel('Time (s)')
 
-% if data is already processed, plot values
-hold on
- if isfield(handles,'tstart')
-     if ishandle(handles.tstart)
-     plot(handles.tstart, handles.raw(handles.tstart),'o','color','r','MarkerFaceColor','r')
-     plot(handles.tonset, handles.raw(handles.tonset),'o','color','r','MarkerFaceColor','r')
-     plot(handles.tend, handles.raw(handles.tend),'o','color','r','MarkerFaceColor','r')
-     end
- end
- hold off
- 
 guidata(hObject, handles);
 
 
@@ -188,13 +180,13 @@ set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
     'String', 'Select inicial window point and press ENTER');
 [x,~] = ginput;
 
-[value index]  = min(abs(handles.time - x(end)));
+[~, index]  = min(abs(handles.time - x(end)));
 
 set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
     'String', 'Select final window point and press ENTER');
 [x2,~] = ginput;
 
-[value index2]  = min(abs(handles.time - x2(end)));
+[~, index2]  = min(abs(handles.time - x2(end)));
 hold off
 
 % Remove information text to guide user to press enter button.        
@@ -208,6 +200,7 @@ plot(handles.time,handles.raw,'.')
 title('Raw data')
 ylabel('Amplitude (mV)')
 xlabel('Time (s)')
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -235,8 +228,14 @@ set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
 
 [handles.tonset, handles.tstart, handles.tend] = peak_detect(handles.raw,y);
 
+for j = 1:length(handles.tonset(1,:));
+    handles.signal{:,j} = handles.raw(handles.tstart(1,j):handles.tend(1,j));
+end
+
 handles.pzero = handles.raw(handles.tstart);
 handles.pmax = handles.raw(handles.tonset);
+
+% Update plot with peak, onset and duration events
 
 % Update handles structure
 guidata(hObject, handles);
@@ -250,11 +249,15 @@ caux = importdata(horzcat(pathname, filename));
 convol = conv(handles.raw,caux);
 
 set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
-    'String', 'Select convolution threshold');
+    'String', 'Select convolution threshold and press ENTER');
 
 plot(convol,'color','r')
+title('Convolution filter threshold')
+ylabel('Convolution')
+xlabel('Time (s)')
 [~,y] = ginput;
 
+set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
 
 pulse_position  = find(convol > y(end));
 pulse_position = pulse_position  - length(caux);
@@ -292,55 +295,78 @@ for j = 1:length(pulse(1,:))
     pulse2(:,j) = handles.raw((pulse_position(pulse_indice(max_aux,j))-400):...
         (pulse_position(pulse_indice(max_aux,j))+600));
     threshold = max(pulse2(:,j)) - (max(pulse2(:,j)) - min(pulse2(:,j)))/4;
+    
+    % find relative (pulse2) indices for peak, start and pulse_end
     [peak(j), start(j), pulse_end(j)] = peak_detect(pulse2(:,j),threshold);
+    
+    % Transform to absolute indices values
+    handles.tstart(j) = pulse_position(pulse_indice(max_aux,j))-400+start(j);
+    handles.tonset(j) = pulse_position(pulse_indice(max_aux,j))-400+peak(j);
+    handles.tend(j) = pulse_position(pulse_indice(max_aux,j))-400+pulse_end(j);
+
+    handles.signal{1,j} = pulse2(start(j):pulse_end(j),j);    
 end
 
+% Update plot with start,onset and duration events
+plot(handles.time,handles.raw,'.')
+hold on
+plot(handles.time(handles.tstart),handles.raw(handles.tstart),'.','color','r')
+plot(handles.time(handles.tonset),handles.raw(handles.tonset),'.','color','r')
+plot(handles.time(handles.tend),handles.raw(handles.tend),'.','color','r')
+title('Raw data')
+ylabel('Amplitude (mV)')
+xlabel('Time (s)')
+hold off
+
+number = num2str(length(pulse(1,:)));
+set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', strcat(number,' pulses where detected.'));
+
+
+handles.tstart = start;
+handles.tend = pulse_end;
+handles.tonset = peak;
+
+handles.pzero = handles.raw(handles.tstart);
+handles.pmax = handles.raw(handles.tonset);
+
 % Update handles structure
+guidata(hObject, handles);
+
+function pb_detect_5_Callback(hObject, ~)
+% Callback - Initial Values
+handles = guidata(hObject);
+
+fields = {'tstart', 'tend', 'tonset', 'pzero', 'pmax'};
+handles = rmdield(handles,fields);
+
+handles.raw = handles.raw_bkp;
+handles.time = handles.time_bkp;
+
+% Update plot with Initial Values
 plot(handles.time,handles.raw,'.')
 title('Raw data')
 ylabel('Amplitude (mV)')
 xlabel('Time (s)')
 
-guidata(hObject, handles);
-
-function pb_detect_5_Callback(hObject, ~)
-% Callback - button for mep absence
-handles = guidata(hObject);
-
-handles = callback_processing_emf(handles, 5);
-
 % Update handles structure
 guidata(hObject, handles);
 
 function pushbutton_close_Callback(hObject, ~)
-% 
-% if isfield(handles,'tonset_pos')==1
-%     time = 0:1/(handles.signal_xs):(length(handles.signal)/handles.signal_xs);     
-%     time(1) = [];
-%     time = time';
-%     handles.tonset = time(handles.tonset_pos);
-%     handles.tduration = time(handles.tduration_pos);
-%     handles.pmax_t = time(handles.pmax_pos);
-%  else
-% end
-% 
-% handles.tonset_bkp = handles.tonset;
-% handles.tonset_pos_bkp = handles.tonset_pos;
-% 
-% handles.tduration_bkp = handles.tduration;
-% handles.tduration_pos_bkp = handles.tduration_pos;
-% 
-% handles.pmax_bkp = handles.pmax;
-% handles.pmax_pos_bkp = handles.pmax_pos;
-% handles.pmax_t_bkp = handles.pmax_t;
-% 
-% handles.pzero = handles.signal(handles.tonset_pos);     
-% handles.pzero_bkp = handles.signal(handles.tonset_pos);
+% Finish processing and back to Figure Processing window
+handles = hObject;
 
+fields = {'raw_bkp','time_bkp'};
+handles = rmfield(handles,fields);
 
+handles.n_pulses = length(handles.tonset(1,:));
 
-% Callback - button to resume window
-% guidata(hObject, handles);
+for i = 1:handles.n_pulses
+    handles.fig_titles{i,1} = horzcat(handles.equipament,...
+        ' - ', handles.mode, ' - ', num2str(i),'.');
+end
+
+guidata(hObject, handles);
 uiresume;
 
 
