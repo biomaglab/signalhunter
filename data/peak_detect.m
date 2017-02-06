@@ -7,7 +7,7 @@ function [peak, start, pulse_end] = peak_detect(data,threshold)
 
 pulse_position = find(data > threshold);
 % pulse = zeros(pulse_position,pulse_position);
-pulse = zeros(1);
+% pulse = NaN(1);
 
 if isempty(pulse_position)==1
     peak = 0; 
@@ -27,16 +27,16 @@ else
         % (experimental values, test for other data)
         
         if aux(i) < 4000
-            pulse(i,j) = data(pulse_position(k));
-            pulse_indice(i,j) = k;
+            pulse{i,j} = data(pulse_position(k));
+            pulse_indice{i,j} = k;
             % keep adding a new point to actual pulse group
             i = i + 1;
         else
             % create a new pulse group j
             j = j + 1;
             i = 1;
-            pulse(i,j) = data(pulse_position(k));
-            pulse_indice(i,j) = k;
+            pulse{i,j} = data(pulse_position(k));
+            pulse_indice{i,j} = k;
             i = i + 1;
         end
     end
@@ -46,11 +46,12 @@ else
 %     figure
 %     plot(data,'.')
 %     hold on
-    for j = 1:length(pulse(1,:))
+siz = size(pulse);
+    for j = 1:length(pulse{1,:})
         
         % calculates local maxima and process for high-frequency TMS noise
         % ignore
-        [~, aux] = max((pulse(:,j)));
+        [~, aux] = max((pulse{:,j}));
         
         % smooth signal around max value and find closest real value
 %         smooth_amp = smooth(data((pulse_position(pulse_indice(aux,j))-4):...
@@ -59,8 +60,8 @@ else
 %             (pulse_position(pulse_indice(aux,j))+4)) - max(smooth_amp));
 %         [~,min_aux] = min(abs_aux);
         
-        smooth_amp = medfilt1(pulse(:,j));
-        abs_aux = abs(pulse(:,j)-max(smooth_amp));
+        smooth_amp = medfilt1(pulse{:,j});
+        abs_aux = abs(pulse{:,j}-max(smooth_amp));
         
         [~,min_aux] = min(abs_aux);
         
@@ -69,7 +70,7 @@ else
 %         peak(j) = smooth_max;
         
         
-        smooth_max = (pulse_position(pulse_indice(min_aux,j)))
+        smooth_max = (pulse_position(pulse_indice(min_aux,j)));
         pmax(j) = data(smooth_max); 
         peak(j) = smooth_max;
         
@@ -94,7 +95,7 @@ else
                     cont_aux = cont_aux + 1;
                     if cont_aux == 5
                         start_aux = u - 5;
-                        while (data((peak(j) - 300 + start_aux)) > mmax)
+                        while (data((peak(j) - 300 + start_aux + 1)) > mmax)
                             start_aux = start_aux - 1;
                         end
                     end
