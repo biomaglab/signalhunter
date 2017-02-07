@@ -47,11 +47,11 @@ else
 %     plot(data,'.')
 %     hold on
 siz = size(pulse);
-    for j = 1:length(pulse{1,:})
+    for j = 1:siz(2)
         
         % calculates local maxima and process for high-frequency TMS noise
         % ignore
-        [~, aux] = max((pulse{:,j}));
+        [~, aux] = max(cell2mat(pulse(:,j)));
         
         % smooth signal around max value and find closest real value
 %         smooth_amp = smooth(data((pulse_position(pulse_indice(aux,j))-4):...
@@ -60,8 +60,8 @@ siz = size(pulse);
 %             (pulse_position(pulse_indice(aux,j))+4)) - max(smooth_amp));
 %         [~,min_aux] = min(abs_aux);
         
-        smooth_amp = medfilt1(pulse{:,j});
-        abs_aux = abs(pulse{:,j}-max(smooth_amp));
+        smooth_amp = medfilt1(cell2mat(pulse(:,j)));
+        abs_aux = abs(cell2mat(pulse(:,j))-max(smooth_amp));
         
         [~,min_aux] = min(abs_aux);
         
@@ -70,7 +70,7 @@ siz = size(pulse);
 %         peak(j) = smooth_max;
         
         
-        smooth_max = (pulse_position(pulse_indice(min_aux,j)));
+        smooth_max = (pulse_position(pulse_indice{min_aux,j}));
         pmax(j) = data(smooth_max); 
         peak(j) = smooth_max;
         

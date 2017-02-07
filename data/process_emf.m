@@ -196,6 +196,13 @@ set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
 handles.time = handles.time(index:index2);
 handles.raw = handles.raw(index:index2);
 
+if(isfield(handles,'tonset') == 1)
+    fields = {'tstart', 'tend', 'tonset', 'pzero', 'pmax','signal'};
+    handles = rmfield(handles,fields);
+    set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', 'Onset, duration and windowed signal were deleted. Please process again.');
+end
+
 plot(handles.time,handles.raw,'.')
 title('Raw data')
 ylabel('Amplitude (mV)')
@@ -208,9 +215,23 @@ function pb_detect_2_Callback(hObject, ~)
 % Callback - button for data invert
 handles = guidata(hObject);
 
+if(isfield(handles,'tonset') == 1)
+    fields = {'tstart', 'tend', 'tonset', 'pzero', 'pmax','signal'};
+    handles = rmfield(handles,fields);
+    set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', 'Onset, duration and windowed signal were deleted. Please process again.');
+end
+
 handles.raw = handles.raw*(-1);
 
 plot(handles.time,handles.raw,'.')
+if(isfield(handles,'tonset') == 1)
+    hold on
+    plot(handles.time(handles.tstart),handles.raw(handles.tstart),'.','color','r')
+    plot(handles.time(handles.tonset),handles.raw(handles.tonset),'.','color','r')
+    plot(handles.time(handles.tend),handles.raw(handles.tend),'.','color','r')
+    hold off
+end
 title('Raw data')
 ylabel('Amplitude (mV)')
 xlabel('Time (s)')
@@ -222,15 +243,39 @@ function pb_detect_3_Callback(hObject, ~)
 % Callback - button for peak, onset and duration detection by threshold
 handles = guidata(hObject);
 
+if(isfield(handles,'tonset') == 1)
+    fields = {'tstart', 'tend', 'tonset', 'pzero', 'pmax','signal'};
+    handles = rmfield(handles,fields);
+end
+
 set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
 'String', 'Select amplitude threshold and press Enter.');
 [~, y] = ginput;
 
-[handles.tonset, handles.tstart, handles.tend] = peak_detect(handles.raw,y);
+try
+    [handles.tonset, handles.tstart, handles.tend] = peak_detect(handles.raw,y);
+catch expression
+    
+end
 
 for j = 1:length(handles.tonset(1,:));
     handles.signal{:,j} = handles.raw(handles.tstart(1,j):handles.tend(1,j));
 end
+
+plot(handles.time,handles.raw,'.')
+hold on
+plot(handles.time(handles.tstart),handles.raw(handles.tstart),'.','color','r')
+plot(handles.time(handles.tonset),handles.raw(handles.tonset),'.','color','r')
+plot(handles.time(handles.tend),handles.raw(handles.tend),'.','color','r')
+title('Raw data')
+ylabel('Amplitude (mV)')
+xlabel('Time (s)')
+hold off
+
+number = num2str(length(handles.signal(1,:)));
+set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
+    'String', strcat(number,' pulses where detected.'));
+
 
 handles.pzero = handles.raw(handles.tstart);
 handles.pmax = handles.raw(handles.tonset);
@@ -244,19 +289,28 @@ function pb_detect_4_Callback(hObject, ~)
 % Callback - button for mep absence
 handles = guidata(hObject);
 
-[filename, pathname] = uigetfile('.mat','Select pulse shape for convolution');
+
+if(isfield(handles,'tonset') == 1)
+    fields = {'tstart', 'tend', 'tonset', 'pzero', 'pmax','signal'};
+    handles = rmfield(handles,fields);
+end
+
+% [filename, pathname] = uigetfile('.mat','Select pulse shape for convolution');
+filename = 'magpro.mat';
+pathname = 'D:\Dados TMS\examples-emf\Filters\';
 caux = importdata(horzcat(pathname, filename));
 convol = conv(handles.raw,caux);
 
 set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
     'String', 'Select convolution threshold and press ENTER');
 
-plot(convol,'color','r')
-title('Convolution filter threshold')
-ylabel('Convolution')
-xlabel('Time (s)')
-[~,y] = ginput;
+% plot(convol,'color','r')
+% title('Convolution filter threshold')
+% ylabel('Convolution')
+% xlabel('Time (s)')
+% [~,y] = ginput;
 
+y = 8;
 set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
 
 pulse_position  = find(convol > y(end));
@@ -297,7 +351,15 @@ for j = 1:length(pulse(1,:))
     threshold = max(pulse2(:,j)) - (max(pulse2(:,j)) - min(pulse2(:,j)))/4;
     
     % find relative (pulse2) indices for peak, start and pulse_end
-    [peak(j), start(j), pulse_end(j)] = peak_detect(pulse2(:,j),threshold);
+    try
+        [peak(j), start(j), pulse_end(j)] = peak_detect(pulse2(:,j),threshold);
+    catch expression
+        if(strcmp('Index exceeds matrix dimensions.',...
+                expression.message)==1)
+            set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
+                'String', 'No pulses where find. Check if signal is not inverted or try another convolution filter.');
+        end
+    end      
     
     % Transform to absolute indices values
     handles.tstart(j) = pulse_position(pulse_indice(max_aux,j))-400+start(j);
@@ -338,7 +400,7 @@ function pb_detect_5_Callback(hObject, ~)
 handles = guidata(hObject);
 
 fields = {'tstart', 'tend', 'tonset', 'pzero', 'pmax'};
-handles = rmdield(handles,fields);
+handles = rmfield(handles,fields);
 
 handles.raw = handles.raw_bkp;
 handles.time = handles.time_bkp;
@@ -352,9 +414,10 @@ xlabel('Time (s)')
 % Update handles structure
 guidata(hObject, handles);
 
+
 function pushbutton_close_Callback(hObject, ~)
 % Finish processing and back to Figure Processing window
-handles = hObject;
+handles = guidata(hObject);
 
 fields = {'raw_bkp','time_bkp'};
 handles = rmfield(handles,fields);
