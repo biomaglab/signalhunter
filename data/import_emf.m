@@ -78,15 +78,5 @@ reader.raw_bkp = reader.raw;
 reader.time_bkp = reader.time;
 reader = process_emf(reader);
 
-
-for i = 1:handles.n_pulses
-    handles.fig_titles{i,1} = horzcat(handles.equipament,...
-        ' - ', handles.mode, ' - ', num2str(handles.id(i)),'.');
-   
-    handles.onset(i) = (handles.pmax_t(i) - handles.tonset(i))*10^6;                                
-    handles.duration(i) = (handles.tduration(i)- ...
-                               handles.tonset(i))*10^6;
-end
-
 uisave('handles'); 
 

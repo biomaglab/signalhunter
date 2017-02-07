@@ -32,8 +32,6 @@ function varargout = process_emf(handles)
 % create the figure, uicontrols and return the handles
 hObject = figure_creation(handles);
 
-handles = rmfield(handles,'raw');
-handles = rmfield(handles,'time');
 
 varargout{1} = output_dialog_detect(hObject);
 
@@ -384,11 +382,6 @@ number = num2str(length(pulse(1,:)));
 set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
     'String', strcat(number,' pulses where detected.'));
 
-
-handles.tstart = start;
-handles.tend = pulse_end;
-handles.tonset = peak;
-
 handles.pzero = handles.raw(handles.tstart);
 handles.pmax = handles.raw(handles.tonset);
 
@@ -425,8 +418,14 @@ handles = rmfield(handles,fields);
 handles.n_pulses = length(handles.tonset(1,:));
 
 for i = 1:handles.n_pulses
-    handles.fig_titles{i,1} = horzcat(handles.equipament,...
+    handles.fig_titles{i,1} = horzcat(handles.equipment,...
         ' - ', handles.mode, ' - ', num2str(i),'.');
+    
+    handles.onset(i) = double(handles.time(handles.tonset(i)) - ...
+        handles.time(handles.tstart(i)))*10^6;                          
+    handles.duration(i) = double(handles.time(handles.tend(i))...
+        - handles.time(handles.tstart(i)))*10^6;
+    handles.amplitude(i) = double(handles.pmax(i) - handles.pzero(i));
 end
 
 guidata(hObject, handles);
