@@ -258,6 +258,7 @@ end
 
 for j = 1:length(handles.tonset(1,:));
     handles.signal{:,j} = handles.raw(handles.tstart(1,j):handles.tend(1,j));
+    handles.xs{:,j} = handles.tstart(1,j):handles.tend(1,j);
 end
 
 plot(handles.time,handles.raw,'.')
@@ -364,7 +365,8 @@ for j = 1:length(pulse(1,:))
     handles.tonset(j) = pulse_position(pulse_indice(max_aux,j))-400+peak(j);
     handles.tend(j) = pulse_position(pulse_indice(max_aux,j))-400+pulse_end(j);
 
-    handles.signal{1,j} = pulse2(start(j):pulse_end(j),j);    
+    handles.signal{1,j} = pulse2(start(j):pulse_end(j),j); 
+    handles.xs{1,j} = handles.tstart(j):handles.tend(j);
 end
 
 % Update plot with start,onset and duration events
