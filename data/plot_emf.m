@@ -24,9 +24,13 @@
 % 
 
 
-function [hpzero, hpmax, honset, hduration] = plot_emf(ax, signal, xs, pzero, pmax, pmax_t, onset, onset_bkp, duration, duration_bkp)
+function [hpzero, hpmax, honset, hduration] = plot_emf(ax, signal, fs, pzero, pmax, pmax_t, onset, onset_bkp, duration, duration_bkp)
 
 axes(ax);
+
+xs = 0:1/fs:length(signal)/fs;
+xs(1) = [];
+
 hold on
 plot(xs{1,1}, signal{1,1},'.');
 yl = get(ax, 'YLim');

@@ -172,12 +172,10 @@ handles = panel_textlog(handles, msg);
 
 handles.reader = reader_emf;
 
-msg = ['Equipment: "', cellstr(handles.reader.equipment),...
-         '"; Mode: ', cellstr(handles.reader.mode),...
-         '"; Number of pulses: ',  num2str(handles.reader.n_pulses),'".'];
+msg = char(strcat('Equipment: ''', cellstr(handles.reader.equipment), ...
+         '''; Mode: ''', cellstr(handles.reader.mode), ...
+         '''; Number of pulses: ',  num2str(handles.reader.n_pulses),'. '));
 handles = panel_textlog(handles, msg);
-
-handles.processed = process_emf(handles.reader);
 
 handles = graphs_emf(handles);
 

@@ -69,43 +69,43 @@ hbar = waitbar(0.5, 'Reading signals...', 'Name','Progress');
 % end
 
 % load reader information
-reader.equipment = data.equipment;
-reader.mode = data.mode;
-reader.freq = data.frequency;
-
-reader.tstart = data.tstart;
-reader.tstart_bkp = output_reader.tstart;
-
-reader.tonset = data.tonset;
-reader.tonset_bkp = output_reader.tonset;
-
-reader.tend = data.tend;
-reader.tend_bkp = reader.tend;
-
-% pulse duration and onset values will be calculated further
-
-reader.pzero = data.pzero;
-reader.pzero_bkp = reader.pzero;
-
-reader.pmax = data.pmax;
-reader.pmax_bkp = reader.pmax;
-
-
-reader.signal = data.signal;
-reader.xs = data.xs; %time vector
-reader.fs = data.fs; %samplig frequency
-reader.id = data.id; %pulse id
-reader.n_pulses = length(data.id); %number of pulses
+% reader.equipment = data.equipment;
+% reader.mode = data.mode;
+% reader.freq = data.frequency;
+% 
+% reader.tstart = data.tstart;
+% reader.tstart_bkp = output_reader.tstart;
+% 
+% reader.tonset = data.tonset;
+% reader.tonset_bkp = output_reader.tonset;
+% 
+% reader.tend = data.tend;
+% reader.tend_bkp = reader.tend;
+% 
+% % pulse duration and onset values will be calculated further
+% 
+% reader.pzero = data.pzero;
+% reader.pzero_bkp = reader.pzero;
+% 
+% reader.pmax = data.pmax;
+% reader.pmax_bkp = reader.pmax;
+% 
+% 
+% reader.signal = data.signal;
+% reader.xs = data.xs; %time vector
+% reader.fs = data.fs; %samplig frequency
+% reader.id = data.id; %pulse id
+% reader.n_pulses = length(data.id); %number of pulses
 
 
 % figure titles with states
-fig_titles = cell(reader.n_pulses,1);
-
-% creates figure titles with equipment, mode and pulse id
-for i = 1:reader.n_pulses 
-    fig_titles{i,1} = horzcat(data.equipment{i},' - ', data.mode{i,1}, ' - ',...
-        num2str(data.id(i)),'.');
-end
-
-reader.fig_titles = fig_titles;
+% fig_titles = cell(reader.n_pulses,1);
+% 
+% % creates figure titles with equipment, mode and pulse id
+% for i = 1:reader.n_pulses 
+%     fig_titles{i,1} = horzcat(data.equipment{i},' - ', data.mode{i,1}, ' - ',...
+%         num2str(data.id(i)),'.');
+% end
+% 
+% reader.fig_titles = fig_titles;
 

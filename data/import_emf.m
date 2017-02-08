@@ -42,7 +42,7 @@ parameters = dlmread(file_parameters);
 %  reader.mode = info{2};
 %  reader.freq = info{3};
  
-  reader.equipment = 'Magpro';
+ reader.equipment = 'Magpro';
  reader.mode = 'rTMS';
  reader.freq = '100';
 
@@ -78,5 +78,4 @@ reader.raw_bkp = reader.raw;
 reader.time_bkp = reader.time;
 reader = process_emf(reader);
 
-uisave('handles'); 
-
+end
