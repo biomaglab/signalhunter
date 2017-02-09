@@ -40,24 +40,12 @@ plot(((tend + 1):(tend +20)),raw((tend + 1):(tend +20)),'.','color',[0.6 0.6 0.6
 
 
 yl = get(ax, 'YLim');
-% if  pmax ~=0
-    plot(tstart, signal(start_aux), '.', 'Color','r');
-    plot(tonset, signal(onset_aux), '.', 'MarkerSize', 15, 'LineWidth', 2);
-% else
-%     plot(xs{1,1}(1), signal(xs(1,1)), '.', 'Color',[0.7, 0.7, 0.7]);
-%     plot(pmax_t, pmax(1), '.', 'Color',[0.7, 0.7, 0.7]);
-% end
 
-% if duration(1) ~=0
-    plot(tend, signal(end_aux), '.', 'MarkerSize', 15, 'LineWidth', 2);
+    plot(tstart, signal(start_aux), '.', 'Color','r','MarkerSize', 15, 'LineWidth', 2);
+    plot(tonset, signal(onset_aux), '.', 'Color','r', 'MarkerSize', 15, 'LineWidth', 2);
 
-%     plot([onset onset], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2);
-%     plot([duration duration], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2);
-% else
-%     honset = plot([onset_bkp(1) onset_bkp(1)], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2,'Color',[0.7,0.7,0.7]);
-%     hduration = plot([duration_bkp duration_bkp], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2,'Color',[0.7,0.7,0.7]);
-    
-% end
+    plot(tend, signal(end_aux), '.', 'Color','r', 'MarkerSize', 15, 'LineWidth', 2);
+
 
 hold off
 end
