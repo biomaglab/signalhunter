@@ -24,31 +24,40 @@
 % 
 
 
-function [hpzero, hpmax, honset, hduration] = plot_emf(ax, signal, fs, pzero, pmax, pmax_t, onset, onset_bkp, duration, duration_bkp)
+function  plot_emf(ax, signal, xs, tstart, tonset, tend, time, raw)
 
 axes(ax);
+[~,start_aux,~] = intersect(xs,tstart);
+[~,onset_aux,~] = intersect(xs,tonset);
+[~,end_aux,~] = intersect(xs,tend);
 
-xs = 0:1/fs:length(signal)/fs;
-xs(1) = [];
+plot(xs, signal,'.');
 
 hold on
-plot(xs{1,1}, signal{1,1},'.');
-yl = get(ax, 'YLim');
-if  pmax(1) ~=0
-    hpzero = plot(xs{1,1}(1), pzero(1), '.', 'Color','r');
-    hpmax = plot(pmax_t, pmax(1), '.', 'MarkerSize', 15, 'LineWidth', 2);
-else
-    hpzero = plot(xs{1,1}(1), pzero(1), '.', 'Color',[0.7, 0.7, 0.7]);
-    hpmax = plot(pmax_t, pmax(1), '.', 'Color',[0.7, 0.7, 0.7]);
-end
 
-if duration(1) ~=0
-    honset = plot([onset onset], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2);
-    hduration = plot([duration duration], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2);
-else
-    honset = plot([onset_bkp(1) onset_bkp(1)], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2,'Color',[0.7,0.7,0.7]);
-    hduration = plot([duration_bkp duration_bkp], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2,'Color',[0.7,0.7,0.7]);
+plot(((tstart - 20):(tstart - 1)),raw((tstart - 20):(tstart - 1)),'.','color',[0.6 0.6 0.6])
+plot(((tend + 1):(tend +20)),raw((tend + 1):(tend +20)),'.','color',[0.6 0.6 0.6])
+
+
+yl = get(ax, 'YLim');
+% if  pmax ~=0
+    plot(tstart, signal(start_aux), '.', 'Color','r');
+    plot(tonset, signal(onset_aux), '.', 'MarkerSize', 15, 'LineWidth', 2);
+% else
+%     plot(xs{1,1}(1), signal(xs(1,1)), '.', 'Color',[0.7, 0.7, 0.7]);
+%     plot(pmax_t, pmax(1), '.', 'Color',[0.7, 0.7, 0.7]);
+% end
+
+% if duration(1) ~=0
+    plot(tend, signal(end_aux), '.', 'MarkerSize', 15, 'LineWidth', 2);
+
+%     plot([onset onset], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2);
+%     plot([duration duration], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2);
+% else
+%     honset = plot([onset_bkp(1) onset_bkp(1)], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2,'Color',[0.7,0.7,0.7]);
+%     hduration = plot([duration_bkp duration_bkp], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2,'Color',[0.7,0.7,0.7]);
     
-end
+% end
 
 hold off
+end

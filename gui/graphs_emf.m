@@ -48,32 +48,14 @@ if ~isfield(handles, 'id_cond')
    handles.id_cond = 1; 
 end
 
- n_pulses = handles.reader.n_pulses;
-% signal = handles.reader.signal;
-% xs = handles.reader.xs;
-% pmax = handles.reader.pmax;
-% pmax_t= handles.reader.pmax_t;
-% 
-% pzero = handles.reader.pzero;
-% 
-% pulse_start = handles.reader.tonset;
-% pulse_start_bkp = handles.reader.tonset_bkp;
-% 
-% onset = handles.reader.tonset;
-% onset_bkp = handles.reader.tonset_bkp;
-% 
-% duration = handles.reader.tduration;
-% duration_bkp = handles.reader.tduration_bkp;
-
-handles.conditions = (1:n_pulses);
-handles.panel_graph = zeros(1, n_pulses);
-handles.haxes = zeros(1, n_pulses);
+handles.conditions = (1:handles.reader.n_pulses);
+handles.panel_graph = zeros(1, handles.reader.n_pulses);
+handles.haxes = zeros(1, handles.reader.n_pulses);
 
 fig_titles = handles.reader.fig_titles;
 
-% creates the panel for emf analysis processing
-%pra colocar os gráficos 
-tic
+% creates the panel for EMF Analysis
+
 for i = 1:handles.reader.n_pulses
     panelgraph_mar = [panel_pos(1), 2*panel_pos(2),...
         2*panel_pos(1), 3*panel_pos(2)];
@@ -87,13 +69,12 @@ for i = 1:handles.reader.n_pulses
     handles.haxes(1,i) = graph_model(handles.panel_graph, fig_titles, i);
     
     
-    [~, ~] = plot_emf(handles.haxes(1, i), handles.reader.signal(:,i),...
-        handles.reader.xs(:,i), handles.reader.pzero(:,i), handles.reader.pmax(:,i),...
-        handles.reader.pmax_t(:,i),handles.reader.tonset(:,i), handles.reader.tonset_bkp(:,i),...
-        handles.reader.tduration(:,i), handles.reader.tduration_bkp(:,i));
+    plot_emf(handles.haxes(1, i), handles.reader.signal{:,i},...
+        handles.reader.xs{:,i}, handles.reader.tstart(i), handles.reader.tonset(i),...
+        handles.reader.tend(i), handles.reader.time, handles.reader.raw);
     
     % progress bar update
-    value = i/n_pulses;
+    value = i/handles.reader.n_pulses;
     progbar_update(handles.progress_bar, value);
     
     msg = [num2str(i) ' Plots of Pulse', '" ', fig_titles{i}, ' " done.'];
