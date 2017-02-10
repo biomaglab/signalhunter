@@ -35,7 +35,7 @@ function handles = panel_creation(handles)
 hObject = handles.fig;
 
 % creates the panel for EMF Analysis
-% paneltools_pos = [0.005, 0.008, 0.15, 0.195];
+
 paneltools_pos = [0.005, 0.008, 0.15, 0.16];
 handles.panel_tools = uipanel(hObject, 'BackgroundColor', 'w', ...
     'Title', 'EMF Analysis',...
@@ -115,6 +115,14 @@ set(handles.edit_idcond, 'Position', edit_idcond_pos, 'FontSize', 0.4);
 
 % align([pushbutton_prev, pushbutton_next, handles.edit_idcond], 'Distribute', 'Center');
 
+
+info_panel_pos = [0.16, 0.008, 0.10, 0.16];
+handles.info_panel = uipanel(hObject, 'BackgroundColor', 'w', ...
+    'Title', 'Info panel',...
+    'Units', 'normalized');
+set(handles.info_panel, 'Position', info_panel_pos,'Visible','On');
+
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -123,6 +131,8 @@ function pushbutton_next_Callback(hObject, eventdata)
 handles = guidata(hObject);
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'off');
+set(handles.info_text(handles.id_cond),'Visible','off');
+
 
 % change text condition
 if handles.id_cond >= numel(handles.conditions)
@@ -136,6 +146,7 @@ else
 end
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
+set(handles.info_text(handles.id_cond),'Visible','on');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -145,6 +156,8 @@ function pushbutton_prev_Callback(hObject, eventdata)
 handles = guidata(hObject);
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'off');
+set(handles.info_text(handles.id_cond),'Visible','off');
+
 
 % change text condition
 if handles.id_cond == 1
@@ -158,6 +171,7 @@ else
 end
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
+set(handles.info_text(handles.id_cond),'Visible','on');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -221,6 +235,7 @@ value = 1/2;
 progbar_update(handles.progress_bar, value)
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'off');
+set(handles.info_panel(handles.id_cond),'Visible','off');
 id = str2double(get(handles.edit_idcond, 'String'));
 
 if id > 0 && id <= length(handles.id_mod)
@@ -231,6 +246,7 @@ end
 
 set(handles.edit_idcond, 'String', num2str(handles.id_cond));
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
+set(handles.info_panel(handles.id_cond),'Visible','on');
 
 % progress bar update
 value = 1;

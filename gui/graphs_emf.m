@@ -38,6 +38,7 @@ handles = panel_textlog(handles, msg);
 
 function handles = graph_creation(handles)
 
+tic
 panel_pos = get(handles.panel_tools, 'Position');
 
 % initializing variables
@@ -51,6 +52,7 @@ end
 handles.conditions = (1:handles.reader.n_pulses);
 handles.panel_graph = zeros(1, handles.reader.n_pulses);
 handles.haxes = zeros(1, handles.reader.n_pulses);
+handles.info_txt = zeros(1, handles.reader.n_pulses);
 
 fig_titles = handles.reader.fig_titles;
 
@@ -80,10 +82,21 @@ for i = 1:handles.reader.n_pulses
     msg = [num2str(i) ' Plots of Pulse', '" ', fig_titles{i}, ' " done.'];
     handles = panel_textlog(handles, msg);
     
+    msg2 = sprintf(['Onset: ' num2str(handles.reader.onset(i),'%.2f') ...
+        ' (us).\nAmplitude: ' num2str(handles.reader.amplitude(i),'%.2f') ...
+        ' (mV).\nDuration: ' num2str(handles.reader.duration(i),'%.2f') 'us']);
+    
+    handles.info_text(i) = uicontrol(handles.info_panel, 'Style','text','String', msg2,...
+        'BackgroundColor', 'w', 'Units', 'normalized',...
+        'FontWeight', 'bold', 'FontUnits', 'normalized','FontSize',0.18,...
+        'HorizontalAlignment','left','Visible','Off',...
+        'Position',[0 0 0.9 0.9]);
+    
 end
 toc
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
+set(handles.info_text(handles.id_cond),'Visible', 'on');
 
 guidata(handles.fig, handles);
 
@@ -95,15 +108,70 @@ handles = guidata(hObject);
 id = handles.id_cond;
 
 handles.id_axes = find(gca == handles.haxes(1,:));
-handles = dialog_detect_emf(handles);
-handles.haxes(1, id) = refresh_axes(handles.haxes(1, id), handles.reader.signal(:, id),...
-    handles.reader.xs(1,id), handles.reader.pzero(1,id), handles.reader.pmax(1,id),...
-    handles.reader.pmax_t(1,id), handles.reader.tonset(1,id), ...
-    handles.reader.tonset_bkp(1,id),...
-    handles.reader.tduration(1,id), handles.reader.tduration_bkp(1,id));
+[x,y] = ginput(1);
+
+% Detect nearest event on ginput data (tstart, tonset or tend)
+x = round(x);
+
+aux(1) = abs(x - handles.reader.tstart(id));
+aux(2) = abs(x - handles.reader.tonset(id));
+aux(3) = abs(x - handles.reader.tend(id));
+
+[~, min_aux] = min(aux);
+
+switch min_aux
+
+    case 1    
+        handles.reader.tstart(id) = x;
+        
+    case 2
+        handles.reader.tonset(id) = x;
+        
+    case 3
+        handles.reader.tend(id) = x;
+end
+
+
+
+% Update plot
+
+ plot_emf(handles.haxes(1, id), handles.reader.signal{:,id},...
+        handles.reader.xs{:,id}, handles.reader.tstart(id), handles.reader.tonset(id),...
+        handles.reader.tend(id), handles.reader.time, handles.reader.raw);
+        
+% Update Onset, Amplitude and Duration values
+
+handles.reader.pmax(id) = handles.reader.raw(handles.reader.tonset(id));
+handles.reader.pzero(id) = handles.reader.raw(handles.reader.tstart(id));
+
+handles.reader.onset(id) = double(handles.reader.time(handles.reader.tonset(id))...
+    - handles.reader.time(handles.reader.tstart(id)))*10^6;
+handles.reader.duration(id) = double(handles.reader.time(handles.reader.tend(id))...
+    - handles.reader.time(handles.reader.tstart(id)))*10^6;
+handles.reader.amplitude(id) = double(abs(handles.reader.pmax(id) - handles.reader.pzero(id)));
+% handles = dialog_detect_emf(handles);
+% handles.haxes(1, id) = refresh_axes(handles.haxes(1, id), handles.reader.signal(:, id),...
+%     handles.reader.xs(1,id), handles.reader.pzero(1,id), handles.reader.pmax(1,id),...
+%     handles.reader.pmax_t(1,id), handles.reader.tonset(1,id), ...
+%     handles.reader.tonset_bkp(1,id),...
+%     handles.reader.tduration(1,id), handles.reader.tduration_bkp(1,id));
 
 msg = [num2str(id) ' Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " updated.'];
 handles = panel_textlog(handles, msg);
+
+set(handles.info_text(id),'Visible', 'off');
+
+msg2 = sprintf(['Onset: ' num2str(handles.reader.onset(id),'%.2f') ...
+        ' (us).\nAmplitude: ' num2str(handles.reader.amplitude(id),'%.2f') ...
+        ' (mV).\nDuration: ' num2str(handles.reader.duration(id),'%.2f') 'us']);
+    
+handles.info_text(id) = uicontrol(handles.info_panel, 'Style','text','String', msg2,...
+        'BackgroundColor', 'w', 'Units', 'normalized',...
+        'FontWeight', 'bold', 'FontUnits', 'normalized','FontSize',0.18,...
+        'HorizontalAlignment','left','Visible','Off',...
+        'Position',[0 0 0.9 0.9]);
+    
+set(handles.info_text(id),'Visible', 'on');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -125,6 +193,8 @@ set(ax, 'ButtonDownFcn', @axes_ButtonDownFcn, ...
 set(get(ax,'Title'),'String',fig_titles{id_cond})
 set(get(ax,'XLabel'),'String','Time (s)')
 set(get(ax,'YLabel'),'String','Amplitude (mV)')
+
+
  
 function ax = refresh_axes(ax, signal, xs, pzero, pmax, pmax_t, onset, onset_bkp, duration, duration_bkp)
 % Function to update all plots after manual changes in dialog detect

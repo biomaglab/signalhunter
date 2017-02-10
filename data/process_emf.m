@@ -427,7 +427,7 @@ for i = 1:handles.n_pulses
         handles.time(handles.tstart(i)))*10^6;                          
     handles.duration(i) = double(handles.time(handles.tend(i))...
         - handles.time(handles.tstart(i)))*10^6;
-    handles.amplitude(i) = double(handles.pmax(i) - handles.pzero(i));
+    handles.amplitude(i) = double(abs(handles.pmax(i) - handles.pzero(i)));
 end
 
 guidata(hObject, handles);
