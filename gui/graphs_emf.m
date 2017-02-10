@@ -69,8 +69,7 @@ for i = 1:handles.reader.n_pulses
     set(handles.panel_graph(1,i), 'Position', panelgraph_pos)
       
     handles.haxes(1,i) = graph_model(handles.panel_graph, fig_titles, i);
-    
-    
+
     plot_emf(handles.haxes(1, i), handles.reader.signal{:,i},...
         handles.reader.xs{:,i}, handles.reader.tstart(i), handles.reader.tonset(i),...
         handles.reader.tend(i), handles.reader.time, handles.reader.raw);
@@ -131,30 +130,17 @@ switch min_aux
         handles.reader.tend(id) = x;
 end
 
-
-
-% Update plot
-
- plot_emf(handles.haxes(1, id), handles.reader.signal{:,id},...
-        handles.reader.xs{:,id}, handles.reader.tstart(id), handles.reader.tonset(id),...
-        handles.reader.tend(id), handles.reader.time, handles.reader.raw);
         
 % Update Onset, Amplitude and Duration values
-
-handles.reader.pmax(id) = handles.reader.raw(handles.reader.tonset(id));
-handles.reader.pzero(id) = handles.reader.raw(handles.reader.tstart(id));
 
 handles.reader.onset(id) = double(handles.reader.time(handles.reader.tonset(id))...
     - handles.reader.time(handles.reader.tstart(id)))*10^6;
 handles.reader.duration(id) = double(handles.reader.time(handles.reader.tend(id))...
     - handles.reader.time(handles.reader.tstart(id)))*10^6;
-handles.reader.amplitude(id) = double(abs(handles.reader.pmax(id) - handles.reader.pzero(id)));
-% handles = dialog_detect_emf(handles);
-% handles.haxes(1, id) = refresh_axes(handles.haxes(1, id), handles.reader.signal(:, id),...
-%     handles.reader.xs(1,id), handles.reader.pzero(1,id), handles.reader.pmax(1,id),...
-%     handles.reader.pmax_t(1,id), handles.reader.tonset(1,id), ...
-%     handles.reader.tonset_bkp(1,id),...
-%     handles.reader.tduration(1,id), handles.reader.tduration_bkp(1,id));
+handles.reader.amplitude(id) = double(abs(handles.reader.raw(handles.reader.tonset(id))...
+    - handles.reader.raw(handles.reader.tstart(id))));
+
+handles.haxes(1, id) = refresh_axes(handles.haxes(1,id), handles);
 
 msg = [num2str(id) ' Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " updated.'];
 handles = panel_textlog(handles, msg);
@@ -196,13 +182,19 @@ set(get(ax,'YLabel'),'String','Amplitude (mV)')
 
 
  
-function ax = refresh_axes(ax, signal, xs, pzero, pmax, pmax_t, onset, onset_bkp, duration, duration_bkp)
+function ax = refresh_axes(ax, handles)
 % Function to update all plots after manual changes in dialog detect
+id = handles.id_cond;
+% 
+% if ishandle(ax)
+%     cla(ax);
+% end
 
-if ishandle(ax)
-    cla(ax);
-end
+handles.haxes(1,id) = graph_model(handles.panel_graph, handles.reader.fig_titles, id);
 
-plot_emf(ax, signal, xs, pzero, pmax, pmax_t, onset, onset_bkp, duration, duration_bkp);
-
+ plot_emf(handles.haxes(1,id), handles.reader.signal{:,id},...
+        handles.reader.xs{:,id}, handles.reader.tstart(id), handles.reader.tonset(id),...
+        handles.reader.tend(id), handles.reader.time, handles.reader.raw);
+    
+    
 set(ax, 'ButtonDownFcn', @axes_ButtonDownFcn);

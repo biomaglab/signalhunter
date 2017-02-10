@@ -275,10 +275,6 @@ number = num2str(length(handles.signal(1,:)));
 set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
     'String', strcat(number,' pulses where detected.'));
 
-
-handles.pzero = handles.raw(handles.tstart);
-handles.pmax = handles.raw(handles.tonset);
-
 % Update plot with peak, onset and duration events
 
 % Update handles structure
@@ -384,9 +380,6 @@ number = num2str(length(pulse(1,:)));
 set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
     'String', strcat(number,' pulses where detected.'));
 
-handles.pzero = handles.raw(handles.tstart);
-handles.pmax = handles.raw(handles.tonset);
-
 % Update handles structure
 guidata(hObject, handles);
 
@@ -427,7 +420,8 @@ for i = 1:handles.n_pulses
         handles.time(handles.tstart(i)))*10^6;                          
     handles.duration(i) = double(handles.time(handles.tend(i))...
         - handles.time(handles.tstart(i)))*10^6;
-    handles.amplitude(i) = double(abs(handles.pmax(i) - handles.pzero(i)));
+    handles.amplitude(i) = double(abs(handles.raw(handles.tonset(i))...
+        - handles.raw(handles.tstart(i))));
 end
 
 guidata(hObject, handles);
