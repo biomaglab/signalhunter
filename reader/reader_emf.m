@@ -35,7 +35,7 @@ hbar = waitbar(0.5, 'Reading signals...', 'Name','Progress');
 
 % if (format==2)
     filename = 'rTMS_100hz_100';
-    pathname = 'D:\Dados TMS\MagPro\rTMS\';
+    pathname = '/media/rakauskas/DADOS/Dados Biomag PC/Dados TMS/MagPro/rTMS/';
     reader = import_emf(filename, pathname);
 % else
 %     data = load([pathname,filename]);

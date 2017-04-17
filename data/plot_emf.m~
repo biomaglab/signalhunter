@@ -33,7 +33,7 @@ axes(ax);
 
 % yl = get(ax, 'YLim');
 
-plot(xs, raw(xs),'.');
+plot((xs - tstart).*1000./handles.reader.fs, raw(xs),'.');
 % ylim([yl(1) yl(2)])
 
 hold on

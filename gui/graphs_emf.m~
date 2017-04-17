@@ -87,7 +87,7 @@ for i = 1:handles.reader.n_pulses
     
     handles.info_text(i) = uicontrol(handles.info_panel, 'Style','text','String', msg2,...
         'BackgroundColor', 'w', 'Units', 'normalized',...
-        'FontWeight', 'bold', 'FontUnits', 'normalized',...
+        'FontWeight', 'bold', 'FontUnits', 'normalized','FontSize',0.18,...
         'HorizontalAlignment','left','Visible','Off',...
         'Position',[0 0 0.9 0.9]);
     
@@ -95,8 +95,7 @@ end
 toc
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
-set(handles.info_text(handles.id_cond),'FontSize',0.12,'Visible', 'on');
-
+set(handles.info_text(handles.id_cond),'Visible', 'on');
 
 guidata(handles.fig, handles);
 
@@ -111,17 +110,11 @@ handles.id_axes = find(gca == handles.haxes(1,id));
 [x,y] = ginput(1);
 
 % Detect nearest event on ginput data (tstart, tonset or tend)
-% x = x + 1;
 x = round(x);
 
 aux(1) = abs(x - handles.reader.tstart(id));
 aux(2) = abs(x - handles.reader.tonset(id));
 aux(3) = abs(x - handles.reader.tend(id));
-
-
-aux_y(1) = abs(y - handles.reader.raw(handles.reader.tstart(id)));
-aux_y(2) = abs(y - handles.reader.raw(handles.reader.tonset(id)));
-aux_y(3) = abs(y - handles.reader.raw(handles.reader.tend(id)));
 
 [~, min_aux] = min(aux);
 
@@ -151,10 +144,12 @@ handles.reader.amplitude(id) = double(abs(handles.reader.raw(handles.reader.tons
  
     set(handles.panel_graph(1,id), 'Visible', 'off')
     set(handles.haxes(1,id),'Visible','off')
-    cla(handles.haxes(1,id))    
+    cla(handles.haxes(1,id))
       
     handles.haxes(1, id) = refresh_axes(handles.haxes, handles);
 
+msg = [num2str(id) ' Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " updated.'];
+handles = panel_textlog(handles, msg);
 
 set(handles.info_text(id),'Visible', 'off');
 
@@ -164,17 +159,13 @@ msg2 = sprintf(['Onset: ' num2str(handles.reader.onset(id),'%.2f') ...
     
 handles.info_text(id) = uicontrol(handles.info_panel, 'Style','text','String', msg2,...
         'BackgroundColor', 'w', 'Units', 'normalized',...
-        'FontWeight', 'bold', 'FontUnits', 'normalized',...
+        'FontWeight', 'bold', 'FontUnits', 'normalized','FontSize',0.13,...
         'HorizontalAlignment','left','Visible','Off',...
         'Position',[0 0 0.9 0.9]);
     
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
 set(handles.haxes(1,id),'Visible','on')
-set(handles.info_text(handles.id_cond),'FontSize',0.12,'Visible', 'on');
-
-
-msg = [num2str(id) ' Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " updated.'];
-handles = panel_textlog(handles, msg);
+set(handles.info_text(handles.id_cond),'Visible', 'on');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -205,7 +196,7 @@ function ax = refresh_axes(ax, handles)
 % Function to update all plots after manual changes in dialog detect
 id = handles.id_cond;
 
-cla(ax)
+
 
 
 ax = graph_model(handles.panel_graph, handles.reader.fig_titles, id);
