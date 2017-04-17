@@ -212,8 +212,8 @@ for i = 1:handles.reader.n_pulses
     
 end
     
-test = horzcat(file_name,mode,equip,freq,pulse_time,handles.reader.onset', ...
-    handles.reader.duration', handles.reader.amplitude');
+test = horzcat(file_name,mode,equip,freq,pulse_time,handles.reader.onset, ...
+    handles.reader.duration, handles.reader.amplitude);
 
 
 % message to progress log
