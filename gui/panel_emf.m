@@ -61,9 +61,9 @@ w = flipud(w);
 pos_x = flipud(pos_x);
 
 % second row of buttons
-pb_import_pos = [pos_x(2,1), pos_y(2), w(2)+0.07, h];
-pb_open_pos = [pos_x(2,2)+0.07, pos_y(2), w(2)+0.07, h];
-pb_save_pos = [pos_x(2,3)+0.15, pos_y(2), w(2)+0.07, h];
+pb_open_pos = [pos_x(2,1), pos_y(2), w(2)+0.07, h];
+pb_save_pos = [pos_x(2,2)+0.07, pos_y(2), w(2)+0.07, h];
+
 % first row of buttons
 pb_prev_pos = [pos_x(1,1), pos_y(1), w(1)+0.07, h];
 pb_next_pos = [pos_x(1,2)+0.07, pos_y(1), w(1)+0.07, h];
@@ -74,12 +74,6 @@ edit_idcond_pos = [pos_x(1,3)+0.15, pos_y(1)+0.02, w(1)-0.05, h-0.05];
 %     'Units', 'normalized', 'FontWeight', 'bold', ...
 %     'Callback', @pushbutton_clean_Callback);
 % set(pushbutton_clean, 'Position', pb_clean_pos);
-
-%push button to import data
-pushbutton_import = uicontrol(handles.panel_tools, 'String', 'New',...
-    'Units', 'normalized', 'FontWeight', 'bold', 'FontUnits', 'normalized',...
-    'Callback', @pushbutton_import_Callback);
-set(pushbutton_import, 'Position', pb_import_pos, 'FontSize', 0.3);
 
 
 % push button to clean plots
