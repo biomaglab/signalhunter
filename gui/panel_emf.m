@@ -1,27 +1,27 @@
 
 % -------------------------------------------------------------------------
-% Signal Hunter - electrophysiological signal analysis  
+% Signal Hunter - electrophysiological signal analysis
 % Copyright (C) 2013, 2013-2016  University of Sao Paulo
-% 
+%
 % Homepage:  http://df.ffclrp.usp.br/biomaglab
 % Contact:   biomaglab@gmail.com
 % License:   GNU - GPL 3 (LICENSE.txt)
-% 
+%
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU General Public License as published by the
 % Free Software Foundation, either version 3 of the License, or any later
 % version.
-% 
+%
 % This program is distributed in the hope that it will be useful, but
 % WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
 % Public License for more details.
-% 
+%
 % The full GNU General Public License can be accessed at file LICENSE.txt
 % or at <http://www.gnu.org/licenses/>.
-% 
+%
 % -------------------------------------------------------------------------
-% 
+%
 
 
 % --- Creates GUI panel and controls for EMF Analysis
@@ -51,10 +51,10 @@ pos_x = nan(n_rows, max(n_cols));
 pos_y = nan(n_rows,1);
 
 for i = 1:n_rows
-   for j = 1:n_cols(i)
-       pos_x(i,j) = j*mar_x + (j-1)*w(i);
-   end
-   pos_y(i) = i*mar_y + (i-1)*h;
+    for j = 1:n_cols(i)
+        pos_x(i,j) = j*mar_x + (j-1)*w(i);
+    end
+    pos_y(i) = i*mar_y + (i-1)*h;
 end
 
 w = flipud(w);
@@ -136,13 +136,13 @@ set(handles.info_text(handles.id_cond),'Visible','off');
 
 % change text condition
 if handles.id_cond >= numel(handles.conditions)
-   handles.id_cond = 1; 
-   set(handles.edit_idcond, 'String',...
-       num2str(handles.conditions(handles.id_cond)))
-else
-    handles.id_cond = handles.id_cond + 1;        
+    handles.id_cond = 1;
     set(handles.edit_idcond, 'String',...
-       num2str(handles.conditions(handles.id_cond)))
+        num2str(handles.conditions(handles.id_cond)))
+else
+    handles.id_cond = handles.id_cond + 1;
+    set(handles.edit_idcond, 'String',...
+        num2str(handles.conditions(handles.id_cond)))
 end
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
@@ -161,13 +161,13 @@ set(handles.info_text(handles.id_cond),'Visible','off');
 
 % change text condition
 if handles.id_cond == 1
-   handles.id_cond = numel(handles.conditions); 
-   set(handles.edit_idcond, 'String',...
-       num2str(handles.conditions(handles.id_cond)))
-else
-    handles.id_cond = handles.id_cond - 1;        
+    handles.id_cond = numel(handles.conditions);
     set(handles.edit_idcond, 'String',...
-       num2str(handles.conditions(handles.id_cond)))
+        num2str(handles.conditions(handles.id_cond)))
+else
+    handles.id_cond = handles.id_cond - 1;
+    set(handles.edit_idcond, 'String',...
+        num2str(handles.conditions(handles.id_cond)))
 end
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
@@ -187,8 +187,8 @@ handles = panel_textlog(handles, msg);
 handles.reader = reader_emf;
 
 msg = char(strcat('Equipment: ''', cellstr(handles.reader.equipment), ...
-         '''; Mode: ''', cellstr(handles.reader.mode), ...
-         '''; Number of pulses: ',  num2str(handles.reader.n_pulses),'. '));
+    '''; Mode: ''', cellstr(handles.reader.mode), ...
+    '''; Number of pulses: ',  num2str(handles.reader.n_pulses),'. '));
 handles = panel_textlog(handles, msg);
 
 handles = graphs_emf(handles);
@@ -201,22 +201,31 @@ function pushbutton_save_Callback(hObject, eventdata)
 
 handles = guidata(hObject);
 
+% create labels for .csv file.
 rowlabels = {'Filename';'Equipment';'Mode';'Stimulation_Frequency';'Pulse_num';'Start_s';...
     'Onset_us';'Duration_us';'Amplitude_mV'};
 
-  
+% Choose filename to .csv file
 [filename, pathname] = uiputfile('.csv','Create new file or append to existing one');
 
+% If file selected already exists, aux variable will help to append new
+% values to the same .csv
 if exist([pathname,filename])==2
+    
     export = table2cell(readtable([pathname,filename]));
-%     export(1,:) = [];
     aux = size(export,1) + 1;
-else 
+    
+else
     aux = 1;
+    
 end
 
+% for loop will begin at the aux value. If is a new .csv file, aux = 1.
+% Else, aux is equal to the last file in previous .csv, appending new
+% values to the older ones.
 for i = aux:(handles.reader.n_pulses + aux - 1)
-
+    
+    % Export variables must follow rowlabels order, defined before
     export{i,1} = cellstr(handles.reader.filename);
     export{i,2} = cellstr(handles.reader.equipment);
     export{i,3} = cellstr(handles.reader.mode);
@@ -228,18 +237,23 @@ for i = aux:(handles.reader.n_pulses + aux - 1)
     export{i,9} = handles.reader.amplitude(i - aux + 1);
     
 end
-    
-    table_export = cell2table(export,'VariableNames',rowlabels);
-    writetable(table_export,[pathname,filename])
-    
-    data = handles.reader;
-    
-save(['/media/rakauskas/DADOS/Repository/signalhunter/',handles.reader.filename,'.mat'],'data');
 
-    
-    
+% Table_export converts appended (or new) cell array to table format.
+% Then is exported using writetable function
+table_export = cell2table(export,'VariableNames',rowlabels);
+writetable(table_export,[pathname,filename])
+
+% data variable store only handles.reader variable, which can be read
+% by EMF_Analysis after
+data = handles.reader;
+save([handles.reader.pathname,handles.reader.filename,'.mat'],'data');
+
+
 % message to progress log
-msg = 'Signal Hunter for EMF Analysis saved mtf';
+msg = strcat('Variables exported to ',pathname, filename); 
+handles = panel_textlog(handles, msg);
+
+msg = strcat('Handles.reader variables save to ',handles.reader.pathname,handles.reader.filename,'.mat');
 handles = panel_textlog(handles, msg);
 
 % Update handles structure
@@ -258,9 +272,9 @@ set(handles.info_panel(handles.id_cond),'Visible','off');
 id = str2double(get(handles.edit_idcond, 'String'));
 
 if id > 0 && id <= length(handles.id_mod)
-   handles.id_cond = id; 
+    handles.id_cond = id;
 else
-   handles.id_cond = 1;
+    handles.id_cond = 1;
 end
 
 set(handles.edit_idcond, 'String', num2str(handles.id_cond));
