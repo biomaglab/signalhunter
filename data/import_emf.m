@@ -59,6 +59,7 @@ signal_offset = parameters(2);
 %configuration.signal_time_elapsed = parameters(3);
 reader.fs = parameters(5);
 reader.filename = file;
+reader.pathname = path;
 
 
 % clear info_signal;

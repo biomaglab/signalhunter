@@ -91,7 +91,7 @@ set(pushbutton_open, 'Position', pb_open_pos, 'FontSize', 0.3);
 % push button to clean plots
 pushbutton_save = uicontrol(handles.panel_tools, 'String', 'Save',...
     'Units', 'normalized', 'FontWeight', 'bold', 'FontUnits', 'normalized',...
-    'Callback', @pushbutton_reset_Callback);
+    'Callback', @pushbutton_save_Callback);
 set(pushbutton_save, 'Position', pb_save_pos, 'FontSize', 0.3);
 
 % push button previous
@@ -199,25 +199,45 @@ guidata(hObject, handles);
 function pushbutton_save_Callback(hObject, eventdata)
 % Callback - Button Save
 
-rowlabels = {'Filename';'Mode';'Equipment';'Stimulation Frequency';'Pulse Start (s)';...
-    'Pulse Onset (us)';'Pulse Duration (us)';'Zero-to-Peak Amplitude (mV)'};
+handles = guidata(hObject);
 
-for i = 1:handles.reader.n_pulses
-     
-    file_name{i,1} = cellstr(handles.reader.filename);
-    mode{i,1} = cellstr(handles.reader.mode);
-    equip{i,1} = cellstr(handles.reader.equipment);
-    freq{i,1} = (handles.reader.freq);
-    pulse_time{i,1} = handles.reader.tstart(i) - handles.reader.tstart(1);
+rowlabels = {'Filename';'Mode';'Equipment';'Stimulation_Frequency';'Start_s';...
+    'Onset_us';'Duration_us';'Amplitude_mV'};
+
+  
+[filename, pathname] = uiputfile('.csv','Create new file or append to existing one');
+
+if exist([pathname,filename])==2
+    export = table2cell(readtable([pathname,filename]));
+    export(1,:) = [];
+    aux = size(export,1) + 1;
+else 
+    aux = 1;
+end
+
+for i = aux:(handles.reader.n_pulses + aux - 1)
+
+    export{i,1} = cellstr(handles.reader.filename);
+    export{i,2} = cellstr(handles.reader.equipment);
+    export{i,3} = cellstr(handles.reader.mode);
+    export{i,4} = (handles.reader.freq);
+    export{i,5} = 
+    export{i,5} = (handles.reader.tstart(i - aux + 1) - handles.reader.tstart(1))/handles.reader.fs;
+    export{i,6} = handles.reader.onset(i - aux + 1);
+    export{i,7} = handles.reader.duration(i - aux + 1);
+    export{i,8} = handles.reader.amplitude(i - aux + 1);
     
 end
     
-test = horzcat(file_name,mode,equip,freq,pulse_time,handles.reader.onset, ...
-    handles.reader.duration, handles.reader.amplitude);
-
-
+    table_export = cell2table(export,'VariableNames',rowlabels);
+    writetable(table_export,[pathname,filename])
+    
+    save(['/media/rakauskas/DADOS/Repository/signalhunter/',handles.reader.filename,'.mat'],handles.reader);
+    
+    
+    
 % message to progress log
-msg = 'Signal Hunter for EMF Analysis restarted.';
+msg = 'Signal Hunter for EMF Analysis saved mtf';
 handles = panel_textlog(handles, msg);
 
 % Update handles structure
