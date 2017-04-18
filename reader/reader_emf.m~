@@ -38,13 +38,13 @@ if (format==2)
 %     pathname = '/media/rakauskas/DADOS/Dados Biomag PC/Dados TMS/MagPro/rTMS/';
     reader = import_emf(filename, pathname);
 else
-    load_var = importdata([pathname,filename]);
+    loaded_variable = importdata([pathname,filename]);
 
     % Check if *.mat file is already processed
-    if (isfield(load_var,'equipment')==0)
+    if (isfield(loaded_variable,'data')==0)
 
-        reader.raw = load_var;
-        clear loaded_var
+        reader.raw = loaded_variable;
+        clear loaded_variable
         
         prompt = {'Equipament';'Stimulation mode'; 'Stimulation frequency (1 for pTMS/ppTMS)'; 'Sampling Frequency (Hz)'};
         dlg_title = 'Equipament and Acquisition information';
@@ -52,8 +52,8 @@ else
 
         reader.equipment = info{1};
         reader.mode = info{2};
-        reader.freq = str2double(info{3});
-        reader.fs = str2double(info{4});
+        reader.freq = info{3};
+        reader.fs = info{4};
         clear info prompt dlg_title
         
         reader.filename = filename;
@@ -68,8 +68,8 @@ else
         reader = process_emf(reader);
     
     else 
-        reader = load_var;
-        clear loaded_var
+        reader = loaded_variable.data;
+        clear loaded_variable
     end
 end
 

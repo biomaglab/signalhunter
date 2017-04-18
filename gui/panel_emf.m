@@ -146,7 +146,7 @@ else
 end
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
-set(handles.info_text(handles.id_cond),'Visible','on');
+set(handles.info_text(handles.id_cond),'FontSize',0.12,'Visible','on');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -171,7 +171,7 @@ else
 end
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
-set(handles.info_text(handles.id_cond),'Visible','on');
+set(handles.info_text(handles.id_cond),'FontSize',0.12,'Visible','on');
 
 % Update handles structure
 guidata(hObject, handles);
@@ -206,7 +206,8 @@ rowlabels = {'Filename';'Equipment';'Mode';'Stimulation_Frequency';'Pulse_num';'
     'Onset_us';'Duration_us';'Amplitude_mV'};
 
 % Choose filename to .csv file
-[filename, pathname] = uiputfile('.csv','Create new file or append to existing one');
+[filename, pathname] = uiputfile('.csv','Create new file or append to existing one', ...
+    [handles.reader.pathname,handles.reader.filename]);
 
 % If file selected already exists, aux variable will help to append new
 % values to the same .csv
@@ -243,16 +244,20 @@ end
 table_export = cell2table(export,'VariableNames',rowlabels);
 writetable(table_export,[pathname,filename])
 
-% data variable store only handles.reader variable, which can be read
-% by EMF_Analysis after
-data = handles.reader;
-save([handles.reader.pathname,handles.reader.filename,'.mat'],'data');
-
-
 % message to progress log
 msg = strcat('Variables exported to ',pathname, filename); 
 handles = panel_textlog(handles, msg);
 
+
+% data variable store only handles.reader variable, which can be read
+% by EMF_Analysis after
+[filename, pathname] = uiputfile('.mat','Create a new file for reader data',...
+    [handles.reader.pathname,handles.reader.filename]);
+
+data = handles.reader;
+save([pathname,filename],'data');
+
+% message to progress log
 msg = strcat('Handles.reader variables save to ',handles.reader.pathname,handles.reader.filename,'.mat');
 handles = panel_textlog(handles, msg);
 
