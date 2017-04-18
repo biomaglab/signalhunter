@@ -1,27 +1,27 @@
 
 % -------------------------------------------------------------------------
-% Signal Hunter - electrophysiological signal analysis  
+% Signal Hunter - electrophysiological signal analysis
 % Copyright (C) 2013, 2013-2016  University of Sao Paulo
-% 
+%
 % Homepage:  http://df.ffclrp.usp.br/biomaglab
 % Contact:   biomaglab@gmail.com
 % License:   GNU - GPL 3 (LICENSE.txt)
-% 
+%
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU General Public License as published by the
 % Free Software Foundation, either version 3 of the License, or any later
 % version.
-% 
+%
 % This program is distributed in the hope that it will be useful, but
 % WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
 % Public License for more details.
-% 
+%
 % The full GNU General Public License can be accessed at file LICENSE.txt
 % or at <http://www.gnu.org/licenses/>.
-% 
+%
 % -------------------------------------------------------------------------
-% 
+%
 
 
 function figure_processing(config_dir)
@@ -192,11 +192,11 @@ switch handles.data_id
             
         else
             msg = 'Open canceled.';
-           handles = panel_textlog(handles, msg);
+            handles = panel_textlog(handles, msg);
             
         end
-    
-    % MEP analysis Signal Processing - Abrahao Baptista application
+        
+        % MEP analysis Signal Processing - Abrahao Baptista application
     case 'mep analysis'
         callback_mepanalysis(handles.fig);
         handles = panel_mepanalysis(handles);
@@ -208,23 +208,23 @@ switch handles.data_id
         handles = graphs_mepanalysis(handles);
         open_id = 1;
         
-    % Multiple channels - Victor Souza application
+        % Multiple channels - Victor Souza application
     case 'multi channels'
         handles = callback_multi(handles.fig);
         
-%         [map_template, map_shape] = dialog_create_new;
-%         handles.map_template = map_template;
-%         handles.map_shape = map_shape;
+        %         [map_template, map_shape] = dialog_create_new;
+        %         handles.map_template = map_template;
+        %         handles.map_shape = map_shape;
         
         [reader, open_id] = reader_multi(handles.config_dir);
-                
+        
         if open_id
             msg = 'Succesfully read data.';
             handles = panel_textlog(handles, msg);
             set(handles.hsubdata, 'Enable', 'on');
             
             processed = process_multi(reader);
-                      
+            
             if isfield(reader, 'signal')
                 reader = rmfield(reader, 'signal');
             end
@@ -235,8 +235,8 @@ switch handles.data_id
             handles = graphs_multi(handles);
             
         else
-           msg = 'Open canceled.';
-           handles = panel_textlog(handles, msg);
+            msg = 'Open canceled.';
+            handles = panel_textlog(handles, msg);
             
         end
         
@@ -255,14 +255,15 @@ switch handles.data_id
     case 'ascii'
         disp('ascii selected');
         
+        % Electromotriz Force Analysis - Leonardo Zacharias application
     case 'emf analysis'
         msg = 'EMF data are oppening';
         handles = panel_textlog(handles, msg);
+        
         handles = panel_emf(handles);
-%         set(handles.hsubtools(4), 'Checked', 'on');
         msg = '>>> OK';
         handles = panel_textlog(handles, msg);
-    
+        
 end
 
 if open_id
@@ -436,7 +437,7 @@ switch selection
         handles = guidata(hObject);
         rmdir(handles.config_dir, 's')
         delete(get(0,'CurrentFigure'))
-
+        
     case 'No'
         return
 end

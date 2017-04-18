@@ -40,6 +40,9 @@ switch handles.data_id
     case 'multi channels'
         filt_id = export_multi(handles.reader, handles.processed);
         
+    case 'emf_analysis'
+        filt_id = export_emf(handles.
+        
 end
 
 end

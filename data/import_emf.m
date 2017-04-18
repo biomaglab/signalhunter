@@ -1,32 +1,47 @@
 
 % -------------------------------------------------------------------------
-% Signal Hunter - electrophysiological signal analysis  
+% Signal Hunter - electrophysiological signal analysis
 % Copyright (C) 2013, 2013-2016  University of Sao Paulo
-% 
+%
 % Homepage:  http://df.ffclrp.usp.br/biomaglab
 % Contact:   biomaglab@gmail.com
 % License:   GNU - GPL 3 (LICENSE.txt)
-% 
+%
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU General Public License as published by the
 % Free Software Foundation, either version 3 of the License, or any later
 % version.
-% 
+%
 % This program is distributed in the hope that it will be useful, but
 % WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
 % Public License for more details.
-% 
+%
 % The full GNU General Public License can be accessed at file LICENSE.txt
 % or at <http://www.gnu.org/licenses/>.
-% 
+%
 % -------------------------------------------------------------------------
 %
 
 
 function reader = import_emf(file, path)
-%IMPORT_EMF Summary of this function goes here
-%   Detailed explanation goes here
+%IMPORT_EMF read *.bin data files and *.txt parameters from acquisition.
+%
+% INPUT:
+%
+% file, path: filename and pathname from *.bin file. Text file with
+% parameters will be read based on data filename.
+%
+%
+% OUTPUT:
+%
+% reader: pre-structured file to be used as a input in process_emf.m;
+% reader contains raw signal (and backup), time vector, acquisition parameters
+% (equipment, stimulation mode, stimulation frequency, pathname and
+% filename)
+%
+%
+
 
 file = strrep(file,'.bin','');
 
@@ -41,10 +56,10 @@ parameters = dlmread(file_parameters);
 %  reader.equipment = info{1};
 %  reader.mode = info{2};
 %  reader.freq = info{3};
- 
- reader.equipment = 'Magpro';
- reader.mode = 'rTMS';
- reader.freq = '100';
+
+reader.equipment = 'Magpro';
+reader.mode = 'rTMS';
+reader.freq = '100';
 
 clear info prompt dlg_title
 
@@ -77,6 +92,5 @@ reader.time(1) = [];
 
 reader.raw_bkp = reader.raw;
 reader.time_bkp = reader.time;
-reader = process_emf(reader);
 
 end

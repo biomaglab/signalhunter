@@ -45,7 +45,6 @@ set(handles.panel_tools, 'Position', paneltools_pos);
 
 n_cols = [3;3]; n_rows = 2;
 mar_x = 0.02; mar_y = 0.02;
-% w = 1./n_cols-(n_cols+1)*mar_x; h = (1/n_rows-(n_rows+1)*mar_y);
 w = (1./n_cols-((n_cols+1)*mar_x)); h = (1/n_rows-(n_rows+1)*mar_y);
 pos_x = nan(n_rows, max(n_cols));
 pos_y = nan(n_rows,1);
@@ -60,56 +59,51 @@ end
 w = flipud(w);
 pos_x = flipud(pos_x);
 
-% second row of buttons
-pb_open_pos = [pos_x(2,1), pos_y(2), w(2)+0.07, h];
-pb_save_pos = [pos_x(2,2)+0.07, pos_y(2), w(2)+0.07, h];
-
 % first row of buttons
 pb_prev_pos = [pos_x(1,1), pos_y(1), w(1)+0.07, h];
 pb_next_pos = [pos_x(1,2)+0.07, pos_y(1), w(1)+0.07, h];
 edit_idcond_pos = [pos_x(1,3)+0.15, pos_y(1)+0.02, w(1)-0.05, h-0.05];
 
-% % push button to clean plots
-% pushbutton_clean = uicontrol(handles.panel_tools, 'String', 'Clean',...
-%     'Units', 'normalized', 'FontWeight', 'bold', ...
-%     'Callback', @pushbutton_clean_Callback);
-% set(pushbutton_clean, 'Position', pb_clean_pos);
+% second row of buttons
+pb_open_pos = [pos_x(2,1), pos_y(2), w(2)+0.07, h];
+pb_save_pos = [pos_x(2,2)+0.07, pos_y(2), w(2)+0.07, h];
 
 
-% push button to clean plots
+
+% push button to Open Files (*.bin, raw *.mat and processed *.mat)
 pushbutton_open = uicontrol(handles.panel_tools, 'String', 'Open',...
     'Units', 'normalized', 'FontWeight', 'bold', 'FontUnits', 'normalized',...
     'Callback', @pushbutton_open_Callback);
 set(pushbutton_open, 'Position', pb_open_pos, 'FontSize', 0.3);
 
-% push button to clean plots
+% push button to Save and Export files (*.csv and *.mat)
 pushbutton_save = uicontrol(handles.panel_tools, 'String', 'Save',...
     'Units', 'normalized', 'FontWeight', 'bold', 'FontUnits', 'normalized',...
     'Callback', @pushbutton_save_Callback);
 set(pushbutton_save, 'Position', pb_save_pos, 'FontSize', 0.3);
 
-% push button previous
+% push button to previous plot
 pushbutton_prev = uicontrol(handles.panel_tools, 'String', '<',...
     'Units', 'normalized', 'FontWeight', 'bold',...
     'FontUnits', 'normalized', 'Callback', @pushbutton_prev_Callback);
 set(pushbutton_prev, 'Position', pb_prev_pos, 'FontSize', 0.4);
 
-% push button next
+% push button to next plot
 pushbutton_next = uicontrol(handles.panel_tools, 'String', '>',...
     'Units', 'normalized', 'FontWeight', 'bold',...
     'FontUnits', 'normalized', 'Callback', @pushbutton_next_Callback);
 set(pushbutton_next, 'Position', pb_next_pos, 'FontSize', 0.4);
 
-% edit for threshold value
+% edit for plot selection
 handles.edit_idcond = uicontrol(handles.panel_tools, 'Style', 'edit',...
     'String', '1', 'BackgroundColor', 'w', 'Units', 'normalized',...
     'FontWeight', 'bold', 'FontUnits', 'normalized',...
     'Callback', @edit_idcond_Callback);
 set(handles.edit_idcond, 'Position', edit_idcond_pos, 'FontSize', 0.4);
 
-% align([pushbutton_prev, pushbutton_next, handles.edit_idcond], 'Distribute', 'Center');
+align([pushbutton_prev, pushbutton_next, handles.edit_idcond], 'Distribute', 'Center');
 
-
+% panel for Variables exhibition (Onset time, Total duration and Amplitude)
 info_panel_pos = [0.16, 0.008, 0.10, 0.16];
 handles.info_panel = uipanel(hObject, 'BackgroundColor', 'w', ...
     'Title', 'Info panel',...
@@ -120,7 +114,7 @@ set(handles.info_panel, 'Position', info_panel_pos,'Visible','On');
 % Update handles structure
 guidata(hObject, handles);
 
-function pushbutton_next_Callback(hObject, eventdata)
+function pushbutton_next_Callback(hObject, ~)
 % Callback - Button Previous Condition
 handles = guidata(hObject);
 
@@ -128,7 +122,7 @@ set(handles.panel_graph(handles.id_cond), 'Visible', 'off');
 set(handles.info_text(handles.id_cond),'Visible','off');
 
 
-% change text condition
+% By changing id_cond, plots are updated in panel_emf
 if handles.id_cond >= numel(handles.conditions)
     handles.id_cond = 1;
     set(handles.edit_idcond, 'String',...
@@ -153,7 +147,7 @@ set(handles.panel_graph(handles.id_cond), 'Visible', 'off');
 set(handles.info_text(handles.id_cond),'Visible','off');
 
 
-% change text condition
+% By changing id_cond, plots are updated in panel_emf
 if handles.id_cond == 1
     handles.id_cond = numel(handles.conditions);
     set(handles.edit_idcond, 'String',...
@@ -178,6 +172,7 @@ handles = guidata(hObject);
 msg = 'Reading signal data...';
 handles = panel_textlog(handles, msg);
 
+%
 handles.reader = reader_emf;
 
 msg = char(strcat('Equipment: ''', cellstr(handles.reader.equipment), ...
@@ -239,7 +234,7 @@ table_export = cell2table(export,'VariableNames',rowlabels);
 writetable(table_export,[pathname,filename])
 
 % message to progress log
-msg = strcat('Variables exported to ',pathname, filename); 
+msg = strcat('Variables exported to ',pathname, filename);
 handles = panel_textlog(handles, msg);
 
 
@@ -286,27 +281,4 @@ progbar_update(handles.progress_bar, value)
 
 % Update handles structure
 guidata(hObject, handles);
-
-function pushbutton_import_Callback(hObject, eventdata)
-%Callback - Import data for EMF Analysis
-
-handles = guidata(hObject);
-
-% message to progress log
-msg = 'Importing signal data...';
-handles = panel_textlog(handles, msg);
-
-handles.reader = import_emf;
-
-msg = ['Data opened.', 'Number of frames: ',  num2str(handles.reader.n_pulses),];
-handles = panel_textlog(handles, msg);
-handles = graphs_emf(handles);
-
-% Update handles structure
-
-
-
-guidata(hObject, handles);
-
-
 

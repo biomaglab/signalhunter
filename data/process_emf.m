@@ -1,33 +1,52 @@
 
 % -------------------------------------------------------------------------
-% Signal Hunter - electrophysiological signal analysis  
+% Signal Hunter - electrophysiological signal analysis
 % Copyright (C) 2013, 2013-2016  University of Sao Paulo
-% 
+%
 % Homepage:  http://df.ffclrp.usp.br/biomaglab
 % Contact:   biomaglab@gmail.com
 % License:   GNU - GPL 3 (LICENSE.txt)
-% 
+%
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU General Public License as published by the
 % Free Software Foundation, either version 3 of the License, or any later
 % version.
-% 
+%
 % This program is distributed in the hope that it will be useful, but
 % WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
 % Public License for more details.
-% 
+%
 % The full GNU General Public License can be accessed at file LICENSE.txt
 % or at <http://www.gnu.org/licenses/>.
-% 
+%
 % -------------------------------------------------------------------------
-% 
+%
 
 
 % --- Creates GUI panel and controls when axes Button Down Fcn is assessed
 % This GUI allows the user to change and manipulated the peak, time and
 % threshold selections in the signal plotted in one axes
 function varargout = process_emf(handles)
+%PROCESS_EMF reads pre-structures reader files (from reader_emf.m) and
+%automatically identify Pulse Start, Onset and Total duration times,
+%offering tools for signal window, invert and peak detection by Amplitude
+%threshold of Convolution filters.
+%
+% INPUT:
+%
+% pre-structured reader_emf files containing: raw signal data, raw time
+% vector and aquisition Parameters;
+%
+% OUTPUT:
+%
+% Complete reader_emf structure, which add to pre-structured reader tstart
+% (absolute time when pulse starts), tonset (abs. time in maximum value),
+% tend (abs. time when pulse ends), signal (windoned in each detected
+% pulse), xs (windoned abs. time in each detected pulse), number of pulses,
+% figure titles (which includes equipment and stimulation mode
+% informations), calculated onset, total duration and pulse zero-to-peak
+% amplitude;
 
 % create the figure, uicontrols and return the handles
 hObject = figure_creation(handles);
@@ -73,8 +92,6 @@ pb_names = {'Window', 'Invert', 'Peak Detection', ...
     'Peak Detection (conv)', 'Initial Values'};
 
 
-%fig_titles = handles.reader.fig_titles;
-
 % creates the panel for buttons in dialog_detect
 panelgraph_pos = [1.5/50 0.15 1/4 5/6];
 panel_graph = uipanel(hObject, 'Title', 'Selection Tools', ...
@@ -106,6 +123,7 @@ pb_detect_4_pos = [0.17, 0.55, 4/6, 0.08];
 pb_detect_5_pos = [0.17, 0.45, 4/6, 0.08];
 pb_close_pos = [0.17, 0.25, 4/6, 0.10];
 
+
 % ----- Window select
 
 % push button for window selection
@@ -123,8 +141,7 @@ set(pb_detect(2), 'Position', pb_detect_2_pos, ...
     'Callback', @pb_detect_2_Callback);
 
 
-
-% ----- Automatic Peak Detection
+% ----- Automatic Peak Detection (by Amplitude Threshold)
 
 pb_detect(3) = uicontrol(panel_graph, 'String', pb_names{3}, ...
     'FontSize', 10, 'FontWeight', 'bold', 'Units', 'normalized');
@@ -132,26 +149,24 @@ set(pb_detect(3), 'Position', pb_detect_3_pos, ...
     'Callback', @pb_detect_3_Callback);
 
 
-
 % ----- Automatic Peak Detection (by convolution)
 
 % push button for Automatic Peak Detection (by convolution)
 pb_detect(4) = uicontrol(panel_graph, 'String', pb_names{4}, ...
-    'FontSize', 10, 'FontWeight', 'bold','Units', 'normalized');    
+    'FontSize', 10, 'FontWeight', 'bold','Units', 'normalized');
 set(pb_detect(4), 'Position', pb_detect_4_pos, ...
     'Callback', @pb_detect_4_Callback);
-
 
 
 % ----- Return initial values
 
 % push button to return for initial values
 pb_detect(5) = uicontrol(panel_graph, 'String', pb_names{5}, ...
-    'FontSize', 10, 'FontWeight', 'bold','Units', 'normalized');    
+    'FontSize', 10, 'FontWeight', 'bold','Units', 'normalized');
 set(pb_detect(5), 'Position', pb_detect_5_pos, ...
     'Callback', @pb_detect_5_Callback);
 
-% push button to close dialog_detect figure
+% push button to close processing_emf figure
 pb_close = uicontrol(panel_graph, 'String', 'Finished', 'BackgroundColor', 'g', ...
     'FontSize', 10, 'FontWeight', 'bold','Units', 'normalized');
 set(pb_close, 'Position', pb_close_pos, ...
@@ -170,6 +185,7 @@ guidata(hObject, handles);
 
 
 function pb_detect_1_Callback(hObject, ~)
+
 % Callback - button for signal window selection
 handles = guidata(hObject);
 
@@ -187,18 +203,20 @@ set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
 [~, index2]  = min(abs(handles.time - x2(end)));
 hold off
 
-% Remove information text to guide user to press enter button.        
+% Remove information text to guide user to press enter button.
 set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
 
 % Update Pulse window
 handles.time = handles.time(index:index2);
 handles.raw = handles.raw(index:index2);
 
+% If tstart, tend, tonset and windowed signal exist before new window,
+% exclude to new processing
 if(isfield(handles,'tonset') == 1)
     fields = {'tstart', 'tend', 'tonset','signal'};
     handles = rmfield(handles,fields);
     set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
-    'String', 'Onset, duration and windowed signal were deleted. Please process again.');
+        'String', 'Onset, duration and windowed signal were deleted. Please process again.');
 end
 
 plot(handles.time,handles.raw,'.')
@@ -210,25 +228,22 @@ xlabel('Time (s)')
 guidata(hObject, handles);
 
 function pb_detect_2_Callback(hObject, ~)
+
 % Callback - button for data invert
 handles = guidata(hObject);
+
+% If tstart, tend, tonset and windowed signal exist before data invert,
+% exclude to new processing
 if(isfield(handles,'tonset') == 1)
     fields = {'tstart', 'tend', 'tonset','signal'};
     handles = rmfield(handles,fields);
     set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
-    'String', 'Onset, duration and windowed signal were deleted. Please process again.');
+        'String', 'Onset, duration and windowed signal were deleted. Please process again.');
 end
 
 handles.raw = handles.raw*(-1);
 
 plot(handles.time,handles.raw,'.')
-if(isfield(handles,'tonset') == 1)
-    hold on
-    plot(handles.time(handles.tstart),handles.raw(handles.tstart),'.','color','r')
-    plot(handles.time(handles.tonset),handles.raw(handles.tonset),'.','color','r')
-    plot(handles.time(handles.tend),handles.raw(handles.tend),'.','color','r')
-    hold off
-end
 title('Raw data')
 ylabel('Amplitude (mV)')
 xlabel('Time (s)')
@@ -237,16 +252,20 @@ xlabel('Time (s)')
 guidata(hObject, handles);
 
 function pb_detect_3_Callback(hObject, ~)
+
 % Callback - button for peak, onset and duration detection by threshold
 handles = guidata(hObject);
 
+
+% If tstart, tend, tonset and windowed signal exist before new processing,
+% exclude
 if(isfield(handles,'tonset') == 1)
     fields = {'tstart', 'tend', 'tonset','signal'};
     handles = rmfield(handles,fields);
 end
 
 set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
-'String', 'Select amplitude threshold and press Enter.');
+    'String', 'Select amplitude threshold and press Enter.');
 [~, y] = ginput;
 
 try
@@ -255,11 +274,13 @@ catch expression
     
 end
 
+% window signal around each pulse detected
 for j = 1:length(handles.tonset(1,:));
     handles.signal{:,j} = handles.raw(handles.tstart(1,j):handles.tend(1,j));
     handles.xs{:,j} = handles.tstart(1,j):handles.tend(1,j);
 end
 
+% Update plot with peak, onset and duration events
 plot(handles.time,handles.raw,'.')
 hold on
 plot(handles.time(handles.tstart),handles.raw(handles.tstart),'.','color','r')
@@ -274,38 +295,43 @@ number = num2str(length(handles.signal(1,:)));
 set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
     'String', strcat(number,' pulses where detected.'));
 
-% Update plot with peak, onset and duration events
 
 % Update handles structure
 guidata(hObject, handles);
 
 function pb_detect_4_Callback(hObject, ~)
-% Callback - button for mep absence
+
+% Callback - button for peak, onset and duration detection by Convolution
 handles = guidata(hObject);
 
-
+% If tstart, tend, tonset and windowed signal exist before new processing,
+% exclude
 if(isfield(handles,'tonset') == 1)
     fields = {'tstart', 'tend', 'tonset','signal'};
     handles = rmfield(handles,fields);
 end
 
-% [filename, pathname] = uigetfile('.mat','Select pulse shape for convolution');
-filename = 'magpro.mat';
-pathname = '/media/rakauskas/DADOS/Dados Biomag PC/Dados TMS/examples-emf/Filters/';
+% Select properly window signal to convolution signal. Is recomended that
+% the convolution pulse be from the same Equipment model, with a Intensity
+% higher then 50%.
+[filename, pathname] = uigetfile('.mat','Select pulse shape for convolution');
 caux = importdata(horzcat(pathname, filename));
 convol = conv(handles.raw,caux);
 
+% Select a convolution amplitude threshold
 set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
     'String', 'Select convolution threshold and press ENTER');
 
-% plot(convol,'color','r')
-% title('Convolution filter threshold')
-% ylabel('Convolution')
-% xlabel('Time (s)')
-% [~,y] = ginput;
+plot(convol,'color','r')
+title('Convolution filter threshold')
+ylabel('Convolution')
+xlabel('Time (s)')
+[~,y] = ginput;
 
-y = 8;
 set(handles.info_text, 'BackgroundColor', 'w', 'String', '');
+
+% The nexts steps where inspired by peak_detect.m routine, but with
+% modifications for convolution detection.
 
 pulse_position  = find(convol > y(end));
 pulse_position = pulse_position  - length(caux);
@@ -332,7 +358,6 @@ for k = 1:(length(pulse_position)-1)
         pulse_indice(i,j) = k;
         i = i + 1;
         
-        
     end
 end
 
@@ -353,14 +378,14 @@ for j = 1:length(pulse(1,:))
             set(handles.info_text, 'BackgroundColor', [1 1 0.5], ...
                 'String', 'No pulses where find. Check if signal is not inverted or try another convolution filter.');
         end
-    end      
+    end
     
     % Transform to absolute indices values
     handles.tstart(j) = pulse_position(pulse_indice(max_aux,j))-400+tstart(j);
     handles.tonset(j) = pulse_position(pulse_indice(max_aux,j))-400+peak(j);
     handles.tend(j) = pulse_position(pulse_indice(max_aux,j))-400+pulse_end(j);
-
-    handles.signal{1,j} = pulse2(tstart(j):pulse_end(j),j); 
+    
+    handles.signal{1,j} = pulse2(tstart(j):pulse_end(j),j);
     handles.xs{1,j} = handles.tstart(j):handles.tend(j);
 end
 
@@ -388,8 +413,8 @@ handles = guidata(hObject);
 
 fields = {'tstart', 'tend', 'tonset'};
 if(isfield(handles,fields)==1)
-handles = rmfield(handles,fields);
-else 
+    handles = rmfield(handles,fields);
+else
 end
 
 handles.raw = handles.raw_bkp;
@@ -414,18 +439,20 @@ handles = rmfield(handles,fields);
 
 handles.n_pulses = length(handles.tonset(1,:));
 
+% Create figure titles for panel_emf figures visualization
 for i = 1:handles.n_pulses
     handles.fig_titles{i,1} = horzcat(handles.equipment,...
         ' - ', handles.mode, ' - ', num2str(i),'.');
     
     handles.onset(i) = double(handles.time(handles.tonset(i)) - ...
-        handles.time(handles.tstart(i)))*10^6;                          
+        handles.time(handles.tstart(i)))*10^6;
     handles.duration(i) = double(handles.time(handles.tend(i))...
         - handles.time(handles.tstart(i)))*10^6;
     handles.amplitude(i) = double(abs(handles.raw(handles.tonset(i))...
         - handles.raw(handles.tstart(i))));
 end
 
+% Update guidata and resume processing_emf.m window
 guidata(hObject, handles);
 uiresume;
 

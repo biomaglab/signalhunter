@@ -1,34 +1,37 @@
 
 % -------------------------------------------------------------------------
-% Signal Hunter - electrophysiological signal analysis  
+% Signal Hunter - electrophysiological signal analysis
 % Copyright (C) 2013, 2013-2016  University of Sao Paulo
-% 
+%
 % Homepage:  http://df.ffclrp.usp.br/biomaglab
 % Contact:   biomaglab@gmail.com
 % License:   GNU - GPL 3 (LICENSE.txt)
-% 
+%
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU General Public License as published by the
 % Free Software Foundation, either version 3 of the License, or any later
 % version.
-% 
+%
 % This program is distributed in the hope that it will be useful, but
 % WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
 % Public License for more details.
-% 
+%
 % The full GNU General Public License can be accessed at file LICENSE.txt
 % or at <http://www.gnu.org/licenses/>.
-% 
+%
 % -------------------------------------------------------------------------
-% 
+%
 
 
 function handles = graphs_emf(handles)
 % GRAPHS_EMF Initialization function to create GUI of axes
-% Creates GUI panel and controls for FEM Analysis Processing
+% Creates GUI panel and controls for EMF Analysis Processing
 % This module create all panels and its axes that will be used to plot the
 % signals
+% This module offers the possibility to manually change tstart, tonset and
+% tend values, calculating new values for Zero-To-Peak Amplitude, Onset
+% time and Total Pulse Duration.
 
 handles = graph_creation(handles);
 
@@ -46,7 +49,7 @@ panel_pos = get(handles.panel_tools, 'Position');
 % that are parents of all axes, haxes is a vector of handles of all axes and
 
 if ~isfield(handles, 'id_cond')
-   handles.id_cond = 1; 
+    handles.id_cond = 1;
 end
 
 handles.conditions = (1:handles.reader.n_pulses);
@@ -56,7 +59,7 @@ handles.info_txt = zeros(1, handles.reader.n_pulses);
 
 fig_titles = handles.reader.fig_titles;
 
-% creates the panel for EMF Analysis
+% creates the panel for EMF Analysis in all detected pulses
 
 for i = 1:handles.reader.n_pulses
     panelgraph_mar = [panel_pos(1), 2*panel_pos(2),...
@@ -67,9 +70,10 @@ for i = 1:handles.reader.n_pulses
         'BackgroundColor', 'w', 'Title', fig_titles{i},...
         'Units', 'normalized', 'Visible', 'off');
     set(handles.panel_graph(1,i), 'Position', panelgraph_pos)
-      
+    
+    % Creates axes, plots and info_text for all pulses
     handles.haxes(1,i) = graph_model(handles.panel_graph, fig_titles, i);
-
+    
     plot_emf(handles.haxes(1, i), handles.reader.signal{:,i},...
         handles.reader.xs{:,i}, handles.reader.tstart(i), handles.reader.tonset(i),...
         handles.reader.tend(i), handles.reader.time, handles.reader.raw);
@@ -103,6 +107,11 @@ guidata(handles.fig, handles);
 
 function axes_ButtonDownFcn(hObject, eventdata)
 % Callback for Button Down in each axes
+% Button Down Function on graphs_emf.m provides an 'post-processing' tool
+% for chancing tstart, tonset and tend values with a click. The most
+% closest variable (tstart, tonset or tend) will be changed for the point
+% selected on plot.
+
 handles = guidata(hObject);
 
 id = handles.id_cond;
@@ -111,23 +120,16 @@ handles.id_axes = find(gca == handles.haxes(1,id));
 [x,y] = ginput(1);
 
 % Detect nearest event on ginput data (tstart, tonset or tend)
-% x = x + 1;
 x = round(x);
 
 aux(1) = abs(x - handles.reader.tstart(id));
 aux(2) = abs(x - handles.reader.tonset(id));
 aux(3) = abs(x - handles.reader.tend(id));
-
-
-aux_y(1) = abs(y - handles.reader.raw(handles.reader.tstart(id)));
-aux_y(2) = abs(y - handles.reader.raw(handles.reader.tonset(id)));
-aux_y(3) = abs(y - handles.reader.raw(handles.reader.tend(id)));
-
 [~, min_aux] = min(aux);
 
 switch min_aux
-
-    case 1    
+    
+    case 1
         handles.reader.tstart(id) = x;
         
     case 2
@@ -137,7 +139,7 @@ switch min_aux
         handles.reader.tend(id) = x;
 end
 
-        
+
 % Update Onset, Amplitude and Duration values
 
 handles.reader.onset(id) = double(handles.reader.time(handles.reader.tonset(id))...
@@ -147,27 +149,26 @@ handles.reader.duration(id) = double(handles.reader.time(handles.reader.tend(id)
 handles.reader.amplitude(id) = double(abs(handles.reader.raw(handles.reader.tonset(id))...
     - handles.reader.raw(handles.reader.tstart(id))));
 
-%%novo
- 
-    set(handles.panel_graph(1,id), 'Visible', 'off')
-    set(handles.haxes(1,id),'Visible','off')
-    cla(handles.haxes(1,id))    
-      
-    handles.haxes(1, id) = refresh_axes(handles.haxes, handles);
+set(handles.panel_graph(1,id), 'Visible', 'off')
+set(handles.haxes(1,id),'Visible','off')
+cla(handles.haxes(1,id))
+
+% Refresh plot with new selected values
+handles.haxes(1, id) = refresh_axes(handles.haxes, handles);
 
 
 set(handles.info_text(id),'Visible', 'off');
 
 msg2 = sprintf(['Onset: ' num2str(handles.reader.onset(id),'%.2f') ...
-        ' (us).\nAmplitude: ' num2str(handles.reader.amplitude(id),'%.2f') ...
-        ' (mV).\nDuration: ' num2str(handles.reader.duration(id),'%.2f') 'us']);
-    
+    ' (us).\nAmplitude: ' num2str(handles.reader.amplitude(id),'%.2f') ...
+    ' (mV).\nDuration: ' num2str(handles.reader.duration(id),'%.2f') 'us']);
+
 handles.info_text(id) = uicontrol(handles.info_panel, 'Style','text','String', msg2,...
-        'BackgroundColor', 'w', 'Units', 'normalized',...
-        'FontWeight', 'bold', 'FontUnits', 'normalized',...
-        'HorizontalAlignment','left','Visible','Off',...
-        'Position',[0 0 0.9 0.9]);
-    
+    'BackgroundColor', 'w', 'Units', 'normalized',...
+    'FontWeight', 'bold', 'FontUnits', 'normalized',...
+    'HorizontalAlignment','left','Visible','Off',...
+    'Position',[0 0 0.9 0.9]);
+
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
 set(handles.haxes(1,id),'Visible','on')
 set(handles.info_text(handles.id_cond),'FontSize',0.12,'Visible', 'on');
@@ -200,7 +201,7 @@ set(get(ax,'XLabel'),'String','Time (us)')
 set(get(ax,'YLabel'),'String','Amplitude (mV)')
 
 
- 
+
 function ax = refresh_axes(ax, handles)
 % Function to update all plots after manual changes in dialog detect
 id = handles.id_cond;
@@ -210,9 +211,9 @@ cla(ax)
 
 ax = graph_model(handles.panel_graph, handles.reader.fig_titles, id);
 
- plot_emf(ax, handles.reader.signal{:,id},...
-        handles.reader.xs{:,id}, handles.reader.tstart(id), handles.reader.tonset(id),...
-        handles.reader.tend(id), handles.reader.time, handles.reader.raw);
+plot_emf(ax, handles.reader.signal{:,id},...
+    handles.reader.xs{:,id}, handles.reader.tstart(id), handles.reader.tonset(id),...
+    handles.reader.tend(id), handles.reader.time, handles.reader.raw);
 
 set(ax, 'ButtonDownFcn', @axes_ButtonDownFcn, ...
-   'FontSize', 7, 'NextPlot', 'add');
+    'FontSize', 7, 'NextPlot', 'add');

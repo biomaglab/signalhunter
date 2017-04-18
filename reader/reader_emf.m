@@ -25,24 +25,74 @@
 
 
 function reader = reader_emf
+%READER_EMF read, import and organize data in Structure format used in
+%SignalHunter EMF Analysis
+% 
+% INPUT:
+% 
+% raw data: .mat file containing raw signal (uigetfile), followed by
+% manual enter of aquisition parameters (Equipment, *Stimulation mode,
+% *Stimulation Frequency, Sampling Frequency).
+%
+% raw data: .bin file containing raw signal (uigetfile) and .txt with
+% aquisition parameters.
+%
+% processed data: .mat file containing structure data in EMF Analysis
+% format**.
+% 
+% OUTPUT:
+%
+% handles.reader structure containing processed data in EMF Analysis
+% format**.
+%
+% * Parameters that will be extract together with processed data at .csv
+% file later. Equipment: Equipment model; Stimulation mode: pTMS, ppTMS or
+% rTMS; Stimulation Frequency in Hz (1 Hz to pTMS/ppTMS); Sampling
+% Frequency from Data Aquisition in Hz;
+%
+% ** EMF Analysis structure is mainly composed by: panel variables and
+% reader variables. reader variables includes: equipment model, stimulation
+% mode, stimulation frequency, sampling frequency, filename and pathname,
+% raw data, raw time vector, info_text (for variables visualization in
+% panel_emf.m), axes information, push_buttons information, tstart
+% (absolute time when pulse starts), tonset (abs. time in maximum value),
+% tend (abs. time when pulse ends), signal (windoned in each detected
+% pulse), xs (windoned abs. time in each detected pulse), number of pulses,
+% figure titles (which includes equipment and stimulation mode
+% informations), calculated onset, total duration and pulse zero-to-peak
+% amplitude;
 
-% % loading signal and configuration data
+
+% loading signal and configuration data. Input data can be *.mat files
+% (processed or raw signal) or *.bin (with *.txt parameters file in the
+% same folder)
  [filename, pathname, format] = uigetfile({'*.mat;','Matlab files (*.mat)';...
      '*.bin;','Binary files'},'Select signal file');
+ 
 % Waitbar to show frames progess
 % Used this instead of built-in figure progess bar to avoid need of handles
 hbar = waitbar(0.5, 'Reading signals...', 'Name','Progress');
 
+% check if selected file is *.bin (format == 2) or *.mat (format == 1)
+
 if (format==2)
-%     filename = 'rTMS_100hz_100';
-%     pathname = '/media/rakauskas/DADOS/Dados Biomag PC/Dados TMS/MagPro/rTMS/';
+    
+    % If is *.bin, initiates import_emf.m function for structure building
+    % with raw signal and acquisition parameters
     reader = import_emf(filename, pathname);
+    
+    % Iniciates signal processing
+    reader = process_emf(reader);
 else
+    
+    % Load *.mat file and check if is already processed
     load_var = importdata([pathname,filename]);
 
-    % Check if *.mat file is already processed
+    % If is already processed, it contains the field 'equipment'
     if (isfield(load_var,'equipment')==0)
-
+        
+        % if is not processed, the data corresponds only to raw signal.
+        % Other acquisition parameters will be filled manually
         reader.raw = load_var;
         clear loaded_var
         
@@ -65,52 +115,14 @@ else
         reader.raw_bkp = reader.raw;
         reader.time_bkp = reader.time;
         
+        % Iniciates signal processing
         reader = process_emf(reader);
     
     else 
+        % if the *.mat file is already processed, just finish reader_emf.m
         reader = load_var;
         clear loaded_var
     end
 end
 
-% load reader information
-% reader.equipment = data.equipment;
-% reader.mode = data.mode;
-% reader.freq = data.frequency;
-% 
-% reader.tstart = data.tstart;
-% reader.tstart_bkp = output_reader.tstart;
-% 
-% reader.tonset = data.tonset;
-% reader.tonset_bkp = output_reader.tonset;
-% 
-% reader.tend = data.tend;
-% reader.tend_bkp = reader.tend;
-% 
-% pulse duration and onset values will be calculated further
-% 
-% reader.pzero = data.pzero;
-% reader.pzero_bkp = reader.pzero;
-% 
-% reader.pmax = data.pmax;
-% reader.pmax_bkp = reader.pmax;
-% 
-% 
-% reader.signal = data.signal;
-% reader.xs = data.xs; %time vector
-% reader.fs = data.fs; %samplig frequency
-% reader.id = data.id; %pulse id
-% reader.n_pulses = length(data.id); %number of pulses
-% 
-% 
-% figure titles with states
-% fig_titles = cell(reader.n_pulses,1);
-% 
-% creates figure titles with equipment, mode and pulse id
-% for i = 1:reader.n_pulses 
-%     fig_titles{i,1} = horzcat(data.equipment{i},' - ', data.mode{i,1}, ' - ',...
-%         num2str(data.id(i)),'.');
-% end
-% 
-% reader.fig_titles = fig_titles;
 
