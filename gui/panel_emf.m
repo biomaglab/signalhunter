@@ -67,6 +67,7 @@ edit_idcond_pos = [pos_x(1,3)+0.15, pos_y(1)+0.02, w(1)-0.05, h-0.05];
 % second row of buttons
 pb_open_pos = [pos_x(2,1), pos_y(2), w(2)+0.07, h];
 pb_save_pos = [pos_x(2,2)+0.07, pos_y(2), w(2)+0.07, h];
+% pb_del_pos = [pos_x(2,3), pos_y(
 
 
 
