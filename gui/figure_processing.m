@@ -255,12 +255,17 @@ switch handles.data_id
     case 'ascii'
         disp('ascii selected');
         
-        % Electromotriz Force Analysis - Leonardo Zacharias application
+        % Electromotrice Force Analysis - Leonardo Zacharias application
     case 'emf analysis'
+		% TODO: Put here function reader_emf and process_emf
+		% it should work as the open button
         msg = 'EMF data are oppening';
         handles = panel_textlog(handles, msg);
         
         handles = panel_emf(handles);
+		% Read signals and start processing
+		handles.reader = reader_emf;
+        handles.reader = process_emf(reader);
         msg = '>>> OK';
         handles = panel_textlog(handles, msg);
         

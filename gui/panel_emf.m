@@ -173,8 +173,9 @@ handles = guidata(hObject);
 msg = 'Reading signal data...';
 handles = panel_textlog(handles, msg);
 
-%
+% Read signals and start processing
 handles.reader = reader_emf;
+handles.reader = process_emf(reader);
 
 msg = char(strcat('Equipment: ''', cellstr(handles.reader.equipment), ...
     '''; Mode: ''', cellstr(handles.reader.mode), ...
