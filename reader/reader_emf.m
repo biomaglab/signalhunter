@@ -24,78 +24,105 @@
 % 
 
 
-function output_reader = reader_emf
+function reader = reader_emf
+%READER_EMF read, import and organize data in Structure format used in
+%SignalHunter EMF Analysis
+% 
+% INPUT:
+% 
+% raw data: .mat file containing raw signal (uigetfile), followed by
+% manual enter of aquisition parameters (Equipment, *Stimulation mode,
+% *Stimulation Frequency, Sampling Frequency).
+%
+% raw data: .bin file containing raw signal (uigetfile) and .txt with
+% aquisition parameters.
+%
+% processed data: .mat file containing structure data in EMF Analysis
+% format**.
+% 
+% OUTPUT:
+%
+% handles.reader structure containing processed data in EMF Analysis
+% format**.
+%
+% * Parameters that will be extract together with processed data at .csv
+% file later. Equipment: Equipment model; Stimulation mode: pTMS, ppTMS or
+% rTMS; Stimulation Frequency in Hz (1 Hz to pTMS/ppTMS); Sampling
+% Frequency from Data Aquisition in Hz;
+%
+% ** EMF Analysis structure is mainly composed by: panel variables and
+% reader variables. reader variables includes: equipment model, stimulation
+% mode, stimulation frequency, sampling frequency, filename and pathname,
+% raw data, raw time vector, info_text (for variables visualization in
+% panel_emf.m), axes information, push_buttons information, tstart
+% (absolute time when pulse starts), tonset (abs. time in maximum value),
+% tend (abs. time when pulse ends), signal (windoned in each detected
+% pulse), xs (windoned abs. time in each detected pulse), number of pulses,
+% figure titles (which includes equipment and stimulation mode
+% informations), calculated onset, total duration and pulse zero-to-peak
+% amplitude;
 
-% loading signal and configuration data
-[filename, pathname] = uigetfile({'*.mat','MAT-files (*.mat)'},...
-    'Select the signal file');
+
+% loading signal and configuration data. Input data can be *.mat files
+% (processed or raw signal) or *.bin (with *.txt parameters file in the
+% same folder)
+ [filename, pathname, format] = uigetfile({'*.mat;','Matlab files (*.mat)';...
+     '*.bin;','Binary files'},'Select signal file');
+ 
+% Waitbar to show frames progess
+% Used this instead of built-in figure progess bar to avoid need of handles
+hbar = waitbar(0.5, 'Reading signals...', 'Name','Progress');
+
+% check if selected file is *.bin (format == 2) or *.mat (format == 1)
+
+if (format==2)
     
-data = load([pathname filename]);
-%data = data_aux.teste;
-var_name = fieldnames(data);
-%eval(['data = data_aux.' var_name{1} ';']);
+    % If is *.bin, initiates import_emf.m function for structure building
+    % with raw signal and acquisition parameters
+    reader = import_emf(filename, pathname);
+    
+    % Iniciates signal processing
+    reader = process_emf(reader);
+else
+    
+    % Load *.mat file and check if is already processed
+    load_var = importdata([pathname,filename]);
 
-% load header information
-output_reader.equipaments = data.equipament;
-output_reader.mode = data.mode;
-output_reader.freq = data.frequency;
+    % If is already processed, it contains the field 'equipment'
+    if (isfield(load_var,'equipment')==0)
+        
+        % if is not processed, the data corresponds only to raw signal.
+        % Other acquisition parameters will be filled manually
+        reader.raw = load_var;
+        clear loaded_var
+        
+        prompt = {'Equipament';'Stimulation mode'; 'Stimulation frequency (1 for pTMS/ppTMS)'; 'Sampling Frequency (Hz)'};
+        dlg_title = 'Equipament and Acquisition information';
+        info = inputdlg(prompt,dlg_title,1);
 
-output_reader.tstart = data.tstart;
-output_reader.tstart_bkp = output_reader.tstart;
-
-output_reader.tonset = data.tonset;
-output_reader.tonset_bkp = output_reader.tonset;
-
-output_reader.onset = (data.tonset - data.tstart)*10^6;
-
-output_reader.tduration = data.tduration;
-output_reader.tduration_bkp = output_reader.tduration;
-
-output_reader.duration = (data.tduration - data.tstart)*10^6;
-
-output_reader.pzero = data.pzero;
-output_reader.pzero_bkp = output_reader.pzero;
-
-output_reader.pmax = data.pmax;
-output_reader.pmax_bkp = output_reader.pmax;
-
-output_reader.signal = data.signal;
-output_reader.xs = data.xs;
-output_reader.fs = data.fs;
-output_reader.id = data.id;
-
-
-
-
-
-
-
-
-output_reader.n_pulses = length(data.id);
-
-
-% figure titles with states
-fig_titles = cell(output_reader.n_pulses,1);
-
-
-for i = 1:output_reader.n_pulses
-    fig_titles{i,1} = horzcat(data.equipament{i},' - ', data.mode{i,1}, ' - ', num2str(data.id(i)),'.');
-    %states{i,1} = data.frameinfo(i).state;
-    %tstart = data.tstart(i);
-    %[mep_amp(i), mep_pmin(i,:), mep_pmax(i,:)] = peak2peak_amplitude(output_reader.xs,...
-        %output_reader.signal(:,i), output_reader.fs);
+        reader.equipment = info{1};
+        reader.mode = info{2};
+        reader.freq = str2double(info{3});
+        reader.fs = str2double(info{4});
+        clear info prompt dlg_title
+        
+        reader.filename = filename;
+        reader.pathname = pathname;
+        
+        reader.time = 0:1/reader.fs:length(reader.raw)/reader.fs;
+        reader.time(1) = [];
+        
+        reader.raw_bkp = reader.raw;
+        reader.time_bkp = reader.time;
+        
+        % Iniciates signal processing
+        reader = process_emf(reader);
+    
+    else 
+        % if the *.mat file is already processed, just finish reader_emf.m
+        reader = load_var;
+        clear loaded_var
+    end
 end
-
-output_reader.fig_titles = fig_titles;
-%output_reader.states = states;
-%output_reader.frame_start = frame_start;
-
-%output_reader.mep_amp = mep_amp;
-%output_reader.mep_pmin = mep_pmin;
-%output_reader.mep_pmax = mep_pmax;
-%output_reader.mep_lat = zeros(output_reader.n_meps,1);
-%output_reader.mep_end = zeros(output_reader.n_meps,1);
-%output_reader.mep_dur = zeros(output_reader.n_meps,1);
-
 
 
