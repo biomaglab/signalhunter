@@ -1,4 +1,4 @@
-Signal Hunter is na open-source and free software developed using  
+Signal Hunter is an open-source and free software developed using  
 MATLAB 2014 (Mathworks, Natick, USA) for electrophysiological signal  
 analysis. Research groups lack software that allows assisted processing and  
 automatic tools to analyze electroencephalography (EEG) and  
@@ -8,7 +8,7 @@ to easily develop their functions and interfaces.
 
 Main features are:
 
-- signals visualization;  
+- signal visualization;  
 - amplitude and latency automatic calculation;  
 - graphical interface to manual edit calculated descriptors;  
 - save and load processing progress;  
