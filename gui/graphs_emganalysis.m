@@ -54,7 +54,7 @@ n_channels = handles.reader.n_channels;
 signal = handles.reader.signal;
 xs = handles.reader.xs;
 % pmin = handles.reader.mep_pmin;
-% pmax = handles.reader.mep_pmax;
+% pmax = handles.processed.pmax;
 % mep_lat = handles.reader.mep_lat;
 % mep_end = handles.reader.mep_end;
 
@@ -63,6 +63,11 @@ handles.panel_graph = zeros(1, n_channels);
 handles.haxes = zeros(1, n_channels);
 
 fig_titles = handles.reader.fig_titles;
+emg_start = handles.processed.emg_start;
+emg_end = handles.processed.emg_end;
+
+pmax_I = handles.processed.pmax_I;
+amp_max = handles.processed.amp_max;
 
 % creates the panel for mep analysis processing
 
@@ -82,7 +87,8 @@ for i = 1:n_channels
 %         xs, pmin(i,:), pmax(i,:), [mep_lat(i), mep_end(i)]);
     
     handles.haxes(1,i) = graph_model(handles.panel_graph, fig_titles, i);
-    [~] = plot_emganalysis(handles.haxes(1, i), signal(:,i),xs);
+    [~, ~, ~] = plot_emganalysis(handles.haxes(1, i), signal(:,i), xs,...
+        [pmax_I(i) amp_max(i)], [emg_start(i) emg_end(i)]);
     
     % progress bar update
     value = i/n_channels;
@@ -116,7 +122,8 @@ if ~isempty(dialogdata)
     pause(tp)
     
     handles.haxes(1, id) = refresh_axes(handles.haxes(1, id), handles.reader.signal(:, id),...
-        handles.reader.xs);
+        handles.reader.xs, handles.processed.pmax_I(id), handles.processed.amp_max(id), ...
+        handles.processed.emg_start(id), handles.processed.emg_end(id));
     
     msg = [num2str(id) ' Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " updated.'];
     handles = panel_textlog(handles, msg);
@@ -148,13 +155,13 @@ set(get(ax,'Title'),'String',fig_titles{id_cond})
 set(get(ax,'XLabel'),'String','Time (s)')
 set(get(ax,'YLabel'),'String','Amplitude (mV)')
  
-function ax = refresh_axes(ax, signal, xs, pmin, pmax, lat)
+function ax = refresh_axes(ax, signal, xs, pmax_I, amp, emg_lat, emg_end)
 % Function to update all plots after manual changes in dialog detect
 
 if ishandle(ax)
     cla(ax);
 end
 
-plot_emganalysis(ax, signal, xs, pmin, pmax, lat);
+[~, ~, ~] = plot_emganalysis(ax, signal, xs, [pmax_I amp], [emg_lat emg_end]);
 
 set(ax, 'ButtonDownFcn', @axes_ButtonDownFcn);

@@ -26,26 +26,31 @@
 % Date: 13.11.2016
 
 
-function hp = plot_emganalysis(ax, signal, xs)
+function [hamp, hlat, hend] = plot_emganalysis(ax, signal, xs, amp, lat)
 
 axes(ax);
 hold on
 hp = plot(xs, signal);
-% yl = get(ax, 'YLim');
-% if pmin(1) ~= 0 && pmax(1) ~=0
+
+yl = get(ax, 'YLim');
+if amp(1) ~=0
 %     hpmin = plot(pmin(1), pmin(2), 'xr', 'MarkerSize', 15, 'LineWidth', 2);
-%     hpmax = plot(pmax(1), pmax(2), 'xr', 'MarkerSize', 15, 'LineWidth', 2);
-% else
+    hamp = plot([xs(amp(1)-round(0.03*amp(1))) xs(amp(1)+round(0.03*amp(1)))],...
+        [amp(2) amp(2)], 'MarkerSize', 15,...
+        'LineWidth', 2, 'Color', [0.4940 0.1840 0.5560]);
+else
 %     hpmin = nan;
-%     hpmax = nan;
-% end
-% 
-% if lat(1) ~= 0
-%     hlat = plot([lat(1) lat(1)], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2);
-%     hend = plot([lat(2) lat(2)], [yl(1) yl(2)], '--y', 'MarkerSize', 15, 'LineWidth', 2);
-% else
-%     hlat = nan;
-%     hend = nan;
-% end
+    hamp = nan;
+end
+
+if lat(1) ~= 0
+    hlat = plot([lat(1) lat(1)], [yl(1) yl(2)], '--',...
+        'MarkerSize', 15, 'LineWidth', 2, 'Color', [0.4660 0.6740 0.1880]);
+    hend = plot([lat(2) lat(2)], [yl(1) yl(2)], '--',...
+        'MarkerSize', 15, 'LineWidth', 2, 'Color', [0.6350 0.0780 0.1840]);
+else
+    hlat = nan;
+    hend = nan;
+end
 
 hold off

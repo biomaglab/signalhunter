@@ -187,15 +187,24 @@ function pushbutton_open_Callback(hObject, eventdata)
 % Callback - Button Open
 handles = guidata(hObject);
 
+% progress bar update
+value = 1/2;
+progbar_update(handles.progress_bar, value);
+
 % message to progress log
 msg = 'Reading signal data...';
 handles = panel_textlog(handles, msg);
 
 handles.reader = reader_emganalysis;
+handles.processed = process_emg(handles.reader);
 
-msg = ['Data opened.', 'Number of frames: ',  handles.reader.n_channels,];
+msg = ['Data opened.', ' Number of frames: ',  num2str(handles.reader.n_channels),];
 handles = panel_textlog(handles, msg);
 handles = graphs_emganalysis(handles);
+
+% progress bar update
+value = 1;
+progbar_update(handles.progress_bar, value);
 
 % Update handles structure
 guidata(hObject, handles);

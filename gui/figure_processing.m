@@ -247,14 +247,26 @@ switch handles.data_id
     % EMG analysis Signal Processing - Sylvia Dias application
     case 'emg analysis'
         callback_emganalysis(handles.fig);
-        handles = panel_emganalysis(handles);
-        handles.reader = reader_emganalysis;
         
-        msg = ['Data opened.', 'Number of channels: ',  handles.reader.n_channels];
+        % progress bar update
+        value = 1/2;
+        progbar_update(handles.progress_bar, value);
+        
+        handles.reader = reader_emganalysis;
+        handles.processed = process_emg(handles.reader);
+        
+        msg = ['Data opened. ', 'Number of channels: ',...
+            num2str(handles.reader.n_channels)];
         handles = panel_textlog(handles, msg);
         
+        handles = panel_emganalysis(handles);
         handles = graphs_emganalysis(handles);
-        open_id = 1;    
+        
+        % progress bar update
+        value = 1;
+        progbar_update(handles.progress_bar, value);
+        
+        open_id = 1;
         
         
     case 'myosystem'
@@ -477,6 +489,7 @@ end
 
 guidata(hObject, handles)
 
+
 function close_signalhunter(hObject,~)
 
 selection = questdlg('Close Signal Hunter?', 'Close', 'Yes', 'No', 'Yes');
@@ -484,8 +497,12 @@ switch selection
     case 'Yes'
         % remove temporary files and config files before closing figure
         handles = guidata(hObject);
-        rmdir(handles.config_dir, 's')
-        delete(get(0,'CurrentFigure'))
+        if exist(handles.config_dir,'dir')
+            rmdir(handles.config_dir, 's')
+            delete(get(0,'CurrentFigure'))
+        else
+            delete(get(0,'CurrentFigure'))
+        end
         
     case 'No'
         return

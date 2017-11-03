@@ -41,8 +41,10 @@ switch handles.data_id
         filt_id = export_multi(handles.reader, handles.processed);
         
     case 'emf_analysis'
-        filt_id = export_emf(handles.
-        
+        a = 0
+    
+    case 'emg analysis'
+        filt_id = export_emganalysis(handles.processed);
 end
 
 end
@@ -87,6 +89,63 @@ switch filt_id
         if isempty(previous_data)
             fid = fopen([pathname filename], 'w');
             fprintf(fid, '%s %s %s %s %s', headers{1,:});
+            fprintf(fid, the_format, export_data{1,:});
+            fclose(fid);
+        else
+            fid = fopen([pathname filename], 'a');
+            fprintf(fid, the_format, export_data{1,:});
+            fclose(fid);
+        end
+end
+
+end
+
+
+function filt_id = export_emganalysis(processed)
+%EXPORT_EMGANALYSIS Function to standardize the output for single EMG processing
+%   This function exports to Excel and ASCII file with data written in rows
+%   and variables in columns
+
+amp_max = processed.amp_max;
+rms = processed.rms;
+fmed = processed.fmed;
+fmean = processed.fmean;
+
+[filename, pathname, filt_id] = uiputfile({'*.xls;*.xlsx','MS Excel Files (*.xls,*.xlsx)'},...
+    'Export data', 'processed_data.xlsx');
+
+export_data = num2cell([amp_max(1)...
+    rms(2) fmed(2) fmean(2)...
+    rms(3) fmed(3) fmean(3)...
+    rms(4) fmed(4) fmean(4)...
+    rms(5) fmed(5) fmean(5)]);
+
+headers = [{'force'}...
+    {'rms_1'} {'fmed (Hz)_1'} {'fmean (Hz)_1'}...
+    {'rms_2'} {'fmed (Hz)_2'} {'fmean (Hz)_2'}...
+    {'rms_3'} {'fmed (Hz)_3'} {'fmean (Hz)_3'}...
+    {'rms_4'} {'fmed (Hz)_4'} {'fmean (Hz)_4'}];
+
+switch filt_id
+    case 1
+        if  exist([pathname filename], 'file')
+            [~, ~, previous_data] = xlsread([pathname filename]);
+            xlswrite([pathname filename], [previous_data; export_data])
+        else
+            xlswrite([pathname filename], [headers; export_data])
+        end
+                
+    case 2
+        fid = fopen([pathname filename]);
+        try
+            previous_data = fgets(fid);
+        catch
+            error('File could not be read.');
+        end
+        the_format = '\n%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d';
+        if isempty(previous_data)
+            fid = fopen([pathname filename], 'w');
+            fprintf(fid, '%%s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s', headers{1,:});
             fprintf(fid, the_format, export_data{1,:});
             fclose(fid);
         else
