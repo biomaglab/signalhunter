@@ -82,6 +82,8 @@ uimenu(hsubopen, 'Label', 'TMS + VC',...
     'Callback', @callback_open);
 uimenu(hsubopen, 'Label', 'EMF Analysis',...
     'Callback', @callback_open);
+uimenu(hsubopen, 'Label', 'EMG Analysis',...
+    'Callback', @callback_open);
 
 uimenu(hmenufile, 'Label', 'Save log',...
     'Callback', @callback_savelog);
@@ -107,6 +109,8 @@ hsubtools(2) = uimenu(hmenutools, 'Label', 'MEP analysis',...
     'Callback', @callback_mepanalysis);
 hsubtools(3) = uimenu(hmenutools, 'Label',...
     'Multi channels', 'Callback', @callback_multi);
+hsubtools(4) = uimenu(hmenutools, 'Label', 'EMG analysis',...
+    'Callback', @callback_emganalysis);
 
 set(hsubnew, 'Enable', 'off');
 set(hsubdata, 'Enable', 'off');
@@ -196,7 +200,7 @@ switch handles.data_id
             
         end
         
-        % MEP analysis Signal Processing - Abrahao Baptista application
+    % MEP analysis Signal Processing - Abrahao Baptista application
     case 'mep analysis'
         callback_mepanalysis(handles.fig);
         handles = panel_mepanalysis(handles);
@@ -207,8 +211,8 @@ switch handles.data_id
         
         handles = graphs_mepanalysis(handles);
         open_id = 1;
-        
-        % Multiple channels - Victor Souza application
+               
+    % Multiple channels - Victor Souza application
     case 'multi channels'
         handles = callback_multi(handles.fig);
         
@@ -239,6 +243,30 @@ switch handles.data_id
             handles = panel_textlog(handles, msg);
             
         end
+        
+    % EMG analysis Signal Processing - Sylvia Dias application
+    case 'emg analysis'
+        callback_emganalysis(handles.fig);
+        
+        % progress bar update
+        value = 1/2;
+        progbar_update(handles.progress_bar, value);
+        
+        handles.reader = reader_emganalysis;
+        handles.processed = process_emg(handles.reader);
+        
+        msg = ['Data opened. ', 'Number of channels: ',...
+            num2str(handles.reader.n_channels)];
+        handles = panel_textlog(handles, msg);
+        
+        handles = panel_emganalysis(handles);
+        handles = graphs_emganalysis(handles);
+        
+        % progress bar update
+        value = 1;
+        progbar_update(handles.progress_bar, value);
+        
+        open_id = 1;
         
         
     case 'myosystem'
@@ -374,6 +402,7 @@ end
 % Update handles structure
 guidata(hObject, handles);
 
+
 function handles = callback_multi(hObject, ~)
 % Callback - Sub Menu 2
 
@@ -400,6 +429,33 @@ end
 
 % Update handles structure
 guidata(hObject, handles);
+
+
+function callback_emganalysis(hObject, ~)
+% Callback - Sub Menu 4
+
+handles = guidata(hObject);
+
+if isfield(handles, 'panel_tools')
+    delete(handles.panel_tools);
+    handles = rmfield(handles, 'panel_tools');
+end
+if isfield(handles, 'panel_graph')
+    delete(handles.panel_graph);
+    handles = rmfield(handles, 'panel_graph');
+    handles = rmfield(handles, 'haxes');
+end
+
+if strcmp(get(handles.hsubtools(4), 'Checked'),'on')
+    set(handles.hsubtools(4), 'Checked', 'off');
+else
+    set(handles.hsubtools(:), 'Checked', 'off');
+    set(handles.hsubtools(4), 'Checked', 'on');
+end
+
+% Update handles structure
+guidata(hObject, handles);
+
 
 function callback_data(hObject, menu_id)
 %CALLBACK_DATA Summary of this function goes here
@@ -433,6 +489,7 @@ end
 
 guidata(hObject, handles)
 
+
 function close_signalhunter(hObject,~)
 
 selection = questdlg('Close Signal Hunter?', 'Close', 'Yes', 'No', 'Yes');
@@ -440,8 +497,12 @@ switch selection
     case 'Yes'
         % remove temporary files and config files before closing figure
         handles = guidata(hObject);
-        rmdir(handles.config_dir, 's')
-        delete(get(0,'CurrentFigure'))
+        if exist(handles.config_dir,'dir')
+            rmdir(handles.config_dir, 's')
+            delete(get(0,'CurrentFigure'))
+        else
+            delete(get(0,'CurrentFigure'))
+        end
         
     case 'No'
         return

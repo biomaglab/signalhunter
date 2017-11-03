@@ -40,6 +40,9 @@ switch handles.data_id
         
     case 'multi channels'
         filt_id = save_multi(handles.reader, handles.processed);
+       
+    case 'emg analysis'
+       filt_id = save_emganalysis(handles.reader, handles.processed);
         
 end
 
@@ -55,6 +58,19 @@ filename_aux = 'subject_data';
 
 if filt_id
     save([pathname filename], 'reader');
+end
+
+end
+
+function filt_id = save_emganalysis(reader, processed)
+
+filename_aux = 'subject_data';
+
+[filename, pathname, filt_id] = uiputfile({'*.mat','MATLAB File (*.mat)'},...
+    'Save processed data', filename_aux);
+
+if filt_id
+    save([pathname filename], 'processed', 'reader');
 end
 
 end

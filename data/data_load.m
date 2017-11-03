@@ -79,6 +79,25 @@ switch handles.data_id
             filt_id = 0;
         
         end
+        
+    case 'emg analysis'
+        try
+        [handles.reader, handles.processed] = load_emganalysis(handles.reader);
+        
+        if isfield(handles, 'panel_graph')
+            delete(handles.panel_graph);
+            handles = rmfield(handles, 'panel_graph');
+            handles = rmfield(handles, 'haxes');
+        end
+        
+        handles = graphs_emganalysis(handles);
+        
+        filt_id = 1;
+        
+        catch
+            filt_id = 0;
+        
+        end
 end
 
 function reader = load_mepanalysis(reader)
@@ -93,6 +112,22 @@ filename_aux = 'subject_data.mat';
 if filt_id
     data_load = load([pathname filename]);
     reader = data_load.reader;
+    
+end
+
+function [reader, processed] = load_emganalysis(reader)
+%LOAD_EMGANALYSIS Summary of this function goes here
+%   Detailed explanation goes here
+
+filename_aux = 'subject_data.mat';
+
+[filename, pathname, filt_id] = uigetfile({'*.mat','MATLAB File (*.mat)'},...
+    'Select the saved processed file', filename_aux);
+
+if filt_id
+    data_load = load([pathname filename]);
+    reader = data_load.reader;
+    processed = data_load.processed;
     
 end
 
