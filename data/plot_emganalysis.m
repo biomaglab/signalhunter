@@ -30,12 +30,12 @@ function [hamp, hlat, hend] = plot_emganalysis(ax, signal, xs, amp, lat)
 
 axes(ax);
 hold on
-hp = plot(xs, signal);
+plot(xs, signal);
 
 yl = get(ax, 'YLim');
 if amp(1) ~=0
 %     hpmin = plot(pmin(1), pmin(2), 'xr', 'MarkerSize', 15, 'LineWidth', 2);
-    hamp = plot([xs(amp(1)-round(0.03*amp(1))) xs(amp(1)+round(0.03*amp(1)))],...
+    hamp = plot([lat(1) lat(2)],...
         [amp(2) amp(2)], 'MarkerSize', 15,...
         'LineWidth', 2, 'Color', [0.4940 0.1840 0.5560]);
 else

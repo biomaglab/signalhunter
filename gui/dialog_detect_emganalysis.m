@@ -77,11 +77,15 @@ id = handles.id_cond;
 emg_lat = handles.processed.emg_start(id);
 emg_end = handles.processed.emg_end(id);
 pmax_I = handles.processed.pmax_I(id);
-amp_max = handles.processed.amp_max(id);
+% amp_max = handles.processed.amp_max(id);
+if id > 1
+    amp = handles.processed.rms(id);
+else
+    amp = handles.processed.amp_avg(id);
+end
 
 signal = handles.reader.signal;
 xs = handles.reader.xs;
-fs = handles.reader.fs;
 
 % pushbutton names
 pb_names = {'Amplitude', 'Window',...
@@ -128,7 +132,7 @@ pb_close_pos = [0.17, 0.05, 4/6, 0.10];
 pb_detect(1) = uicontrol(panel_graph, 'String', pb_names{1}, ...
     'FontSize', 10, 'FontWeight', 'bold', 'Units', 'normalized');
 set(pb_detect(1), 'Position', pb_detect_1_pos, ...
-    'Callback', @pb_detect_1_Callback);
+    'Callback', @pb_detect_1_Callback, 'Enable', 'off');
 
 % static text for minimum amplitude selection
 hstr(1,1) = uicontrol(panel_graph, 'String', num2str(0.00,'%.3f'), 'Style', 'text', ...
@@ -138,7 +142,7 @@ set(hstr(1,1), 'Position', str_1_min_pos);
 set(hstr(1,1), 'Visible', 'off');
 
 % static text for maximum amplitude selection
-hstr(1,2) = uicontrol(panel_graph, 'String', num2str(amp_max,'%.3f'), 'Style', 'text', ...
+hstr(1,2) = uicontrol(panel_graph, 'String', num2str(amp,'%.3f'), 'Style', 'text', ...
     'BackgroundColor', 'w', 'FontSize', 10, 'FontWeight', ...
     'bold', 'Units', 'normalized');
 set(hstr(1,2), 'Position', str_1_max_pos);
@@ -199,8 +203,8 @@ handles.axesdetect = axesdetect;
 handles.hstr = hstr;
 handles.pb_names = pb_names;
 
-[handles.hpmax, handles.hlat, handles.hend] = plot_emganalysis(axesdetect,...
-    signal(:,id), xs, [pmax_I amp_max], [emg_lat emg_end]);
+[handles.hamp, handles.hlat, handles.hend] = plot_emganalysis(axesdetect,...
+    signal(:,id), xs, [pmax_I amp], [emg_lat emg_end]);
 
 % handles = plot_graph(handles);
 
