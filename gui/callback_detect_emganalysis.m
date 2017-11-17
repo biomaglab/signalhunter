@@ -116,6 +116,7 @@ switch id_pb
       
         % ---- EMG end
         x(2) = x(1) + 2.0;
+        set(hstr(1,2), 'String', num2str(x(2),'%.3f'));
         handles.hend = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)], 'm',...
             'MarkerSize', 15, 'LineWidth', 2);
         
@@ -203,64 +204,71 @@ switch id_pb
         
     case 4
         
-        % ---- Delete previous plots
-        if isfield(handles,'hamp')
-            if ishandle(handles.hamp)
-                delete(handles.hamp)
-            end
+        selection = questdlg('Values from all channels will be replaced by initial values and any modification will be lost. Are you sure you want to continue?', 'Close', 'Yes', 'No', 'Yes');
+        switch selection
+            case 'Yes'
+                
+                % ---- Delete previous plots
+                if isfield(handles,'hamp')
+                    if ishandle(handles.hamp)
+                        delete(handles.hamp)
+                    end
+                end
+                
+                % ---- Delete previous plots
+                if isfield(handles,'hlat')
+                    if ishandle(handles.hlat)
+                        delete(handles.hlat)
+                        delete(handles.hend)
+                    end
+                end
+                
+                for n = 1:handles.reader.n_channels
+                    % Update EMGs amplitudes, minimum and maximum peaks
+                    handles.processed.pmax_I(n) = handles.processed.pmax_I_bkp(n);
+                    handles.processed.amp_max(n) = handles.processed.amp_max_bkp(n);
+                    handles.processed.amp_avg(n) = handles.processed.amp_avg_bkp(n);
+                    
+                    handles.processed.rms(n) = handles.processed.rms_bkp(n);
+                    handles.processed.fmed(n) = handles.processed.fmed_bkp(n);
+                    handles.processed.fmean(n) = handles.processed.fmean_bkp(n);
+                    
+                    % Update EMGs duration, start and end instants
+                    handles.processed.emg_start_I(n) = handles.processed.emg_start_I_bkp(n);
+                    handles.processed.emg_end_I(n) = handles.processed.emg_end_I_bkp(n);
+                    handles.processed.emg_start(n) = handles.processed.emg_start_bkp(n);
+                    handles.processed.emg_end(n) = handles.processed.emg_end_bkp(n);
+                end
+                
+                % Update amplitude plots
+                if id > 1
+                    amp = [handles.processed.pmax_I(id) handles.processed.rms(id)];
+                else
+                    amp = [handles.processed.pmax_I(id) handles.processed.amp_avg(id)];
+                end
+                
+                lat = [handles.processed.emg_start(id) handles.processed.emg_end(id)];
+                yl = get(axesdetect, 'YLim');
+                
+                % Update strings
+                hstr = handles.hstr(1, :);
+                set(hstr(1,1), 'String', num2str(0.00,'%.3f'));
+                set(hstr(1,2), 'String', num2str(amp(2),'%.3f'));
+                
+                hstr = handles.hstr(2, :);
+                set(hstr(1,1), 'String', num2str(handles.processed.emg_start(id),'%.3f'));
+                set(hstr(1,2), 'String', num2str(handles.processed.emg_end(id),'%.3f'));
+                
+                hold on
+                
+                handles.hamp = plot(axesdetect, [lat(1) lat(2)],...
+                    [amp(2) amp(2)], 'MarkerSize', 15,...
+                    'LineWidth', 2, 'Color', [0.4940 0.1840 0.5560]);
+                handles.hlat = plot(axesdetect, [lat(1) lat(1)], [yl(1) yl(2)], '--',...
+                    'MarkerSize', 15, 'LineWidth', 2, 'Color', [0.4660 0.6740 0.1880]);
+                handles.hend = plot(axesdetect, [lat(2) lat(2)], [yl(1) yl(2)], '--',...
+                    'MarkerSize', 15, 'LineWidth', 2, 'Color', [0.6350 0.0780 0.1840]);
+                hold off
         end
-        
-        % ---- Delete previous plots
-        if isfield(handles,'hlat')
-            if ishandle(handles.hlat)
-                delete(handles.hlat)
-                delete(handles.hend)
-            end
-        end
-        
-        % Update EMGs amplitudes, minimum and maximum peaks
-        handles.processed.pmax_I(id) = handles.processed.pmax_I_bkp(id);
-        handles.processed.amp_max(id) = handles.processed.amp_max_bkp(id);
-        handles.processed.amp_avg(id) = handles.processed.amp_avg_bkp(id);
-        
-        handles.processed.rms(id) = handles.processed.rms_bkp(id);
-        handles.processed.fmed(id) = handles.processed.fmed_bkp(id);
-        handles.processed.fmean(id) = handles.processed.fmean_bkp(id);
-        
-        % Update EMGs duration, start and end instants
-        handles.processed.emg_start_I(id) = handles.processed.emg_start_I_bkp(id);
-        handles.processed.emg_end_I(id) = handles.processed.emg_end_I_bkp(id);
-        handles.processed.emg_start(id) = handles.processed.emg_start_bkp(id);
-        handles.processed.emg_end(id) = handles.processed.emg_end_bkp(id);
-        
-        % Update strings
-        hstr = handles.hstr(1, :);
-        set(hstr(1,1), 'String', num2str(0.00,'%.3f'));
-        set(hstr(1,2), 'String', num2str(handles.processed.amp_max(id),'%.3f'));
-        
-        hstr = handles.hstr(2, :);
-        set(hstr(1,1), 'String', num2str(handles.processed.emg_start(id),'%.3f'));
-        set(hstr(1,2), 'String', num2str(handles.processed.emg_end(id),'%.3f'));
-        
-        % Update amplitude plots
-        if id > 1
-            amp = [handles.processed.pmax_I(id) handles.processed.rms(id)];
-        else
-            amp = [handles.processed.pmax_I(id) handles.processed.amp_avg(id)];
-        end
-
-        lat = [handles.processed.emg_start(id) handles.processed.emg_end(id)];
-        yl = get(axesdetect, 'YLim');
-        
-        hold on
-
-        handles.hamp = plot(axesdetect, [lat(1) lat(2)],...
-            [amp(2) amp(2)], 'MarkerSize', 15,...
-            'LineWidth', 2, 'Color', [0.4940 0.1840 0.5560]);
-        handles.hlat = plot(axesdetect, [lat(1) lat(1)], [yl(1) yl(2)], '--',...
-            'MarkerSize', 15, 'LineWidth', 2, 'Color', [0.4660 0.6740 0.1880]);
-        handles.hend = plot(axesdetect, [lat(2) lat(2)], [yl(1) yl(2)], '--',...
-        'MarkerSize', 15, 'LineWidth', 2, 'Color', [0.6350 0.0780 0.1840]);
-        hold off
 end
         
