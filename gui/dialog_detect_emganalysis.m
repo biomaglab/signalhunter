@@ -86,7 +86,6 @@ end
 
 signal = handles.reader.signal;
 xs = handles.reader.xs;
-fs = handles.reader.fs;
 
 % pushbutton names
 pb_names = {'Amplitude', 'Window',...

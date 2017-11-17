@@ -109,12 +109,11 @@ switch id_pb
         % Show information text to guide user to press enter button.
         set(info_text, 'BackgroundColor', [1 1 0.5], ...
             'String', 'Select the EMG start and click ENTER');
-        [x(1), y(1)] = getpts(axesdetect);
+        [x(1), ~] = getpts(axesdetect);
         set(hstr(1,1), 'String', num2str(x(1),'%.3f'));
         handles.hlat = plot(axesdetect, [x(1) x(1)], [yl(1) yl(2)], 'm',...
             'MarkerSize', 15, 'LineWidth', 2);
-        
-        
+      
         % ---- EMG end
         x(2) = x(1) + 2.0;
         handles.hend = plot(axesdetect, [x(2) x(2)], [yl(1) yl(2)], 'm',...
@@ -158,7 +157,7 @@ switch id_pb
             num2str(amp, '%.3f'));
         
         hold off
-        
+
     case 3
         
         % ---- Delete previous plots
@@ -249,10 +248,12 @@ switch id_pb
         else
             amp = [handles.processed.pmax_I(id) handles.processed.amp_avg(id)];
         end
+
         lat = [handles.processed.emg_start(id) handles.processed.emg_end(id)];
         yl = get(axesdetect, 'YLim');
         
         hold on
+
         handles.hamp = plot(axesdetect, [lat(1) lat(2)],...
             [amp(2) amp(2)], 'MarkerSize', 15,...
             'LineWidth', 2, 'Color', [0.4940 0.1840 0.5560]);

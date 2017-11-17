@@ -67,6 +67,7 @@ for n = 1:n_channels
     [fmed(n), rms(n), fmean(n)]= fmed_rms(signal(emg_start_I(n):emg_end_I(n)-1,n), fs, emg_end_I(n)-emg_start_I(n));
     [~, pmin, pmax] = p2p_amplitude(signal(:,n), fs, 1000*[t0 t1]);
     amp_avg(n) = mean(signal(emg_start_I(n):emg_end_I(n)-1,n));
+
     amp_min(n) = pmin(2);
     amp_max(n) = pmax(2);
     pmin_I(n) = pmin(1);
@@ -102,4 +103,5 @@ processed.pmax_I_bkp = pmax_I;
 processed.amp_min_bkp = amp_min;
 processed.amp_max_bkp = amp_max;
 processed.amp_avg_bkp = amp_avg;
+
 end

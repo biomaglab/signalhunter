@@ -70,7 +70,6 @@ pmax_I = handles.processed.pmax_I;
 % amp_max = handles.processed.amp_max;
 
 % creates the panel for mep analysis processing
-
 tic
 for n = 1:n_channels
     

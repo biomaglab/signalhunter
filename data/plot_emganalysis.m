@@ -30,7 +30,7 @@ function [hamp, hlat, hend] = plot_emganalysis(ax, signal, xs, amp, lat)
 
 axes(ax);
 hold on
-hp = plot(xs, signal);
+plot(xs, signal);
 
 yl = get(ax, 'YLim');
 if amp(1) ~=0
