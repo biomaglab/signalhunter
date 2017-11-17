@@ -67,34 +67,41 @@ emg_start = handles.processed.emg_start;
 emg_end = handles.processed.emg_end;
 
 pmax_I = handles.processed.pmax_I;
-amp_max = handles.processed.amp_max;
+% amp_max = handles.processed.amp_max;
 
 % creates the panel for mep analysis processing
 
 tic
-for i = 1:n_channels
+for n = 1:n_channels
+    
+    if n > 1
+        amp = handles.processed.rms;
+    else
+        amp = handles.processed.amp_avg;
+    end
+    
     panelgraph_mar = [panel_pos(1), 2*panel_pos(2),...
         2*panel_pos(1), 3*panel_pos(2)];
     panelgraph_pos = [panelgraph_mar(1), panelgraph_mar(2)+panel_pos(4),...
         1-panelgraph_mar(3) 1-(panelgraph_mar(4)+panel_pos(4))];
-    handles.panel_graph(1,i) = uipanel(handles.fig,...
-        'BackgroundColor', 'w', 'Title', fig_titles{i},...
+    handles.panel_graph(1,n) = uipanel(handles.fig,...
+        'BackgroundColor', 'w', 'Title', fig_titles{n},...
         'Units', 'normalized', 'Visible', 'off');
-    set(handles.panel_graph(1,i), 'Position', panelgraph_pos)
+    set(handles.panel_graph(1,n), 'Position', panelgraph_pos)
       
 %     handles.haxes(1,i) = graph_model(handles.panel_graph, fig_titles, i);
 %     [~, ~] = plot_mepanalysis(handles.haxes(1, i), signal(:,i),...
 %         xs, pmin(i,:), pmax(i,:), [mep_lat(i), mep_end(i)]);
     
-    handles.haxes(1,i) = graph_model(handles.panel_graph, fig_titles, i);
-    [~, ~, ~] = plot_emganalysis(handles.haxes(1, i), signal(:,i), xs,...
-        [pmax_I(i) amp_max(i)], [emg_start(i) emg_end(i)]);
+    handles.haxes(1,n) = graph_model(handles.panel_graph, fig_titles, n);
+    [~, ~, ~] = plot_emganalysis(handles.haxes(1, n), signal(:,n), xs,...
+        [pmax_I(n) amp(n)], [emg_start(n) emg_end(n)]);
     
     % progress bar update
-    value = i/n_channels;
+    value = n/n_channels;
     progbar_update(handles.progress_bar, value);
     
-    msg = [num2str(i) ' Plots of ', '" ', fig_titles{i}, ' " done.'];
+    msg = [num2str(n) ' Plots of ', '" ', fig_titles{n}, ' " done.'];
     handles = panel_textlog(handles, msg);
     
 end
@@ -121,12 +128,24 @@ if ~isempty(dialogdata)
     tp = 0.001;
     pause(tp)
     
-    handles.haxes(1, id) = refresh_axes(handles.haxes(1, id), handles.reader.signal(:, id),...
-        handles.reader.xs, handles.processed.pmax_I(id), handles.processed.amp_max(id), ...
-        handles.processed.emg_start(id), handles.processed.emg_end(id));
-    
-    msg = [num2str(id) ' Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " updated.'];
-    handles = panel_textlog(handles, msg);
+    for id = 1:handles.reader.n_channels
+        
+        if id > 1
+            amp = handles.processed.rms(id);
+        else
+            amp = handles.processed.amp_avg(id);
+        end
+        
+        handles.haxes(1, id) = refresh_axes(handles.haxes(1, id), handles.reader.signal(:, id),...
+            handles.reader.xs, handles.processed.pmax_I(id), amp, ...
+            handles.processed.emg_start(id), handles.processed.emg_end(id));
+        
+        msg = [num2str(id) ' Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " updated.'];
+        handles = panel_textlog(handles, msg);
+        
+        value = id/handles.reader.n_channels;
+        progbar_update(handles.progress_bar, value);
+    end
     
 else
     msg = [num2str(id) ' Data and plots for ', '" ', handles.reader.fig_titles{handles.id_cond}, ' " canceled.'];

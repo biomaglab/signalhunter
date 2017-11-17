@@ -57,6 +57,7 @@ fmed = zeros(n_channels, 1);
 fmean = zeros(n_channels, 1);
 rms = zeros(n_channels, 1);
 
+amp_avg = zeros(n_channels, 1);
 amp_min = zeros(n_channels, 1);
 amp_max = zeros(n_channels, 1);
 pmin_I = zeros(n_channels, 1);
@@ -65,6 +66,7 @@ pmax_I = zeros(n_channels, 1);
 for n = 1:n_channels
     [fmed(n), rms(n), fmean(n)]= fmed_rms(signal(emg_start_I(n):emg_end_I(n)-1,n), fs, emg_end_I(n)-emg_start_I(n));
     [~, pmin, pmax] = p2p_amplitude(signal(:,n), fs, 1000*[t0 t1]);
+    amp_avg(n) = mean(signal(emg_start_I(n):emg_end_I(n)-1,n));
     amp_min(n) = pmin(2);
     amp_max(n) = pmax(2);
     pmin_I(n) = pmin(1);
@@ -84,6 +86,11 @@ processed.pmin_I = pmin_I;
 processed.pmax_I = pmax_I;
 processed.amp_min = amp_min;
 processed.amp_max = amp_max;
+processed.amp_avg = amp_avg;
+
+processed.fmed_bkp = fmed;
+processed.fmean_bkp = fmean;
+processed.rms_bkp = rms;
 
 processed.emg_start_I_bkp = emg_start_I;
 processed.emg_end_I_bkp = emg_end_I;
@@ -94,5 +101,5 @@ processed.pmin_I_bkp = pmin_I;
 processed.pmax_I_bkp = pmax_I;
 processed.amp_min_bkp = amp_min;
 processed.amp_max_bkp = amp_max;
-
+processed.amp_avg_bkp = amp_avg;
 end
