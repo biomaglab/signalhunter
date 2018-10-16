@@ -208,6 +208,14 @@ handles.pb_names = pb_names;
 [handles.hsig, handles.hpeaks, handles.hlat] = plot_multi(axesdetect,...
     handles.processed, handles.id_axes);
 
+% set dialog axis limits according to average potential
+id_cond = handles.id_axes(1);
+ci = handles.id_axes(2);
+ri = handles.id_axes(3);
+pmin_av = handles.processed.pmin_av{id_cond,ci}(:,:,ri);
+pmax_av = handles.processed.pmax_av{id_cond,ci}(:,:,ri);
+ylim([1.1*pmin_av(2) 1.1*pmax_av(2)])
+
 for i = 1:length(handles.hsig)-1
    set(handles.hsig(i), 'Visible', 'off');
 end
