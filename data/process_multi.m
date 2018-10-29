@@ -106,8 +106,14 @@ for id_cond = 1:n_frames
         
         average_pots{id_cond,ci} = mean(split_pots{id_cond,ci},2);
         
+        samples_up_offset = ceil((tb0/1000)*fs{id_cond,ci});
+        samples_before_trigger = ceil((tb1/1000)*fs{id_cond,ci});
         triggeron_aux = find(trigger{id_cond,ci}/max(trigger{id_cond,ci}) > 0.5);
         triggeron_aux = (triggeron_aux(diff([-inf;triggeron_aux])>1));
+        % Remove the potentials without enough baseline, check for possible
+        % negative or zero indices in trigger. Look inside split_potentials
+        % function for more information
+        triggeron_aux = triggeron_aux((triggeron_aux - samples_up_offset - samples_before_trigger) > 0);
         % xs_norm in miliseconds and zero as trigger instant
         xs_norm{id_cond,ci} = (split_xs{id_cond,ci} - repmat(xs{id_cond,ci}(triggeron_aux)', [size(split_xs{id_cond,ci},1) 1]))*1000;
         

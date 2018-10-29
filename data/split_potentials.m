@@ -47,19 +47,22 @@ function [split_pots, split_baseline] = split_potentials(data, trigger, fs, tpot
 % and k is channels
 %
 
-% find trigger instants
-triggeron_aux = find(trigger/max(trigger) > 0.5);
-triggeron_aux = (triggeron_aux(diff([-inf;triggeron_aux])>1));
-
 % define epoch over which potentials will be split
 samples_to_offset = ceil((tpot(1)/1000)*fs);
 samples_after_trigger = ceil((tpot(2)/1000)*fs);
 
-samples_triggeron = ([triggeron_aux+samples_to_offset ones(numel(triggeron_aux),1)]*[ones(1,samples_after_trigger);1:samples_after_trigger])';
-
 % define baseline activity before trigger
 samples_up_offset = ceil((tbase(1)/1000)*fs);
 samples_before_trigger = ceil((tbase(2)/1000)*fs);
+
+% find trigger instants
+triggeron_aux = find(trigger/max(trigger) > 0.5);
+triggeron_aux = (triggeron_aux(diff([-inf;triggeron_aux])>1));
+% Alternative 3 (read 1 and 2 below) to remove the potentials without
+% enough baseline, check for possible negative or zero indices in trigger
+triggeron_aux = triggeron_aux((triggeron_aux - samples_up_offset - samples_before_trigger) > 0);
+
+samples_triggeron = ([triggeron_aux+samples_to_offset ones(numel(triggeron_aux),1)]*[ones(1,samples_after_trigger);1:samples_after_trigger])';
 
 samples_baseline = ([triggeron_aux-samples_up_offset ones(numel(triggeron_aux),1)]*[ones(1,samples_before_trigger);-samples_before_trigger:-1])';
 
@@ -73,9 +76,26 @@ if samples_triggeron(end, end) > length(data)
     end
 end
 
-pots = data(samples_triggeron(:),:);
-split_pots = reshape(pots,size(samples_triggeron,1),size(samples_triggeron,2),size(pots,2));
+% Work around if there is no sufficient baseline data before the trigger.
+% Alternative 1 is to fill all of those data points with zero, but then
+% there might be a bias in the baseline if the signal is offset
+% samples_baseline(samples_baseline <= 0) = 1;
+% baseline = data(samples_baseline(:),:);
+% baseline(samples_baseline <= 0, :) = 0.0;
+
+% Alternative 2 is to remove the potentials without enough baseline, which
+% may provide a more reliable and consistent analysis
+% [~, col] = find(samples_baseline <= 0);
+% 
+% if ~isempty(col)
+%     samples_baseline(:, unique(col)) = [];
+%     samples_triggeron(:, unique(col)) = [];
+% end
 
 baseline = data(samples_baseline(:),:);
 split_baseline = reshape(baseline,size(samples_baseline,1),size(samples_baseline,2),size(baseline,2));
+
+pots = data(samples_triggeron(:),:);
+split_pots = reshape(pots,size(samples_triggeron,1),size(samples_triggeron,2),size(pots,2));
+
 
