@@ -35,7 +35,11 @@ switch handles.data_id
         filt_id = export_tms_vc(handles.reader, handles.processed);
         
     case 'mep analysis'
-        filt_id = export_mepanalysis(handles.reader);
+        if handles.reader.process_id == 1
+            filt_id = export_csv_mepanalysis(handles.reader, handles.processed);
+        elseif handles.reader.process_id == 2
+            filt_id = export_mepanalysis(handles.reader);
+        end
         
     case 'multi channels'
         filt_id = export_multi(handles.reader, handles.processed);
@@ -100,6 +104,106 @@ end
 
 end
 
+function filt_id = export_csv_mepanalysis(reader, processed)
+%EXPORT_MEPANALYSIS Function to standardize the output for single MEP processing
+%   This function exports to Excel and ASCII file with data written in rows
+%   and variables in columns
+
+chan = reader.fig_titles;
+n_pots = processed.n_pots;
+n_ch = length(chan);
+
+ppamp_av = processed.ppamp_av;
+latency_av = processed.latency_av;
+
+[ppamp_av_arr, idlabel_av] = arrange_table(ppamp_av);
+[latency_av_arr, ~] = arrange_table(latency_av);
+
+ppamp = processed.ppamp;
+latency = processed.latency;
+
+[ppamp_arr, idlabel] = arrange_table(ppamp);
+[latency_arr, ~] = arrange_table(latency);
+
+ntot_av = length(ppamp_av_arr);
+ntot = length(ppamp_arr);
+
+nrep = [1, n_pots];
+reorder = [2,1];
+
+channel = reshape(permute(repmat(chan, nrep), reorder), [ntot,1]);
+channel_av = reshape(chan,[ntot_av,1]);
+
+export_data_av = [channel_av idlabel_av ppamp_av_arr latency_av_arr];
+export_data = [channel idlabel ppamp_arr latency_arr];
+headers = [{'channel'} {'label'} {'amplitude (uV)'} {'latency (ms)'}];
+
+[filename, pathname, filt_id] = uiputfile({'*.xls;*.xlsx','MS Excel Files (*.xls,*.xlsx)';...
+    '*.txt', 'ASCII format (*.txt)'}, 'Export data', 'processed_data.xlsx');
+
+[filename_av, pathname_av, ~] = uiputfile({'*.xls;*.xlsx','MS Excel Files (*.xls,*.xlsx)';...
+    '*.txt', 'ASCII format (*.txt)'}, 'Export data averaged', 'processed_data_av.xlsx');
+
+switch filt_id
+    case 1
+        if  exist([pathname filename], 'file')
+            [~, ~, previous_data] = xlsread([pathname filename]);
+            xlswrite([pathname filename], [previous_data; export_data])
+        else
+            xlswrite([pathname filename], [headers; export_data])
+        end
+        
+        if  exist([pathname_av filename_av], 'file')
+            [~, ~, previous_data_av] = xlsread([pathname_av filename_av]);
+            xlswrite([pathname_av filename_av], [previous_data_av; export_data_av])
+        else
+            xlswrite([pathname_av filename_av], [headers; export_data_av])
+        end
+        
+    case 2
+        fid = fopen([pathname filename]);
+        the_format = '\n%s %s %.4f %.4f';
+        try
+            previous_data = fgets(fid);
+        catch
+            error('File could not be read.');
+        end
+        
+        if isempty(previous_data)
+            fid = fopen([pathname filename], 'w');
+            fprintf(fid, '%s %s %s %s', headers{1,:});
+            for ri = 1:ntot
+                fprintf(fid, the_format, export_data{ri,:});
+            end
+            fclose(fid);
+        else
+            fid = fopen([pathname filename], 'a');
+            fprintf(fid, the_format, export_data{1,:});
+            fclose(fid);
+        end
+        
+        fid_av = fopen([pathname_av filename_av]);
+        try
+            previous_data_av = fgets(fid_av);
+        catch
+            error('File could not be read.');
+        end
+        
+        if isempty(previous_data_av)
+            fid_av = fopen([pathname_av filename_av], 'w');
+            fprintf(fid_av, '%s %s %s %s', headers{1,:});
+            for ri = 1:ntot_av
+                fprintf(fid_av, the_format, export_data_av{ri,:});
+            end
+            fclose(fid_av);
+        else
+            fid_av = fopen([pathname_av filename_av], 'a');
+            fprintf(fid_av, the_format, export_data_av{1,:});
+            fclose(fid_av);
+        end
+end
+
+end
 
 function filt_id = export_emganalysis(processed)
 %EXPORT_EMGANALYSIS Function to standardize the output for single EMG processing

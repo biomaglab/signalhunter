@@ -42,7 +42,12 @@ ri = handles.id_axes(3);
 
 info_text = handles.info_text;
 
-fs = handles.reader.fs{id_cond, ci};
+if iscell(handles.reader.fs)
+    fs = handles.reader.fs{id_cond, ci};
+else
+    fs = handles.reader.fs;
+end
+
 xs_norm = handles.processed.xs_norm{id_cond,ci}(:,1);
 average_pots = handles.processed.average_pots{id_cond,ci}(:,:,ri);
 
