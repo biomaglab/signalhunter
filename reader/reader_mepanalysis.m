@@ -61,7 +61,7 @@ function reader = csv_reader(data_aux, pathname, filename)
 % TODO: Find a way to know the sampling frequency when no time
 % vector is exported in file
 
-disp(['Size of data: ' num2str(size(data_aux, 2))])
+% disp(['Size of data: ' num2str(size(data_aux, 2))])
 
 if isstruct(data_aux)
     if size(data_aux.data, 2) == 5
@@ -93,7 +93,6 @@ fig_titles = cell(n_frames, 1);
 for id = 1:n_frames
     fig_titles{id,1} = strcat('CH', num2str(id));
 end
-
 
 signal.xs = xs;
 signal.data = data;

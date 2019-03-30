@@ -86,6 +86,14 @@ globalmax = zeros(n_frames, 1);
 npot = zeros(n_frames, 1);
 nmusc = zeros(n_frames, 1);
 
+try
+    check_trigger(trigger, fs, [t0 t1], [tb0 tb1])
+catch
+    msg = 'Problem detecting triggers, be sure that triggers are valid.';
+    herror = errordlg(msg, 'Error');
+    error(msg)
+end
+
 % Waitbar to show frames progess
 % Used this instead of built-in figure progess bar to avoid need of handles
 hbar = waitbar(0,'Frame 1','Name','Processing signals...');
@@ -174,5 +182,30 @@ processed.globalmax = globalmax;
 
 processed.n_muscles = n_muscles;
 processed.n_pots = n_pots;
+
+end
+
+
+function check_trigger(trigger, fs, tpot, tbase)
+
+% define epoch over which potentials will be split
+samples_to_offset = ceil((tpot(1)/1000)*fs);
+samples_after_trigger = ceil((tpot(2)/1000)*fs);
+
+% define baseline activity before trigger
+samples_up_offset = ceil((tbase(1)/1000)*fs);
+samples_before_trigger = ceil((tbase(2)/1000)*fs);
+
+
+% find trigger instants
+triggeron_aux = find(trigger/max(trigger) > 0.5);
+triggeron_aux = (triggeron_aux(diff([-inf;triggeron_aux])>1));
+% Alternative 3 (read 1 and 2 below) to remove the potentials without
+% enough baseline, check for possible negative or zero indices in trigger
+triggeron_aux = triggeron_aux((triggeron_aux - samples_up_offset - samples_before_trigger) > 0);
+
+samples_triggeron = ([triggeron_aux+samples_to_offset ones(numel(triggeron_aux),1)]*[ones(1,samples_after_trigger);1:samples_after_trigger])';
+
+samples_baseline = ([triggeron_aux-samples_up_offset ones(numel(triggeron_aux),1)]*[ones(1,samples_before_trigger);-samples_before_trigger:-1])';
 
 end
