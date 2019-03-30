@@ -92,7 +92,15 @@ end
 %     samples_triggeron(:, unique(col)) = [];
 % end
 
-baseline = data(samples_baseline(:),:);
+% temporary solution to problems reading the signal with negative indices
+% in baseline
+try
+    baseline = data(samples_baseline(:),:);
+catch
+    samples_baseline = (1:numel(samples_baseline))';
+    baseline = data(samples_baseline(:),:);
+end
+% baseline = data(samples_baseline(:),:);
 split_baseline = reshape(baseline,size(samples_baseline,1),size(samples_baseline,2),size(baseline,2));
 
 pots = data(samples_triggeron(:),:);
