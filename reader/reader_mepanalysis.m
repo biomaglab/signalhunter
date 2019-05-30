@@ -63,27 +63,39 @@ function reader = csv_reader(data_aux, pathname, filename)
 
 % disp(['Size of data: ' num2str(size(data_aux, 2))])
 
+% Workaround for Jordania data
+% TODO: Have to ask user how the columns on the data file is organized
 if isstruct(data_aux)
-    if size(data_aux.data, 2) == 5
-        xs = data_aux.data(:,1);
-        data = data_aux.data(:,2:end-1);
-        trigger = data_aux.data(:,end);
-    else
-        xs = (0:size(data_aux.data(:,1)))'/2000;
-        data = data_aux.data(:,1:end-1);
-        trigger = data_aux.data(:,end);
-    end
+    xs = data_aux.data(:,1);
+    data = data_aux.data(:,2:end-1);
+    trigger = data_aux.data(:,end);
 else
-    if size(data_aux, 2) == 5
-        xs = data_aux(:,1);
-        data = data_aux(:,2:end-1);
-        trigger = data_aux(:,end);
-    else
-        xs = (0:size(data_aux(:,1)))'/2000;
-        data = data_aux(:,1:end-1);
-        trigger = data_aux(:,end);
-    end
+    xs = data_aux(:,1);
+    data = data_aux(:,2:end-1);
+    trigger = data_aux(:,end);
 end
+
+% if isstruct(data_aux)
+%     if size(data_aux.data, 2) == 5
+%         xs = data_aux.data(:,1);
+%         data = data_aux.data(:,2:end-1);
+%         trigger = data_aux.data(:,end);
+%     else
+%         xs = (0:size(data_aux.data(:,1)))'/2000;
+%         data = data_aux.data(:,1:end-1);
+%         trigger = data_aux.data(:,end);
+%     end
+% else
+%     if size(data_aux, 2) == 5
+%         xs = data_aux(:,1);
+%         data = data_aux(:,2:end-1);
+%         trigger = data_aux(:,end);
+%     else
+%         xs = (0:size(data_aux(:,1)))'/2000;
+%         data = data_aux(:,1:end-1);
+%         trigger = data_aux(:,end);
+%     end
+% end
 
 fs = 1/(xs(3,1)-xs(2,1));
 
