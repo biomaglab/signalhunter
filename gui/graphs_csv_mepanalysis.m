@@ -78,6 +78,7 @@ for i = 1:n_frames
     set(handles.panel_graph(1,i), 'Position', panelgraph_pos)
       
     handles.haxes(1,i) = graph_model(handles.panel_graph, fig_titles, i);
+    
     [~, ~] = plot_mepanalysis(handles.haxes(1, i), signal(:,i),...
         xs, pmin(i,:), pmax(i,:), [mep_lat(i), mep_end(i)]);
     
@@ -143,7 +144,7 @@ set(ax, 'LooseInset', loose_inset, ...
 set(ax, 'ButtonDownFcn', @axes_ButtonDownFcn, ...
     'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
 set(get(ax,'Title'),'String',fig_titles{id_cond})
-set(get(ax,'XLabel'),'String','Time (s)')
+set(get(ax,'XLabel'),'String','Time (ms)')
 set(get(ax,'YLabel'),'String','Amplitude (mV)')
  
 function ax = refresh_axes(ax, signal, xs, pmin, pmax, lat)

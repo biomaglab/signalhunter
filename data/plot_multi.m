@@ -58,7 +58,11 @@ for n = 1:n_pots
 end
 set(hsig(end), 'Color', 'k');
 
-axis([xs_norm(1,1) xs_norm(end,1) 1.2*globalmin 1.2*globalmax]);
+if globalmin < 0
+    axis([xs_norm(1,1) xs_norm(end,1) 1.2*globalmin 1.2*globalmax]);
+else
+    axis([xs_norm(1,1) xs_norm(end,1) 0.8*globalmin 1.2*globalmax]);
+end
 
 lim = axis;
 

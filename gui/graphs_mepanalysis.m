@@ -159,8 +159,8 @@ set(ax, 'LooseInset', loose_inset, ...
 set(ax, 'ButtonDownFcn', @axes_ButtonDownFcn, ...
     'LooseInset', loose_inset, 'FontSize', 7, 'NextPlot', 'add');
 set(get(ax,'Title'),'String',fig_titles{id_cond})
-set(get(ax,'XLabel'),'String','Time (s)')
-set(get(ax,'YLabel'),'String','Amplitude (mV)')
+set(get(ax,'XLabel'),'String','Time (ms)')
+set(get(ax,'YLabel'),'String','Amplitude (uV)')
 
 function ax = refresh_axes(handles)
 % function ax = refresh_axes(handles, signal, xs, pmin, pmax, lat)

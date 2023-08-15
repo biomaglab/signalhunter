@@ -48,12 +48,14 @@ xs = signal.xs;
 data = signal.data;
 trigger = signal.trigger;
 
+epoched = false;
+
 % Potential window start after trigger onset (miliseconds)
 t0 = 10;
 % Potential window duration after t0 (miliseconds)
 t1 = 60;
 % Potential window start for peak findind (miliseconds)
-tstart = 1;
+tstart = 5;
 
 % Baseline window start before trigger onset (miliseconds)
 tb0 = 1;
@@ -87,7 +89,11 @@ npot = zeros(n_frames, 1);
 nmusc = zeros(n_frames, 1);
 
 try
-    check_trigger(trigger, fs, [t0 t1], [tb0 tb1])
+    if trigger
+        check_trigger(trigger, fs, [t0 t1], [tb0 tb1])
+    else
+        epoched = true;
+    end
 catch
     msg = 'Problem detecting triggers, be sure that triggers are valid.';
     herror = errordlg(msg, 'Error');
@@ -100,11 +106,28 @@ hbar = waitbar(0,'Frame 1','Name','Processing signals...');
 
 for id_f = 1:n_frames
     
-    [split_pots{id_f, 1}, split_baseline{id_f, 1}] = split_potentials(data(:,id_f),...
-        trigger, fs, [t0 t1], [tb0 tb1]);
-    % time array in seconds and split relative to trigger
-    [split_xs{id_f, 1}, ~] = split_potentials(xs, trigger, fs,...
-        [t0 t1], [tb0 tb1]);
+    if epoched
+        split_pots{id_f, 1} = data(:,id_f);
+        split_xs{id_f, 1} = xs;
+        xs_norm{id_f,1} = xs*1000;
+    else
+        [split_pots{id_f, 1}, split_baseline{id_f, 1}] = split_potentials(data(:,id_f),...
+            trigger, fs, [t0 t1], [tb0 tb1]);
+        % time array in seconds and split relative to trigger
+        [split_xs{id_f, 1}, ~] = split_potentials(xs, trigger, fs,...
+            [t0 t1], [tb0 tb1]);
+
+        samples_up_offset = ceil((tb0/1000)*fs);
+        samples_before_trigger = ceil((tb1/1000)*fs);
+        triggeron_aux = find(trigger/max(trigger) > 0.5);
+        triggeron_aux = (triggeron_aux(diff([-inf;triggeron_aux])>1));
+        % Remove the potentials without enough baseline, check for possible
+        % negative or zero indices in trigger. Look inside split_potentials
+        % function for more information
+        triggeron_aux = triggeron_aux((triggeron_aux - samples_up_offset - samples_before_trigger) > 0);
+        % xs_norm in miliseconds and zero as trigger instant
+        xs_norm{id_f,1} = (split_xs{id_f,1} - repmat(xs(triggeron_aux)', [size(split_xs{id_f,1},1) 1]))*1000;
+    end
     
     ppamp{id_f,1} = zeros(1,size(split_pots{id_f, 1},2), size(split_pots{id_f, 1},3));
     pmin{id_f,1} = zeros(2,size(split_pots{id_f, 1},2), size(split_pots{id_f, 1},3));
@@ -112,16 +135,6 @@ for id_f = 1:n_frames
     
     average_pots{id_f,1} = mean(split_pots{id_f,1},2);
     
-    samples_up_offset = ceil((tb0/1000)*fs);
-    samples_before_trigger = ceil((tb1/1000)*fs);
-    triggeron_aux = find(trigger/max(trigger) > 0.5);
-    triggeron_aux = (triggeron_aux(diff([-inf;triggeron_aux])>1));
-    % Remove the potentials without enough baseline, check for possible
-    % negative or zero indices in trigger. Look inside split_potentials
-    % function for more information
-    triggeron_aux = triggeron_aux((triggeron_aux - samples_up_offset - samples_before_trigger) > 0);
-    % xs_norm in miliseconds and zero as trigger instant
-    xs_norm{id_f,1} = (split_xs{id_f,1} - repmat(xs(triggeron_aux)', [size(split_xs{id_f,1},1) 1]))*1000;
     
     for ri = 1:size(split_pots{id_f, 1},3)
         
@@ -132,15 +145,20 @@ for id_f = 1:n_frames
         [ppamp_av{id_f,1}(:,:,ri), pmin_av{id_f,1}(:,:,ri), pmax_av{id_f,1}(:,:,ri)] = p2p_amplitude(average_pots{id_f,1}(:,:,ri), fs, [tstart t1]);
         %             latency_I_av{id_cond,1}(:,:,ri) = find_latency(average_pots{id_cond,1}(:,:,ri), thresh_lat);
         
-        latency{id_f,1}(1,:,ri) = find_latency(split_pots{id_f,1}(:,:,ri), thresh_lat);
+        latency{id_f,1}(1,:,ri) = find_latency(split_pots{id_f,1}(:,:,ri), thresh_lat, fs, [tstart t1]);
         latency{id_f,1}(2,:,ri) = xs_norm{id_f,1}(latency{id_f,1}(1,:,ri));
-        latency_av{id_f,1}(1,:,ri) = find_latency(average_pots{id_f,1}(:,:,ri), thresh_lat);
+        latency_av{id_f,1}(1,:,ri) = find_latency(average_pots{id_f,1}(:,:,ri), thresh_lat, fs, [tstart t1]);
         latency_av{id_f,1}(2,:,ri) = xs_norm{id_f,1}(latency_av{id_f,1}(1,:,ri));
         
     end
-    
-    globalmin(id_f,1) = min(min(min(pmin{id_f,1})));
-    globalmax(id_f,1) = max(max(max(pmax{id_f,1})));
+
+    if epoched
+        globalmin(id_f,1) = pmin{id_f,1}(2);
+        globalmax(id_f,1) = pmax{id_f,1}(2);
+    else
+        globalmin(id_f,1) = min(min(min(pmin{id_f,1}(2,:))));
+        globalmax(id_f,1) = max(max(max(pmax{id_f,1}(2,:))));
+    end
     
     npot(id_f,1) = size(ppamp{id_f,1},2);
     nmusc(id_f,1) = size(ppamp{id_f,1},3);

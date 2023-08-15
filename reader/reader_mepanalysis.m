@@ -29,34 +29,54 @@
 function reader = reader_mepanalysis
 
 % DEV MODE - REMOVE AFTER FINISHED
-[filename, pathname, filt_id] = uigetfile({'*.csv','Comma-separated values (*.csv)';...
-    '*.mat','MAT-files (*.mat)'}, 'Select the signal file', '05_FCP_HE_60rMT.csv');
+[filename, pathname, filt_id] = uigetfile({'*.csv','MagVenture - Comma-separated values (*.csv)';...
+    '*.csv', 'Comma-separated values (*.csv)'; ...
+    '*.mat','MAT-files (*.mat)'},...
+    'Select the signal file', 'MEP Data (64-745).csv');
 
 % loading signal and configuration data
 % [filename, pathname, filt_id] = uigetfile({'*.csv','Comma-separated values (*.csv)';...
 %     '*.mat','MAT-files (*.mat)'}, 'Select the signal file');
 
+% [filename, pathname, filt_id] = uigetfile({'*.csv','MagVenture - Comma-separated values (*.csv)';...
+%     '*.csv', 'Comma-separated values (*.csv)'; ...
+%     '*.mat','MAT-files (*.mat)'},...
+%     'Select the signal file', '05_FCP_HE_60rMT.csv');
+
 switch filt_id
+    case 0
+        reader = false;
     case 1
-        data = importdata([pathname filename]);
-        reader = csv_reader(data, pathname, filename);        
-               
+        opts = delimitedTextImportOptions("NumVariables", 11);
+
+        % Specify range and delimiter
+        opts.DataLines = [23, Inf];
+        opts.Delimiter = ";";
+        % Specify file level properties
+        opts.ExtraColumnsRule = "ignore";
+        opts.EmptyLineRule = "read";
+
+        % Import the data
+        data = table2array(readtable([pathname filename], opts));
+        data = [cellfun(@str2num, data(:,1:end))];
+        % data = importdata([pathname filename]);
+        reader = csv_reader(data, pathname, filename, true);
     case 2
+        data = importdata([pathname filename]);
+        reader = csv_reader(data, pathname, filename, false);
+    case 3
         data_aux = load([pathname filename]);
         var_name = fieldnames(data_aux);
         eval(['data = data_aux.' var_name{1} ';']);
         reader = mat_reader(data);
-        
-end
 
 end
 
+end
 
-function reader = csv_reader(data_aux, pathname, filename)
-% Comma-sepparated values needs to be organized as such:
-% 1st column: the time vector
-% 2nd - nth column: the EMG channels
-% Last column: is the TMS trigger channel
+
+function reader = csv_reader(data_aux, pathname, filename, epoched)
+
 
 % TODO: Find a way to know the sampling frequency when no time
 % vector is exported in file
@@ -70,9 +90,23 @@ if isstruct(data_aux)
     data = data_aux.data(:,2:end-1);
     trigger = data_aux.data(:,end);
 else
-    xs = data_aux(:,1);
-    data = data_aux(:,2:end-1);
-    trigger = data_aux(:,end);
+    if epoched
+        % MagVenture CSV data is in microseconds and microvolts, converting
+        % to seconds and milivolts
+        xs = data_aux(:,1)/1e6;
+        data = data_aux(:,2:end);
+        trigger = false;
+    else
+        % Comma-sepparated values needs to be organized as such:
+        % 1st column: the time vector
+        % 2nd - nth column: the EMG channels
+        % Last column: is the TMS trigger channel
+        % CSV data from Jordania is in seconds and microvolts, converting
+        % to seconds and milivolts
+        xs = data_aux(:,1);
+        data = data_aux(:,2:end-1);
+        trigger = data_aux(:,end);
+    end
 end
 
 % if isstruct(data_aux)
@@ -102,8 +136,14 @@ fs = 1/(xs(3,1)-xs(2,1));
 n_frames = size(data, 2);
 fig_titles = cell(n_frames, 1);
 
+if epoched
+    title_label = 'MEP';
+else
+    title_label = 'CH';
+end
+
 for id = 1:n_frames
-    fig_titles{id,1} = strcat('CH', num2str(id));
+    fig_titles{id,1} = strcat(title_label, num2str(id));
 end
 
 signal.xs = xs;
