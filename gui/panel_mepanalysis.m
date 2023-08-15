@@ -191,11 +191,23 @@ handles = guidata(hObject);
 msg = 'Reading signal data...';
 handles = panel_textlog(handles, msg);
 
-handles.reader = reader_mepanalysis;
+reader = reader_mepanalysis;
+processed = process_mepanalysis(reader);
 
-msg = ['Data opened.', 'Number of frames: ',  handles.reader.n_meps,];
+msg = ['Data opened. Number of MEPs: ',...
+    num2str(reader.n_frames)];
 handles = panel_textlog(handles, msg);
-handles = graphs_mepanalysis(handles);
+
+handles.reader = reader;
+handles.processed = processed;
+
+handles = panel_mepanalysis(handles);
+if reader.process_id == 1
+    handles = graphs_mepanalysis(handles);
+    
+elseif reader.process_id == 2
+    handles = graphs_csv_mepanalysis(handles);
+end
 
 % Update handles structure
 guidata(hObject, handles);

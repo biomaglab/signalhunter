@@ -26,7 +26,7 @@
 % Date: 13.11.2016
 
 
-function varargout = dialog_detect_multi(handles)
+function varargout = dialog_detect_csv_mepanalysis(handles)
 % DIALOG_DETECT Creates GUI panel and controls when axes Button Down Fcn is assessed
 % This GUI allows the user to change and manipulated the peak, time and
 % threshold selections in the signal plotted in one axes
@@ -214,26 +214,7 @@ ci = handles.id_axes(2);
 ri = handles.id_axes(3);
 pmin_av = handles.processed.pmin_av{id_cond,ci}(:,:,ri);
 pmax_av = handles.processed.pmax_av{id_cond,ci}(:,:,ri);
-% ylim([1.1*pmin_av(2) 1.1*pmax_av(2)])
-
-% When minimum is higher than 0 or the maximum lower than 0 the limits have
-% to be redefined.
-% TODO: This should not depend on the point selected but on the signal,
-% otherwise it can fail to adjust the limits when subject select points
-% lower than the signal maximum.
-% if pmax_av(2) > 0
-%     if pmin_av(2) > 0
-%         ylim([0.9*pmin_av(2) 1.1*pmax_av(2)])
-%     else
-%         ylim([1.1*pmin_av(2) 1.1*pmax_av(2)])
-%     end
-% else
-%     if pmin_av(2) > 0
-%         ylim([0.9*pmin_av(2) 0.9*pmax_av(2)])
-%     else
-%         ylim([1.1*pmin_av(2) 0.9*pmax_av(2)])
-%     end
-% end
+ylim([1.1*pmin_av(2) 1.1*pmax_av(2)])
 
 for i = 1:length(handles.hsig)-1
    set(handles.hsig(i), 'Visible', 'off');

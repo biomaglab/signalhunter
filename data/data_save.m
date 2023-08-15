@@ -36,7 +36,11 @@ switch handles.data_id
         filt_id = save_tms_vc(handles.reader, handles.processed);
         
     case 'mep analysis'
-        filt_id = save_mepanalysis(handles.reader);
+        if handles.reader.process_id == 1
+            filt_id = save_csv_mepanalysis(handles.reader, handles.processed);
+        elseif handles.reader.process_id == 2
+            filt_id = save_mepanalysis(handles.reader);
+        end
         
     case 'multi channels'
         filt_id = save_multi(handles.reader, handles.processed);
@@ -61,6 +65,21 @@ if filt_id
 end
 
 end
+
+
+function filt_id = save_csv_mepanalysis(reader, processed)
+
+[~, filename_aux, ~] = fileparts(reader.filename);
+
+[filename, pathname, filt_id] = uiputfile({'*.mat','MATLAB File (*.mat)'},...
+    'Save processed data', filename_aux);
+
+if filt_id
+    save([pathname filename], 'reader', 'processed');
+end
+
+end
+
 
 function filt_id = save_emganalysis(reader, processed)
 

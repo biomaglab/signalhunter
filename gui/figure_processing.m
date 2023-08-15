@@ -200,16 +200,29 @@ switch handles.data_id
             
         end
         
-    % MEP analysis Signal Processing - Abrahao Baptista application
+    % MEP analysis Signal Processing - Abrahao Baptista and Jordania Alma
+    % appplication
     case 'mep analysis'
-        callback_mepanalysis(handles.fig);
-        handles = panel_mepanalysis(handles);
-        handles.reader = reader_mepanalysis;
+        handles = callback_mepanalysis(handles.fig);
         
-        msg = ['Data opened.', 'Number of MEPs: ',  handles.reader.n_meps];
+        reader = reader_mepanalysis;
+        processed = process_mepanalysis(reader);
+        
+        msg = ['Data opened. Number of MEPs: ',...
+            num2str(reader.n_frames)];
         handles = panel_textlog(handles, msg);
         
-        handles = graphs_mepanalysis(handles);
+        handles.reader = reader;
+        handles.processed = processed;
+        
+        handles = panel_mepanalysis(handles);
+        if reader.process_id == 1
+            handles = graphs_mepanalysis(handles);
+            
+        elseif reader.process_id == 2
+            handles = graphs_csv_mepanalysis(handles);
+        end
+        
         open_id = 1;
                
     % Multiple channels - Victor Souza application
@@ -377,7 +390,7 @@ end
 guidata(hObject, handles);
 
 
-function callback_mepanalysis(hObject, ~)
+function handles = callback_mepanalysis(hObject, ~)
 % Callback - Sub Menu 2
 
 handles = guidata(hObject);
