@@ -26,7 +26,7 @@
 % Date: 13.11.2016
 
 
-function lat = find_latency(data, threshold)
+function lat = find_latency(data, threshold, fs, twin)
 %LATENCY Calculate potentials latency
 % Use differential signal and then calculate the standard deviation of all
 % diff values, then get the location where diff value is 2 times the mean
@@ -49,6 +49,20 @@ function lat = find_latency(data, threshold)
 data = squeeze(data);
 n_signals = size(data,2);
 
+% convert time window in miliseconds to array position
+if ~exist('twin', 'var')
+    t0 = 1;
+    tend = size(data,1);
+elseif isempty(twin)
+    t0 = 1;
+    tend = size(data,1);
+else
+    t0 = ceil(twin(1)*fs/1000);
+    tend = ceil(twin(2)*fs/1000);
+end
+
+data_windowed = data(t0:tend, :);
+
 % threshold of 0.7 is good
 threshood_std = threshold;
 
@@ -64,7 +78,7 @@ lat = zeros(1,n_signals);
 
 % moving average filter for signal smoothing and noise reduction
 window = ones(1,windowSize);
-fpotential = filter(window, windowSize, data', [], 2)';
+fpotential = filter(window, windowSize, data_windowed', [], 2)';
 
 % differential signal is greater during potential and smaller for noise
 diff_fpotential = diff([fpotential(1,:); fpotential], [], 1);
@@ -77,7 +91,7 @@ for i = 1:n_signals
     elseif isempty(lat_aux)
         lat(1,i) = 1;
     else
-        lat(1,i) = lat_aux;
+        lat(1,i) = lat_aux + (t0-1);
     end    
 end
 

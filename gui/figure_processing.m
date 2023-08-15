@@ -206,24 +206,32 @@ switch handles.data_id
         handles = callback_mepanalysis(handles.fig);
         
         reader = reader_mepanalysis;
-        processed = process_mepanalysis(reader);
-        
-        msg = ['Data opened. Number of MEPs: ',...
-            num2str(reader.n_frames)];
-        handles = panel_textlog(handles, msg);
-        
-        handles.reader = reader;
-        handles.processed = processed;
-        
-        handles = panel_mepanalysis(handles);
-        if reader.process_id == 1
-            handles = graphs_mepanalysis(handles);
+        if isstruct(reader)
+            processed = process_mepanalysis(reader);
             
-        elseif reader.process_id == 2
-            handles = graphs_csv_mepanalysis(handles);
+            msg = ['Data opened. Number of MEPs: ',...
+                num2str(reader.n_frames)];
+            handles = panel_textlog(handles, msg);
+            
+            handles.reader = reader;
+            handles.processed = processed;
+            
+            handles = panel_mepanalysis(handles);
+            if reader.process_id == 1
+                handles = graphs_mepanalysis(handles);
+                
+            elseif reader.process_id == 2
+                handles = graphs_csv_mepanalysis(handles);
+            end
+            
+            open_id = 1;
+        elseif reader == false
+            msg = 'Open canceled.';
+            handles = panel_textlog(handles, msg);
+        else
+            msg = 'Reader format incompatible. Check script.';
+            handles = panel_textlog(handles, msg);
         end
-        
-        open_id = 1;
                
     % Multiple channels - Victor Souza application
     case 'multi channels'
@@ -400,7 +408,7 @@ if isfield(handles, 'panel_tools')
     handles = rmfield(handles, 'panel_tools');
 end
 if isfield(handles, 'panel_graph')
-    delete(handles.panel_graph);
+    % delete(handles.panel_graph);
     handles = rmfield(handles, 'panel_graph');
     handles = rmfield(handles, 'haxes');
 end
