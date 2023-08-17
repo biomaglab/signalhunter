@@ -32,7 +32,7 @@ function reader = reader_mepanalysis
 [filename, pathname, filt_id] = uigetfile({'*.csv','MagVenture - Comma-separated values (*.csv)';...
     '*.csv', 'Comma-separated values (*.csv)'; ...
     '*.mat','MAT-files (*.mat)'},...
-    'Select the signal file', 'MEP Data (64-745).csv');
+    'Select the signal file', 'MEPData.csv');
 
 % loading signal and configuration data
 % [filename, pathname, filt_id] = uigetfile({'*.csv','Comma-separated values (*.csv)';...
@@ -47,20 +47,8 @@ switch filt_id
     case 0
         reader = false;
     case 1
-        opts = delimitedTextImportOptions("NumVariables", 11);
-
-        % Specify range and delimiter
-        opts.DataLines = [23, Inf];
-        opts.Delimiter = ";";
-        % Specify file level properties
-        opts.ExtraColumnsRule = "ignore";
-        opts.EmptyLineRule = "read";
-
-        % Import the data
-        data = table2array(readtable([pathname filename], opts));
-        data = [cellfun(@str2num, data(:,1:end))];
-        % data = importdata([pathname filename]);
-        reader = csv_reader(data, pathname, filename, true);
+        data = importdata([pathname filename], ';', 22);
+        reader = csv_reader(data.data, pathname, filename, true);
     case 2
         data = importdata([pathname filename]);
         reader = csv_reader(data, pathname, filename, false);

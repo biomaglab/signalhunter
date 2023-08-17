@@ -1,27 +1,27 @@
 
 % -------------------------------------------------------------------------
-% Signal Hunter - electrophysiological signal analysis  
+% Signal Hunter - electrophysiological signal analysis
 % Copyright (C) 2013, 2013-2016  University of Sao Paulo
-% 
+%
 % Homepage:  http://df.ffclrp.usp.br/biomaglab
 % Contact:   biomaglab@gmail.com
 % License:   GNU - GPL 3 (LICENSE.txt)
-% 
+%
 % This program is free software: you can redistribute it and/or modify it
 % under the terms of the GNU General Public License as published by the
 % Free Software Foundation, either version 3 of the License, or any later
 % version.
-% 
+%
 % This program is distributed in the hope that it will be useful, but
 % WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
 % Public License for more details.
-% 
+%
 % The full GNU General Public License can be accessed at file LICENSE.txt
 % or at <http://www.gnu.org/licenses/>.
-% 
+%
 % -------------------------------------------------------------------------
-% 
+%
 % Author: Victor Hugo Souza
 % Date: 13.11.2016
 
@@ -58,10 +58,10 @@ pos_x = nan(n_rows, max(n_cols));
 pos_y = nan(n_rows,1);
 
 for i = 1:n_rows
-   for j = 1:n_cols(i)
-       pos_x(i,j) = j*mar_x + (j-1)*w(i);
-   end
-   pos_y(i) = i*mar_y + (i-1)*h;
+    for j = 1:n_cols(i)
+        pos_x(i,j) = j*mar_x + (j-1)*w(i);
+    end
+    pos_y(i) = i*mar_y + (i-1)*h;
 end
 
 w = flipud(w);
@@ -125,13 +125,13 @@ set(handles.panel_graph(handles.id_cond), 'Visible', 'off');
 
 % change text condition
 if handles.id_cond >= numel(handles.conditions)
-   handles.id_cond = 1; 
-   set(handles.edit_idcond, 'String',...
-       num2str(handles.conditions(handles.id_cond)))
-else
-    handles.id_cond = handles.id_cond + 1;        
+    handles.id_cond = 1;
     set(handles.edit_idcond, 'String',...
-       num2str(handles.conditions(handles.id_cond)))
+        num2str(handles.conditions(handles.id_cond)))
+else
+    handles.id_cond = handles.id_cond + 1;
+    set(handles.edit_idcond, 'String',...
+        num2str(handles.conditions(handles.id_cond)))
 end
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
@@ -147,13 +147,13 @@ set(handles.panel_graph(handles.id_cond), 'Visible', 'off');
 
 % change text condition
 if handles.id_cond == 1
-   handles.id_cond = numel(handles.conditions); 
-   set(handles.edit_idcond, 'String',...
-       num2str(handles.conditions(handles.id_cond)))
-else
-    handles.id_cond = handles.id_cond - 1;        
+    handles.id_cond = numel(handles.conditions);
     set(handles.edit_idcond, 'String',...
-       num2str(handles.conditions(handles.id_cond)))
+        num2str(handles.conditions(handles.id_cond)))
+else
+    handles.id_cond = handles.id_cond - 1;
+    set(handles.edit_idcond, 'String',...
+        num2str(handles.conditions(handles.id_cond)))
 end
 
 set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
@@ -161,27 +161,27 @@ set(handles.panel_graph(handles.id_cond), 'Visible', 'on');
 % Update handles structure
 guidata(hObject, handles);
 
-function pushbutton_clean_Callback(hObject, eventdata)
-% Callback - Button Clean
-handles = guidata(hObject);
-
-for i = 1:size(handles.haxes,1)
-    for j = 1:size(handles.haxes,2)
-        if ishandle(handles.haxes(i,j))
-            cla(handles.haxes(i,j));
-        end
-    end
-end
-
-% progress bar update
-value = 1;
-progbar_update(handles.progress_bar, value)
-% cla(handles.haxes(1:end,1:end));
-
-'pushbutton clean callback'
-
-% Update handles structure
-guidata(hObject, handles);
+% function pushbutton_clean_Callback(hObject, eventdata)
+% % Callback - Button Clean
+% handles = guidata(hObject);
+% 
+% for i = 1:size(handles.haxes,1)
+%     for j = 1:size(handles.haxes,2)
+%         if ishandle(handles.haxes(i,j))
+%             cla(handles.haxes(i,j));
+%         end
+%     end
+% end
+% 
+% % progress bar update
+% value = 1;
+% progbar_update(handles.progress_bar, value)
+% % cla(handles.haxes(1:end,1:end));
+% 
+% 'pushbutton clean callback'
+% 
+% % Update handles structure
+% guidata(hObject, handles);
 
 function pushbutton_open_Callback(hObject, eventdata)
 % Callback - Button Open
@@ -204,7 +204,7 @@ handles.processed = processed;
 handles = panel_mepanalysis(handles);
 if reader.process_id == 1
     handles = graphs_mepanalysis(handles);
-    
+
 elseif reader.process_id == 2
     handles = graphs_csv_mepanalysis(handles);
 end
@@ -259,9 +259,9 @@ set(handles.panel_graph(handles.id_cond), 'Visible', 'off');
 id = str2double(get(handles.edit_idcond, 'String'));
 
 if id > 0 && id <= length(handles.id_mod)
-   handles.id_cond = id; 
+    handles.id_cond = id;
 else
-   handles.id_cond = 1;
+    handles.id_cond = 1;
 end
 
 set(handles.edit_idcond, 'String', num2str(handles.id_cond));
