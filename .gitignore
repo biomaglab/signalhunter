@@ -8,3 +8,5 @@ tests/*.csv
 tests.m
 tests
 *.asv
+
+.DS_Store
