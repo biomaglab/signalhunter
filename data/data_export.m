@@ -147,17 +147,17 @@ headers = [{'channel'} {'label'} {'amplitude (uV)'} {'latency (ms)'}];
 switch filt_id
     case 1
         if  exist([pathname filename], 'file')
-            [~, ~, previous_data] = xlsread([pathname filename]);
-            xlswrite([pathname filename], [previous_data; export_data])
+            previous_data = readcell([pathname filename]);
+            writecell([previous_data; export_data], [pathname filename])
         else
-            xlswrite([pathname filename], [headers; export_data])
+            writecell([headers; export_data], [pathname filename])
         end
         
         if  exist([pathname_av filename_av], 'file')
-            [~, ~, previous_data_av] = xlsread([pathname_av filename_av]);
-            xlswrite([pathname_av filename_av], [previous_data_av; export_data_av])
+            previous_data_av = readcell([pathname_av filename_av]);
+            writecell([previous_data_av; export_data_av], [pathname_av filename_av])
         else
-            xlswrite([pathname_av filename_av], [headers; export_data_av])
+            writecell([headers; export_data_av], [pathname_av filename_av])
         end
         
     case 2
